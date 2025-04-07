@@ -55,7 +55,12 @@ function ManageOutletsView() {
     // comp = localStorage.getItem("comp_id");
     let compIdx = compId ?? localStorage.getItem("compIdx") ?? undefined;
 
-    callApi(`/admin/S_Admin/select_outlet?comp_id=${compIdx}`, 0);
+    if (compIdx !== undefined && compIdx !== null) {
+      callApi(`/admin/S_Admin/select_outlet?comp_id=${compIdx}`, 0);
+    } else {
+      console.log("No comp id");
+    }
+
     // callApi(`/admin/S_Admin/select_one_outlet?comp_id=${0}&br_id=${0}`, 0);
   }, [compId]);
 

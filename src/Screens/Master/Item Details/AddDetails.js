@@ -9,8 +9,9 @@ import { DurationMessage } from "../../../Components/DurationMessage";
 import { useNavigate } from "react-router-dom";
 import Backbtn from "../../../Components/Backbtn";
 import { url, url_for_image } from "../../../Address/baseURL";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
-import { Image } from "antd";
+import { Image, Popconfirm } from "antd";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../../Components/cropImage";
 import { Dialog } from "primereact/dialog";
@@ -297,6 +298,22 @@ function AddDetails() {
   //     callApi("/admin/add_edit_items", 1, data);
   //   }
   // };
+
+  const deleteItem = async () => {
+    await axios
+      .post(`${url}/admin/delete_prod_global`, {
+        Items: [{ item_id: +params?.id }],
+        // br_id: +params?.id2,
+        // user: localStorage.getItem("user_id"),
+      })
+      .then((res) => {
+        Message("success", "Deleted Globally.");
+        console.log("DELETE=========", res);
+      })
+      .catch((err) => {
+        console.log("---=+++++=====", err);
+      });
+  };
 
   return (
     <>
@@ -602,7 +619,7 @@ function AddDetails() {
                 ) : null}
               </div> */}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-4">
               {params.id == 0 && (
                 <button
                   type="reset"
@@ -617,6 +634,21 @@ function AddDetails() {
                 onClick={imageSubmit}>
                 Submit
               </button>
+
+              <Popconfirm
+                title="Delete the product?"
+                description="Are you sure to delete this product for this outlet?"
+                icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+                onConfirm={async () => {
+                  await deleteItem();
+                  navigation(-1);
+                }}>
+                <button
+                  type="button"
+                  className="inline-flex bg-red-700 items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-full focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">
+                  Delete
+                </button>
+              </Popconfirm>
             </div>
           </div>
         </div>

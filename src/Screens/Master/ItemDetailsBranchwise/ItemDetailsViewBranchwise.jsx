@@ -61,8 +61,16 @@ function ItemDetailsViewBranchwise() {
 
   useEffect(() => {
     comp = localStorage.getItem("comp_id");
-    callApi("/admin/item_list", 1, { comp_id: +comp });
-  }, []);
+    callApi("/admin/item_rate_list", 1, {
+      comp_id: +comp,
+      br_id: +selectedOutlet,
+    });
+  }, [selectedOutlet]);
+
+  // useEffect(() => {
+  //   comp = localStorage.getItem("comp_id");
+  //   callApi("/admin/item_list", 1, { comp_id: +comp, br_id: +selectedOutlet });
+  // }, [selectedOutlet]);
 
   const onPress = (data) => {
     navigation(

@@ -9,15 +9,16 @@ import { DurationMessage } from "../../../Components/DurationMessage";
 import { useNavigate } from "react-router-dom";
 import Backbtn from "../../../Components/Backbtn";
 import { url, url_for_image } from "../../../Address/baseURL";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
-import { Image } from "antd";
+import { Image, Popconfirm } from "antd";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../../Components/cropImage";
 import { Dialog } from "primereact/dialog";
 
 const CROP_AREA_ASPECT = 1 / 1;
 
-function AddDetailsBranchwise() {
+function AddDetailsBranchwise({ history }) {
   const params = useParams();
   const { response, callApi } = useAPI();
   const navigation = useNavigate();
@@ -110,16 +111,16 @@ function AddDetailsBranchwise() {
       console.log(response);
       const rsp = {
         // i_br_id: +response?.data?.msg[0].br_id,
-        i_name: response?.data?.msg[0].item_name,
+        i_name: response?.data?.msg[0]?.item_name,
         // i_hsn: +response?.data?.msg[0].hsn_code,
-        i_price: +response?.data?.msg[0].price,
+        i_price: +response?.data?.msg[0]?.price,
         // i_discount: +response?.data?.msg[0].discount,
         // i_cgst: +response?.data?.msg[0].cgst,
         // i_sgst: +response?.data?.msg[0].sgst,
-        i_unit: +response?.data?.msg[0].unit_id,
-        i_cat: +response?.data?.msg[0].catg_id,
-        i_selling_price: +response?.data?.msg[0].selling_price,
-        i_brand_id: +response?.data?.msg[0].brand_id,
+        i_unit: +response?.data?.msg[0]?.unit_id,
+        i_cat: +response?.data?.msg[0]?.catg_id,
+        i_selling_price: +response?.data?.msg[0]?.selling_price,
+        i_brand_id: +response?.data?.msg[0]?.brand_id,
       };
       setValues(rsp);
       console.log(rsp);
@@ -261,7 +262,7 @@ function AddDetailsBranchwise() {
         i_cat: response?.data?.msg[0]?.catg_id,
       });
 
-      setRemoteImg(url_for_image + response?.data?.msg[0].item_img);
+      setRemoteImg(url_for_image + response?.data?.msg[0]?.item_img);
     }
     if (response?.data?.suc == 0 || response?.data?.msg.length <= 0) {
       Message("error", "Something went wrong!");
@@ -297,6 +298,22 @@ function AddDetailsBranchwise() {
   //     callApi("/admin/add_edit_items", 1, data);
   //   }
   // };
+
+  const deleteItem = async () => {
+    await axios
+      .post(`${url}/admin/delete_prod`, {
+        prodId: +params?.id,
+        br_id: +params?.id2,
+        user: localStorage.getItem("user_id"),
+      })
+      .then((res) => {
+        Message("success", "Deleted successfully.");
+        console.log("DELETE=========", res);
+      })
+      .catch((err) => {
+        console.log("---=+++++=====", err);
+      });
+  };
 
   return (
     <>
@@ -538,7 +555,7 @@ function AddDetailsBranchwise() {
                 ""
               )}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-4">
               {params.id == 0 && (
                 <button
                   type="reset"
@@ -553,6 +570,27 @@ function AddDetailsBranchwise() {
                 onClick={imageSubmit}>
                 Submit
               </button>
+              {/* <button
+                type="button"
+                className="inline-flex bg-red-700 items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-full focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
+                onClick={deleteItem}>
+                Delete
+              </button> */}
+
+              <Popconfirm
+                title="Delete the product?"
+                description="Are you sure to delete this product for this outlet?"
+                icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+                onConfirm={async () => {
+                  await deleteItem();
+                  navigation(-1);
+                }}>
+                <button
+                  type="button"
+                  className="inline-flex bg-red-700 items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-full focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">
+                  Delete
+                </button>
+              </Popconfirm>
             </div>
           </div>
         </div>
