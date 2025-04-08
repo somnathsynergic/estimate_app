@@ -303,7 +303,7 @@ function AddDetails() {
     await axios
       .post(`${url}/admin/delete_prod_global`, {
         Items: [{ item_id: +params?.id }],
-        // br_id: +params?.id2,
+        br_id: 0,
         // user: localStorage.getItem("user_id"),
       })
       .then((res) => {

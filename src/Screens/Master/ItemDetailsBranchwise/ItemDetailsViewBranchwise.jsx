@@ -6,9 +6,16 @@ import useAPI from "../../../Hooks/useApi";
 import HeaderLayout from "../../../Components/HeaderLayout";
 import axios from "axios";
 import { url } from "../../../Address/baseURL";
+import DynamicTailwindTable from "../../../Components/DynamicTailwindTable";
+import { DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { Popconfirm } from "antd";
 
 function ItemDetailsViewBranchwise() {
   const navigation = useNavigate();
+
+  const [originalData, setOriginalData] = useState([]);
+
+  const [selectedRows, setSelectedRows] = useState([]);
   const [called, setCalled] = useState(false);
   const { response, callApi } = useAPI();
   const [resp, setRestp] = useState();
@@ -24,7 +31,7 @@ function ItemDetailsViewBranchwise() {
     setDataSet(response?.data?.msg);
 
     if (response?.data?.msg?.length <= 0) {
-      Message("error", "No data!");
+      // Message("error", "No data!");
       setIsReport(false);
     } else {
       if (called) {
@@ -60,11 +67,15 @@ function ItemDetailsViewBranchwise() {
   }, [search]);
 
   useEffect(() => {
-    comp = localStorage.getItem("comp_id");
-    callApi("/admin/item_rate_list", 1, {
-      comp_id: +comp,
-      br_id: +selectedOutlet,
-    });
+    if (!selectedOutlet) return; // Do nothing if null or undefined
+
+    const comp = localStorage.getItem("comp_id");
+    if (comp) {
+      callApi("/admin/item_rate_list", 1, {
+        comp_id: +comp,
+        br_id: +selectedOutlet,
+      });
+    }
   }, [selectedOutlet]);
 
   // useEffect(() => {
@@ -79,6 +90,26 @@ function ItemDetailsViewBranchwise() {
         "/" +
         selectedOutlet
     );
+  };
+
+  const deleteItems = async () => {
+    const payload = selectedRows.map((item) => ({
+      item_id: item.id,
+    }));
+    await axios
+      .post(`${url}/admin/delete_prod_global`, {
+        Items: payload,
+        br_id: +selectedOutlet,
+        // user: localStorage.getItem("user_id"),
+      })
+      .then((res) => {
+        Message("success", "Deleted successfully.");
+        console.log("DELETE=========", res);
+        // location.reload();
+      })
+      .catch((err) => {
+        console.log("---=+++++=====", err);
+      });
   };
 
   return (
@@ -118,7 +149,7 @@ function ItemDetailsViewBranchwise() {
             ) : null}
           </div>
         </div>
-        <div class="mx-auto w-full">
+        {/* <div class="mx-auto w-full">
           <div class="bg-blue-900 dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
               <DatatableAdv
@@ -138,6 +169,46 @@ function ItemDetailsViewBranchwise() {
               />
             </div>
           </div>
+        </div> */}
+
+        <div className="mx-auto w-auto p-5">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="text-2xl text-blue-900 font-bold py-3">
+              Item Details Shopwise
+            </div>
+            <div className="flex justify-end items-center p-4">
+              <Popconfirm
+                title="Delete product?"
+                description={`Are you sure to delete this product? This action cannot be undone.`}
+                icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+                onConfirm={async () => {
+                  setCalled(true);
+                  await deleteItems();
+                  setSelectedRows([]);
+                }}>
+                <button
+                  type="button"
+                  className="flex items-center text-white bg-red-900 hover:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!selectedRows.length}>
+                  <DeleteOutlined className="mr-2" />
+                  DELETE PRODUCT
+                </button>
+              </Popconfirm>
+            </div>
+          </div>
+          <DynamicTailwindTable
+            data={dataSet}
+            headersMap={{ id: "#", item_name: "Name" }}
+            colRemove={[1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]}
+            pageSize={100}
+            checkbox={true}
+            selectedRows={selectedRows}
+            setSelectedRows={setSelectedRows}
+            searchable={true}
+            search={search}
+            setSearch={setSearch}
+            onPress={(data) => onPress(data)}
+          />
         </div>
       </section>
     </div>
