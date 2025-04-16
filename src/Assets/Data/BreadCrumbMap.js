@@ -75,4 +75,5 @@ export const pathMap = {
   cancelledestimate: "Cancelled Estimate",
   brand: "Brand",
   brandedit: "Add/Edit Brand",
+  itemdetailsbranchwise: "Shopwise items",
 };
