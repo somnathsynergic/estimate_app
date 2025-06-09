@@ -450,7 +450,7 @@ function CategoryProductsScreen() {
                         value={search}
                         elevation={search && 2}
                         // loading={search ? true : false}
-                        autoFocus
+                        // autoFocus
                         style={{
                             // backgroundColor: theme.colors.vanillaSecondaryContainer,
                             color: theme.colors.onSecondaryContainer,

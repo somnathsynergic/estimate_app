@@ -35,17 +35,10 @@ import { gstFilterationAndTotals } from "../utils/gstFilterTotal"
 import useCalculations from "../hooks/useCalculations"
 import useCustomerInfo from "../hooks/api/useCustomerInfo"
 import useSendTxnDetails from "../hooks/api/useSendTxnDetails"
-// import useBillSms from "../hooks/api/useBillSms"
 import {
-  BillSmsCredentials,
   CustomerInfoCredentials,
-  LoginData,
   LoginDataMessage,
-  TxnDetailsCreds,
 } from "../models/api_types"
-import useBillSms2 from "../hooks/api/useBillSms2"
-import QRCode from "react-native-qrcode-svg"
-import RNEzetapSdk from "react-native-ezetap-sdk"
 
 const CustomerDetailsFillScreen = () => {
   const isFocused = useIsFocused()
@@ -277,18 +270,31 @@ const CustomerDetailsFillScreen = () => {
             kotNumber,
           )
 
-          Alert.alert("Success", "Estimate Uploaded Successfully.")
+          Alert.alert("Success", "Estimate Uploaded Successfully.", [
+            {
+              text: "OK", onPress: () => {
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: navigationRoutes.homeScreen,
+                    params: {
+                      receipt_number: receiptNumber
+                    }
+                  }),
+                )
+              }
+            }
+          ], { cancelable: false })
 
           // navigation.dispatch(
           //   CommonActions.navigate({
           //     name: navigationRoutes.categoriesScreen,
           //   }),
           // )
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: navigationRoutes.homeScreen,
-            }),
-          )
+          // navigation.dispatch(
+          //   CommonActions.navigate({
+          //     name: navigationRoutes.homeScreen,
+          //   }),
+          // )
 
           // if (receiptSettings?.rcpt_type !== "P") {
           //   let sendBillSmsCreds: BillSmsCredentials = {
@@ -371,56 +377,56 @@ const CustomerDetailsFillScreen = () => {
     console.log("Sending data and printing receipts...")
 
 
-    const receiptFunction =
-      receiptSettings?.gst_flag === "N" ? printReceiptT : printReceiptT
+    // const receiptFunction =
+    //   receiptSettings?.gst_flag === "N" ? printReceiptT : printReceiptT
 
-    if (printFlag) {
-      if (receiptSettings?.rcpt_type !== "S") {
-        receiptFunction(
-          params?.added_products,
-          params?.net_total,
-          0, // discount
-          cashAmount,
-          finalCashAmount,
-          customerName,
-          customerMobileNumber,
-          receiptNumber,
-          checked,
-        )
+    // if (printFlag) {
+    //   if (receiptSettings?.rcpt_type !== "S") {
+    //     receiptFunction(
+    //       params?.added_products,
+    //       params?.net_total,
+    //       0, // discount
+    //       cashAmount,
+    //       finalCashAmount,
+    //       customerName,
+    //       customerMobileNumber,
+    //       receiptNumber,
+    //       checked,
+    //     )
 
-        console.log(
-          "=================+++++++++++++++++++ params?.added_products",
-          params?.added_products,
-        )
-        console.log(
-          "=================+++++++++++++++++++ params?.net_total",
-          params?.net_total,
-        )
-        console.log(
-          "=================+++++++++++++++++++ parseFloat(params?.total_discount)",
-          //@ts-ignore
-          parseFloat(params?.total_discount),
-        )
-        console.log("=================+++++++++++++++++++ cashAmount", cashAmount)
-        console.log(
-          "=================+++++++++++++++++++ finalCashAmount",
-          finalCashAmount,
-        )
-        console.log(
-          "=================+++++++++++++++++++ customerName",
-          customerName,
-        )
-        console.log(
-          "=================+++++++++++++++++++ customerMobileNumber",
-          customerMobileNumber,
-        )
-        console.log(
-          "=================+++++++++++++++++++ receiptNumber",
-          receiptNumber,
-        )
-        console.log("=================+++++++++++++++++++ checked", checked)
-      }
-    }
+    //     console.log(
+    //       "=================+++++++++++++++++++ params?.added_products",
+    //       params?.added_products,
+    //     )
+    //     console.log(
+    //       "=================+++++++++++++++++++ params?.net_total",
+    //       params?.net_total,
+    //     )
+    //     console.log(
+    //       "=================+++++++++++++++++++ parseFloat(params?.total_discount)",
+    //       //@ts-ignore
+    //       parseFloat(params?.total_discount),
+    //     )
+    //     console.log("=================+++++++++++++++++++ cashAmount", cashAmount)
+    //     console.log(
+    //       "=================+++++++++++++++++++ finalCashAmount",
+    //       finalCashAmount,
+    //     )
+    //     console.log(
+    //       "=================+++++++++++++++++++ customerName",
+    //       customerName,
+    //     )
+    //     console.log(
+    //       "=================+++++++++++++++++++ customerMobileNumber",
+    //       customerMobileNumber,
+    //     )
+    //     console.log(
+    //       "=================+++++++++++++++++++ receiptNumber",
+    //       receiptNumber,
+    //     )
+    //     console.log("=================+++++++++++++++++++ checked", checked)
+    //   }
+    // }
 
 
 
@@ -1107,7 +1113,7 @@ const CustomerDetailsFillScreen = () => {
                 icon="cloud-print-outline"
                 loading={isLoading}
                 disabled={isDisabled}>
-                SAVE / PRINT
+                SAVE
               </ButtonPaper>
               {/* {checked !== "U" ? <ButtonPaper
                 mode="contained"

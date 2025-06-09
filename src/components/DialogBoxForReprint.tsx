@@ -2,7 +2,7 @@ import { PropsWithChildren, useState } from "react"
 import { Dialog, Portal, Button, Text, TouchableRipple } from "react-native-paper"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { usePaperColorScheme } from "../theme/theme"
-import { Alert, Pressable, ToastAndroid, View } from "react-native"
+import { Alert, Pressable, Share, ToastAndroid, View } from "react-native"
 import ScrollableListContainer from "./ScrollableListContainer"
 import AddedProductList from "./AddedProductList"
 import NetTotalForRePrints from "./NetTotalForRePrints"
@@ -86,6 +86,27 @@ export default function DialogBoxForReprint({
     Clipboard.setString(value)
     ToastAndroid.show(`Copied: ${value}`, ToastAndroid.SHORT)
   }
+
+  const onShare = async () => {
+    try {
+      const result = await Share.share({
+        message:
+          'React Native | A framework for building native apps using React',
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  };
+
 
   return (
     <Portal>
@@ -195,14 +216,20 @@ export default function DialogBoxForReprint({
               mode="text"
               onPress={onDialogFailure}
               textColor={theme.colors.error}>
-              Cancel
+              Okay
             </ButtonPaper>
             <ButtonPaper
+              mode="text"
+              onPress={onShare}
+              textColor={theme.colors.primary}>
+              Share
+            </ButtonPaper>
+            {/* <ButtonPaper
               mode="text"
               onPress={onDialogSuccecss}
               textColor={theme.colors.primary}>
               Reprint
-            </ButtonPaper>
+            </ButtonPaper> */}
           </View>
         </Dialog.Content>
       </Dialog>

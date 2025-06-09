@@ -441,7 +441,7 @@ function CategoryProductScreen() {
                             flexDirection: "row",
                             flexWrap: "wrap",
                             gap: 10,
-                            justifyContent: "space-evenly",
+                            justifyContent: "space-between",
                             marginBottom: 25
                         }}>
                             {

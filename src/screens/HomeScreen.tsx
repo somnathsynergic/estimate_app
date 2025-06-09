@@ -38,6 +38,7 @@ import {
   CommonActions,
   useIsFocused,
   useNavigation,
+  useRoute,
 } from "@react-navigation/native"
 import SurfacePaper from "../components/SurfacePaper"
 import DialogBox from "../components/DialogBox"
@@ -67,6 +68,7 @@ function HomeScreen() {
   const theme = usePaperColorScheme()
   const navigation = useNavigation()
   const isFocused = useIsFocused()
+  const { params } = useRoute<any>()
 
   let version = DeviceInfo.getVersion()
 
@@ -411,6 +413,14 @@ function HomeScreen() {
 
   let totalQty: number = 0
 
+  useEffect(() => {
+
+    if (params?.receipt_number) {
+      handleRecentBillListClick(params?.receipt_number)
+    }
+
+  }, [recentBills.length])
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -562,7 +572,7 @@ function HomeScreen() {
         cancelledBillStatus={cancelledBillStatus}
 
         onDialogFailure={onDialogFailure}
-        onDialogSuccecss={() => onDialogSuccecss()}
+      // onDialogSuccecss={() => onDialogSuccecss()}
       />
 
       <DialogForBillsInCalculatorMode
