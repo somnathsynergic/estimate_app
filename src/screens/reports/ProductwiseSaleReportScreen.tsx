@@ -243,7 +243,7 @@ function ProductwiseSaleReportScreen() {
             </Text>
           </View> */}
         </View>
-        <View
+        {/* <View
           style={{
             paddingHorizontal: normalize(20),
             paddingBottom: normalize(10),
@@ -258,7 +258,7 @@ function ProductwiseSaleReportScreen() {
             textColor={theme.colors.onPurpleContainer}>
             PRINT
           </ButtonPaper>
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   )

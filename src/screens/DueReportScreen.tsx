@@ -219,7 +219,7 @@ function DueReportScreen() {
                         </Text>
                     </View>
                 </SurfacePaper>
-                <View
+                {/* <View
                     style={{
                         paddingHorizontal: normalize(20),
                         paddingBottom: normalize(10),
@@ -234,7 +234,7 @@ function DueReportScreen() {
                         textColor={theme.colors.onPrimaryContainer}>
                         PRINT
                     </ButtonPaper>
-                </View>
+                </View> */}
             </ScrollView>
         </SafeAreaView>
     )

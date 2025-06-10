@@ -1,110 +1,112 @@
-import { StyleSheet, View } from 'react-native'
-import React from 'react'
-import normalize, { SCREEN_WIDTH } from 'react-native-normalize'
-import { usePaperColorScheme } from '../theme/theme'
-import ButtonPaper from './ButtonPaper'
-import { Badge, IconButton, Text } from 'react-native-paper'
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Surface, IconButton, Badge, Text } from 'react-native-paper';
+import { usePaperColorScheme } from '../theme/theme';
+import ButtonPaper from './ButtonPaper';
 
-type SnackBarProps = {
-    totAmt: string
-    cartItemQty?: number
-    handleBtn1Press: () => void
-    handleBtn2Press: () => void
-    handleBtn3Press?: () => void
-    disableNext?: boolean
-    hideCart?: boolean
-    disableCart?: boolean
-    totQty?: number
-}
-
-const SnackBar = ({ handleBtn1Press, handleBtn2Press, handleBtn3Press, totAmt, cartItemQty, disableNext, hideCart = false, disableCart, totQty = 0 }: SnackBarProps) => {
-    const theme = usePaperColorScheme()
+const SnackBar = ({
+    totAmt,
+    cartItemQty = 0,
+    totQty = 0,
+    handleBtn1Press,
+    handleBtn2Press,
+    handleBtn3Press,
+    disableNext = false,
+    hideCart = false,
+    disableCart = false,
+}) => {
+    const theme = usePaperColorScheme();
     return (
-        <View style={{
-            flexDirection: "row",
-            // paddingHorizontal: normalize(20),
-            alignSelf: "center",
-            width: SCREEN_WIDTH / 1,
-            height: normalize(80),
-            // backgroundColor: theme.colors.vanilla,
-            // backgroundColor: "blue",
-            padding: 15,
-            // backgroundColor: theme.colors.secondaryContainer,
-            // borderRadius: normalize(20),
-            justifyContent: "space-evenly",
-            alignItems: "center",
-            gap: 2,
-        }}>
-            {
-                !hideCart && <View style={{
-                    // marginLeft: "-5%"
-                    backgroundColor: theme.colors.vanillaTertiary,
-                    height: 50,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderTopLeftRadius: 30,
-                    borderBottomLeftRadius: 30,
-                }}>
-                    <IconButton iconColor={theme.colors.onVanilla} icon="cart-variant" onPress={handleBtn3Press} disabled={disableCart} />
-                    <Badge visible={cartItemQty !== 0} style={{
-                        position: "absolute",
-                        top: 1,
-                        right: 1,
-                        backgroundColor: theme.colors.vanillaContainer,
-                        color: theme.colors.onVanillaContainer,
-                        fontWeight: "bold"
-                    }}>{cartItemQty}</Badge>
+        <Surface style={[styles.container, { backgroundColor: theme.colors.primaryContainer }]}>
+            {!hideCart && (
+                <View style={[styles.iconWrapper, { backgroundColor: theme.colors.secondaryContainer }]}>
+                    <IconButton
+                        icon="cart-variant"
+                        size={24}
+                        onPress={handleBtn3Press}
+                        disabled={disableCart}
+                    />
+                    <Badge style={styles.badge} size={18}>{cartItemQty}</Badge>
                 </View>
-            }
-            <View style={{
-                backgroundColor: theme.colors.error,
-                height: 50,
-                alignItems: "center",
-                justifyContent: "center",
-            }}>
-                <IconButton iconColor={theme.colors.onVanilla} icon="trash-can-outline" onPress={handleBtn2Press} />
-            </View>
-            <View style={{
-                backgroundColor: theme.colors.vanillaSecondary,
-                height: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                minWidth: 100,
-                gap: -5
-            }}>
-                <Text variant="bodyMedium" ellipsizeMode='tail' numberOfLines={2} style={{ color: theme.colors.onVanilla, textAlign: "center", paddingHorizontal: 15, flexWrap: "wrap" }}>Net Total</Text>
-                <Text style={{ color: theme.colors.onVanilla, textAlign: "center", paddingHorizontal: 15, flexWrap: "wrap" }}>•</Text>
-                <Text style={{ color: theme.colors.onVanilla, textAlign: "center", paddingHorizontal: 15, flexWrap: "wrap" }}>₹{totAmt}</Text>
+            )}
+
+            <View style={[styles.iconWrapper, { backgroundColor: theme.colors.errorContainer }]}>
+                <IconButton
+                    icon="trash-can-outline"
+                    size={24}
+                    onPress={handleBtn2Press}
+                />
             </View>
 
-            {totQty ? <View style={{
-                backgroundColor: theme.colors.vanillaSecondary,
-                height: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                minWidth: 50,
-                gap: -5
-            }}>
-                <Text variant="bodyMedium" ellipsizeMode='tail' numberOfLines={2} style={{ color: theme.colors.onVanilla, textAlign: "center", paddingHorizontal: 5, flexWrap: "wrap" }}>Total Qty</Text>
-                <Text style={{ color: theme.colors.onVanilla, textAlign: "center", paddingHorizontal: 5, flexWrap: "wrap" }}>•</Text>
-                <Text style={{ color: theme.colors.onVanilla, textAlign: "center", paddingHorizontal: 5, flexWrap: "wrap" }}>{totQty}</Text>
-            </View> : null}
-
-            <View style={{
-                backgroundColor: theme.colors.vanilla,
-                height: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                borderTopRightRadius: 30,
-                borderBottomRightRadius: 30
-            }}>
-                <ButtonPaper icon="arrow-right-thick" textColor={theme.colors.onVanilla} onPress={handleBtn1Press} mode="text" disabled={disableNext}>NEXT</ButtonPaper>
+            <View style={styles.infoSection}>
+                <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer }}>
+                    TOTAL
+                </Text>
+                <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer }}>
+                    ₹{totAmt}
+                </Text>
             </View>
-        </View>
 
-    )
-}
+            {totQty > 0 && (
+                <View style={styles.infoSection}>
+                    <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer }}>
+                        QTY
+                    </Text>
+                    <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer }}>
+                        {totQty}
+                    </Text>
+                </View>
+            )}
 
-export default SnackBar
+            <ButtonPaper
+                mode="contained"
+                icon="arrow-right-thick"
+                onPress={handleBtn1Press}
+                disabled={disableNext}
+                style={[styles.nextBtn, { backgroundColor: theme.colors.secondary }]}
+            >
+                NEXT
+            </ButtonPaper>
+        </Surface>
+    );
+};
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 16,
+        elevation: 4,
+        margin: 8,
+    },
+    iconWrapper: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 4,
+    },
+    badge: {
+        position: 'absolute',
+        top: 2,
+        right: 2,
+    },
+    infoSection: {
+        alignItems: 'center',
+        marginHorizontal: 8,
+    },
+    nextBtn: {
+        marginLeft: 8,
+        borderRadius: 24,
+    },
+    nextBtnContent: {
+        height: 40,
+        paddingHorizontal: 16,
+    },
+});
+
+export default SnackBar;

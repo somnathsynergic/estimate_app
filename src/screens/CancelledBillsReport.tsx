@@ -264,7 +264,7 @@ function CancelledBillsReportScreen() {
             </Text>
           </View>
         </SurfacePaper>
-        <View
+        {/* <View
           style={{
             paddingHorizontal: normalize(20),
             paddingBottom: normalize(10),
@@ -281,7 +281,7 @@ function CancelledBillsReportScreen() {
             mode="contained-tonal">
             PRINT
           </ButtonPaper>
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   )

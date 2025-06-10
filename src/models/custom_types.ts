@@ -57,6 +57,7 @@ export type AppStoreContext = {
   handleGetUnits: () => Promise<void>
   init?: () => Promise<void>
   deviceId: string
+  loading: boolean
 }
 
 export type Bill = {

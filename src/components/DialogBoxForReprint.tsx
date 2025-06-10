@@ -1,16 +1,15 @@
-import { PropsWithChildren, useState } from "react"
-import { Dialog, Portal, Button, Text, TouchableRipple } from "react-native-paper"
+import { PropsWithChildren } from "react"
+import { Dialog, Portal, Text, TouchableRipple } from "react-native-paper"
 import Clipboard from "@react-native-clipboard/clipboard"
-import { usePaperColorScheme } from "../theme/theme"
-import { Alert, Pressable, Share, ToastAndroid, View } from "react-native"
+import { Alert, Share, ToastAndroid, View } from "react-native"
 import ScrollableListContainer from "./ScrollableListContainer"
 import AddedProductList from "./AddedProductList"
 import NetTotalForRePrints from "./NetTotalForRePrints"
 import ButtonPaper from "./ButtonPaper"
 import normalize from "react-native-normalize"
+
 import { ShowBillData } from "../models/api_types"
-import useCancelBill from "../hooks/api/useCancelBill"
-import { loginStorage } from "../storage/appStorage"
+import { usePaperColorScheme } from "../theme/theme"
 
 type DialogBoxProps = {
   visible: boolean
@@ -43,7 +42,7 @@ export default function DialogBoxForReprint({
   hide,
   dismissable = false,
   cancelledBillStatus,
-  currentReceiptNo,
+  currentReceiptNo = "",
   billedSaleData = [],
   netTotalButtonColors = [],
   handleCancelBill,
@@ -52,36 +51,6 @@ export default function DialogBoxForReprint({
 }: PropsWithChildren<DialogBoxProps>) {
   const theme = usePaperColorScheme()
 
-  let netTotal = 0,
-    totalDiscount = 0
-
-  // const handleCancellingBill = async (rcptNo: number) => {
-  //   await cancelBill(rcptNo, loginStore.user_id).then(res => {
-  //     if (res?.status === 1) {
-  //       ToastAndroid.show(res?.data, ToastAndroid.SHORT)
-  //       setVisible(!visible)
-  //     }
-  //   }).catch(err => {
-  //     ToastAndroid.show(`Error occurred during cancelling bill. ${err}`, ToastAndroid.SHORT)
-  //     setVisible(!visible)
-  //   })
-
-  //   handleGetBillSummary()
-  //   handleGetRecentBills()
-  // }
-
-  // const handleCancelBill = (rcptNo: number) => {
-  //   Alert.alert(
-  //     "Cancelling Bill",
-  //     `Are you sure you want to cancel this bill?`,
-  //     [
-  //       { text: "BACK", onPress: () => null },
-  //       { text: "CANCEL BILL", onPress: () => handleCancellingBill(rcptNo) },
-  //     ],
-  //     { cancelable: false },
-  //   )
-  // }
-
   const copyToClipboard = (value: string) => {
     Clipboard.setString(value)
     ToastAndroid.show(`Copied: ${value}`, ToastAndroid.SHORT)
@@ -89,24 +58,45 @@ export default function DialogBoxForReprint({
 
   const onShare = async () => {
     try {
-      const result = await Share.share({
-        message:
-          'React Native | A framework for building native apps using React',
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
+      const header = []
+      header.push(`RCPT. NO. ${currentReceiptNo}`)
+      const createdDt = billedSaleData[0]?.created_dt
+        ? new Date(billedSaleData[0].created_dt).toLocaleString('en-GB')
+        : ''
+      header.push(`Date: ${createdDt}`)
+      const modeMap: Record<string, string> = {
+        C: 'Cash',
+        D: 'Card',
+        U: 'UPI',
+        R: 'Credit'
       }
-    } catch (error) {
-      Alert.alert(error.message);
-    }
-  };
+      const payMode = billedSaleData[0]?.pay_mode
+      header.push(`Payment Mode: ${modeMap[payMode ?? ''] || 'Pay Off'}`)
 
+      const items: string[] = []
+      let netTotal = 0
+      billedSaleData.forEach(item => {
+        const lineTotal = item.price * item.qty
+        netTotal += lineTotal
+        items.push(
+          `${item.item_name} x${item.qty} @ ${item.price} = ${lineTotal}`
+        )
+      })
+
+      const message = [
+        ...header,
+        '',
+        'Items:',
+        ...items,
+        '',
+        `Net Total: ${netTotal}`
+      ].join('\n')
+
+      await Share.share({ message })
+    } catch (error: any) {
+      Alert.alert(error.message)
+    }
+  }
 
   return (
     <Portal>
@@ -114,122 +104,86 @@ export default function DialogBoxForReprint({
         visible={visible}
         onDismiss={hide}
         theme={theme}
-        dismissable={dismissable}>
+        dismissable={dismissable}
+      >
         {icon && <Dialog.Icon icon={icon} size={iconSize} />}
         {title && <Dialog.Title style={titleStyle}>{title}</Dialog.Title>}
         <Dialog.Content>
+          {/* Receipt and date display */}
           <View style={{ paddingBottom: 5 }}>
-            <TouchableRipple onPress={() => copyToClipboard(currentReceiptNo.toString())}>
+            <TouchableRipple onPress={() => copyToClipboard(currentReceiptNo)}>
               <Text
                 style={{ textAlign: "center", color: theme.colors.primary }}
-                variant="bodyLarge">
+                variant="bodyLarge"
+              >
                 RCPT. NO. {currentReceiptNo}
               </Text>
             </TouchableRipple>
             <Text
               style={{ textAlign: "center", color: theme.colors.secondary }}
-              variant="bodyLarge">
+              variant="bodyLarge"
+            >
               {new Date(billedSaleData[0]?.created_dt).toLocaleString("en-GB")}
             </Text>
-            <View
-              style={{
-                borderWidth: 1,
-                borderStyle: "dashed",
-                width: "80%",
-                borderColor: theme.colors.secondary,
-                alignSelf: "center",
-              }}></View>
-            {/* {billedSaleData[0]?.cust_name && (
-              <Text
-                style={{ textAlign: "center", color: theme.colors.primary }}
-                variant="bodyLarge">
-                {billedSaleData[0]?.cust_name}
-              </Text>
-            )}
-            <TouchableRipple onPress={() => copyToClipboard(billedSaleData[0]?.phone_no)}>
-              <Text
-                style={{ textAlign: "center", color: theme.colors.secondary }}
-                variant="bodyLarge">
-                {billedSaleData[0]?.phone_no}
-              </Text>
-            </TouchableRipple> */}
-            <Text
-              style={{ textAlign: "center", color: theme.colors.peach }}
-              variant="bodyLarge">
-              Payment Mode: {`[${billedSaleData[0]?.pay_mode === "C" ? "Cash" : billedSaleData[0]?.pay_mode === "D" ? "Card" : billedSaleData[0]?.pay_mode === "U" ? "UPI" : billedSaleData[0]?.pay_mode === "R" ? "Credit" : billedSaleData[0]?.pay_mode === null ? "Pay Off" : "Error!"}]`}
-            </Text>
           </View>
+
+          {/* Product list */}
           <ScrollableListContainer
             backgroundColor={theme.colors.surfaceVariant}
             height={250}
-            width={300}>
-            {billedSaleData?.map((item, i) => {
-              netTotal += item.price * item.qty
-
-              totalDiscount = item?.tdiscount_amt
-              console.log(
-                "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-                totalDiscount,
-              )
-              return (
-                <AddedProductList
-                  disabled
-                  itemName={item.item_name}
-                  quantity={item.qty}
-                  // unit={item.unit}
-                  unitPrice={item.price}
-                  discount={
-                    item?.discount_flag === "Y" && item?.discount_position !== "B"
-                      ? item?.discount_type === "P"
-                        ? item?.dis_pertg
-                        : item?.discount_amt
-                      : 0
-                  }
-                  discountType={item?.discount_type}
-                  gstFlag={item?.gst_flag}
-                  key={i}
-                />
-              )
-            })}
+            width={300}
+          >
+            {billedSaleData.map((item, i) => (
+              <AddedProductList
+                key={i}
+                disabled
+                itemName={item.item_name}
+                quantity={item.qty}
+                unitPrice={item.price}
+                discount={0}
+                discountType={item.discount_type}
+                gstFlag={item.gst_flag}
+              />
+            ))}
           </ScrollableListContainer>
+
+          {/* Net total display */}
           <NetTotalForRePrints
             width={300}
             backgroundColor={netTotalButtonColors[0] || theme.colors.pinkContainer}
             addedProductsList={billedSaleData}
-            netTotal={netTotal}
+            netTotal={billedSaleData.reduce((sum, i) => sum + i.price * i.qty, 0)}
             textColor={netTotalButtonColors[1] || theme.colors.onPinkContainer}
-            totalDiscount={totalDiscount}
+            totalDiscount={0}
             disabled
           />
+
+          {/* Actions */}
           <View style={{ paddingTop: normalize(10) }}>
-            <ButtonPaper icon="cancel" mode="contained-tonal" onPress={() => handleCancelBill(currentReceiptNo)} buttonColor={theme.colors.error} textColor={theme.colors.onError} disabled={cancelledBillStatus === "Y"}>
+            <ButtonPaper
+              icon="cancel"
+              mode="contained-tonal"
+              onPress={() => handleCancelBill?.(currentReceiptNo)}
+              buttonColor={theme.colors.error}
+              textColor={theme.colors.onError}
+              disabled={cancelledBillStatus === 'Y'}
+            >
               CANCEL ESTIMATE
             </ButtonPaper>
           </View>
           <View
             style={{
-              justifyContent: "space-between",
-              flexDirection: "row",
-              paddingTop: 10,
-            }}>
-            <ButtonPaper
-              mode="text"
-              onPress={onDialogFailure}
-              textColor={theme.colors.error}>
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              paddingTop: 10
+            }}
+          >
+            <ButtonPaper mode="text" onPress={onDialogFailure} textColor={theme.colors.error}>
               Okay
             </ButtonPaper>
-            <ButtonPaper
-              mode="text"
-              onPress={onShare}
-              textColor={theme.colors.primary}>
+            <ButtonPaper mode="text" onPress={onShare} textColor={theme.colors.primary}>
               Share
             </ButtonPaper>
-            {/* <ButtonPaper
-              mode="text"
-              onPress={onDialogSuccecss}
-              textColor={theme.colors.primary}>
-              Reprint
-            </ButtonPaper> */}
           </View>
         </Dialog.Content>
       </Dialog>

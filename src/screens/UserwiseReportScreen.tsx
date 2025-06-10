@@ -246,7 +246,7 @@ function UserwiseReportScreen() {
             </Text>
           </View> */}
         </SurfacePaper>
-        <View
+        {/* <View
           style={{
             paddingHorizontal: normalize(20),
             paddingBottom: normalize(10),
@@ -261,7 +261,7 @@ function UserwiseReportScreen() {
             textColor={theme.colors.onPrimaryContainer}>
             PRINT
           </ButtonPaper>
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   )

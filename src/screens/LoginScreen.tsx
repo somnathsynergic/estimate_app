@@ -40,7 +40,8 @@ function LoginScreen() {
 
   const {
     handleLogin,
-    deviceId
+    deviceId,
+    loading
     // loginDataMessage,
     // otp: fetchedOtp,
     // setOtp: setFetchedOtp,
@@ -280,6 +281,8 @@ function LoginScreen() {
                   </View>
                   <View>
                     <ButtonPaper
+                      loading={loading}
+                      disabled={loading}
                       mode="contained"
                       onPress={() => {
                         if (loginText !== "" && passwordText !== "") {

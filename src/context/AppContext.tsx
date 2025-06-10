@@ -28,6 +28,8 @@ export const AppStore = createContext<AppStoreContext>(null)
 const AppContext = ({ children }) => {
   const appState = useRef(AppState.currentState)
 
+  const [loading, setLoading] = useState(() => false)
+
   const [isLogin, setIsLogin] = useState<boolean>(() => false)
   const [otp, setOtp] = useState<number>()
   const [receiptSettings, setReceiptSettings] = useState<ReceiptSettingsData>()
@@ -104,6 +106,7 @@ const AppContext = ({ children }) => {
   // }, []);
 
   const handleLogin = async (loginText: string, passwordText: string) => {
+    setLoading(true)
     setFlagOtp(!flagOtp)
     console.log("@@@@@@@@@@@@@@@@", loginText, passwordText)
     await login(loginText, passwordText)
@@ -154,6 +157,7 @@ const AppContext = ({ children }) => {
           ToastAndroid.SHORT,
         )
       })
+    setLoading(false)
   }
 
   // useEffect(() => {
@@ -292,7 +296,8 @@ const AppContext = ({ children }) => {
         handleGetCategories,
         units,
         handleGetUnits,
-        deviceId
+        deviceId,
+        loading,
         // init
       }}>
       {children}
