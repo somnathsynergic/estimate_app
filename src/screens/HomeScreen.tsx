@@ -386,7 +386,7 @@ function HomeScreen() {
         // ToastAndroid.show(res?.data, ToastAndroid.SHORT)
         Alert.alert("Alert", "Estimate cancelled.")
         console.log("++++++++++++++++++++++-----------------------", res)
-        handleRePrintReceipt(true)
+        // handleRePrintReceipt(true)
         setVisible(false)
       }
     }).catch(err => {

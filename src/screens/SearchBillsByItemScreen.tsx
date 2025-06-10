@@ -305,7 +305,7 @@ function SearchBillsByItemScreen() {
     await cancelBill(rcptNo, loginStore.user_id).then(res => {
       if (res?.status === 1) {
         ToastAndroid.show(res?.data, ToastAndroid.SHORT)
-        handleRePrintReceipt(true)
+        // handleRePrintReceipt(true)
         setVisible(!visible)
       }
     }).catch(err => {

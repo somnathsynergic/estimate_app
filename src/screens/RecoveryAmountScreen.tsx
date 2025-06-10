@@ -460,7 +460,7 @@ function RecoveryAmountScreen() {
                                 disabled={!dueAmount}>
                                 SUBMIT
                             </ButtonPaper>
-                            <ButtonPaper
+                            {/* <ButtonPaper
                                 onPress={handlePrint}
                                 mode="elevated"
                                 textColor={theme.colors.vanilla}
@@ -469,7 +469,7 @@ function RecoveryAmountScreen() {
                                     backgroundColor: theme.colors.vanillaSurface
                                 }}>
                                 Print
-                            </ButtonPaper>
+                            </ButtonPaper> */}
                         </View>
 
                     </SurfacePaper>
