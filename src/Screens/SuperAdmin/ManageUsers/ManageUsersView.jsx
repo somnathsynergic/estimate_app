@@ -53,25 +53,25 @@ function ManageUsersView() {
 
   useEffect(() => {
     // callApi(`/admin/S_Admin/select_location`, 0);
-    if(compId)
-    axios
-      .get(`${url}/admin/S_Admin/select_outlet?comp_id=${compId}`)
-      .then((res) => {
-        setOutlets(res?.data?.msg);
-        console.log(res);
-      })
-      .catch((err) => {
-        Message("error", err);
-      });
+    if (compId)
+      axios
+        .get(`${url}/admin/S_Admin/select_outlet?comp_id=${compId}`)
+        .then((res) => {
+          setOutlets(res?.data?.msg);
+          console.log(res);
+        })
+        .catch((err) => {
+          Message("error", err);
+        });
   }, [compId]);
 
   useEffect(() => {
     // comp = localStorage.getItem("comp_id");
-    if(compId && selectedOutlet)
-    callApi(
-      `/admin/S_Admin/select_user_by_shop?comp_id=${compId}&br_id=${selectedOutlet}`,
-      0
-    );
+    if (compId && selectedOutlet)
+      callApi(
+        `/admin/S_Admin/select_user_by_shop?comp_id=${compId}&br_id=${selectedOutlet}`,
+        0
+      );
   }, [compId, selectedOutlet]);
 
   // useEffect(() => {
