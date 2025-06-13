@@ -90,7 +90,7 @@ function RecoveryAmountScreen() {
             console.log("ERRRRRRRRRRRRRRRRRRRR", err)
         })
     }
-
+ 
     useEffect(() => {
         getCreditCustomer()
     }, [])

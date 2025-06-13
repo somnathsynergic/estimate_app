@@ -18,6 +18,7 @@ export default function useRecentBills() {
           user_id: userId,
         })
         .then(res => {
+          console.log("RECENT_BILLS =>>>", res?.data)
           resolve(res.data)
         })
         .catch(err => {

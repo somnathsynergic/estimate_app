@@ -70,6 +70,8 @@ function HomeScreen() {
   const isFocused = useIsFocused()
   const { params } = useRoute<any>()
 
+  let navigationFetchedReceiptNumber = params?.receipt_number
+
   let version = DeviceInfo.getVersion()
 
   const { handleGetReceiptSettings } = useContext<AppStoreContext>(AppStore)
@@ -414,12 +416,14 @@ function HomeScreen() {
   let totalQty: number = 0
 
   useEffect(() => {
+    if (isFocused && params?.receipt_number) {
+      handleRecentBillListClick(params.receipt_number)
 
-    if (params?.receipt_number) {
-      handleRecentBillListClick(params?.receipt_number)
+      navigation.dispatch(
+        CommonActions.setParams({ receipt_number: undefined })
+      )
     }
-
-  }, [recentBills.length])
+  }, [isFocused, params?.receipt_number])
 
   return (
     <SafeAreaView

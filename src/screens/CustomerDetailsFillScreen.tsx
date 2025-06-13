@@ -255,6 +255,7 @@ const CustomerDetailsFillScreen = () => {
     await sendSaleDetails(filteredData)
       .then(res => {
         console.log("filteredData====filteredData", filteredData)
+        console.log("SALEINSERT_RESSSSSSSSSS =>>>>", res)
 
         console.log("res.data.status===================", res.data.status)
         if (res.data.status === 1) {
