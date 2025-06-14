@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react"
+import { PropsWithChildren, useState } from "react"
 import { Dialog, Portal, Text, TouchableRipple } from "react-native-paper"
 import Clipboard from "@react-native-clipboard/clipboard"
 import { Alert, Share, ToastAndroid, View } from "react-native"
@@ -7,7 +7,6 @@ import AddedProductList from "./AddedProductList"
 import NetTotalForRePrints from "./NetTotalForRePrints"
 import ButtonPaper from "./ButtonPaper"
 import normalize from "react-native-normalize"
-
 import { ShowBillData } from "../models/api_types"
 import { usePaperColorScheme } from "../theme/theme"
 
@@ -27,9 +26,10 @@ type DialogBoxProps = {
   cancelledBillStatus?: string
   netTotalButtonColors?: Array<string>
   handleCancelBill?: (rcptNo: string) => void
-
   onDialogFailure?: () => void
-  onDialogSuccecss?: () => void
+  onDialogSuccess?: () => void
+  // new prop: requireShare enforces share before closing
+  requireShare?: boolean
 }
 
 export default function DialogBoxForReprint({
@@ -47,7 +47,8 @@ export default function DialogBoxForReprint({
   netTotalButtonColors = [],
   handleCancelBill,
   onDialogFailure,
-  onDialogSuccecss
+  onDialogSuccess,
+  requireShare = false,
 }: PropsWithChildren<DialogBoxProps>) {
   const theme = usePaperColorScheme()
 
@@ -58,21 +59,18 @@ export default function DialogBoxForReprint({
 
   const onShare = async () => {
     try {
-      const header = []
+      // build the message as before...
+      const header: string[] = []
       header.push(`RCPT. NO. ${currentReceiptNo}`)
       const createdDt = billedSaleData[0]?.created_dt
         ? new Date(billedSaleData[0].created_dt).toLocaleString('en-GB')
         : ''
       header.push(`Date: ${createdDt}`)
       const modeMap: Record<string, string> = {
-        C: 'Cash',
-        D: 'Card',
-        U: 'UPI',
-        R: 'Credit'
+        C: 'Cash', D: 'Card', U: 'UPI', R: 'Credit'
       }
       const payMode = billedSaleData[0]?.pay_mode
-      header.push(`Payment Mode: ${modeMap[payMode ?? ''] || 'Pay Off'}`)
-
+      header.push(`Mode: ${modeMap[payMode ?? ''] || 'Pay Off'}`)
       const items: string[] = []
       let netTotal = 0
       billedSaleData.forEach(item => {
@@ -82,7 +80,6 @@ export default function DialogBoxForReprint({
           `${item.item_name} x${item.qty} @ ${item.price} = ${lineTotal}`
         )
       })
-
       const message = [
         ...header,
         '',
@@ -93,6 +90,9 @@ export default function DialogBoxForReprint({
       ].join('\n')
 
       await Share.share({ message })
+
+      hide()
+      onDialogSuccess?.()
     } catch (error: any) {
       Alert.alert(error.message)
     }
@@ -109,30 +109,20 @@ export default function DialogBoxForReprint({
         {icon && <Dialog.Icon icon={icon} size={iconSize} />}
         {title && <Dialog.Title style={titleStyle}>{title}</Dialog.Title>}
         <Dialog.Content>
-          {/* Receipt and date display */}
+          {/* Receipt and date */}
           <View style={{ paddingBottom: 5 }}>
             <TouchableRipple onPress={() => copyToClipboard(currentReceiptNo)}>
-              <Text
-                style={{ textAlign: "center", color: theme.colors.primary }}
-                variant="bodyLarge"
-              >
+              <Text style={{ textAlign: "center", color: theme.colors.primary }} variant="bodyLarge">
                 RCPT. NO. {currentReceiptNo}
               </Text>
             </TouchableRipple>
-            <Text
-              style={{ textAlign: "center", color: theme.colors.secondary }}
-              variant="bodyLarge"
-            >
+            <Text style={{ textAlign: "center", color: theme.colors.secondary }} variant="bodyLarge">
               {new Date(billedSaleData[0]?.created_dt).toLocaleString("en-GB")}
             </Text>
           </View>
 
           {/* Product list */}
-          <ScrollableListContainer
-            backgroundColor={theme.colors.surfaceVariant}
-            height={250}
-            width={300}
-          >
+          <ScrollableListContainer backgroundColor={theme.colors.surfaceVariant} height={250} width={300}>
             {billedSaleData.map((item, i) => (
               <AddedProductList
                 key={i}
@@ -147,7 +137,7 @@ export default function DialogBoxForReprint({
             ))}
           </ScrollableListContainer>
 
-          {/* Net total display */}
+          {/* Net total */}
           <NetTotalForRePrints
             width={300}
             backgroundColor={netTotalButtonColors[0] || theme.colors.pinkContainer}
@@ -171,17 +161,21 @@ export default function DialogBoxForReprint({
               CANCEL ESTIMATE
             </ButtonPaper>
           </View>
-          <View
-            style={{
-              justifyContent: 'space-between',
-              flexDirection: 'row',
-              paddingTop: 10
-            }}
-          >
-            <ButtonPaper mode="text" onPress={onDialogFailure} textColor={theme.colors.error}>
+          <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingTop: 10 }}>
+            {/* disable Okay if requireShare is true */}
+            <ButtonPaper
+              mode="text"
+              onPress={onDialogFailure}
+              textColor={theme.colors.error}
+              disabled={requireShare}
+            >
               Okay
             </ButtonPaper>
-            <ButtonPaper mode="text" onPress={onShare} textColor={theme.colors.primary}>
+            <ButtonPaper
+              mode="text"
+              onPress={onShare}
+              textColor={theme.colors.primary}
+            >
               Share
             </ButtonPaper>
           </View>

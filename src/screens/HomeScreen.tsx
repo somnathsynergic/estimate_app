@@ -419,11 +419,18 @@ function HomeScreen() {
     if (isFocused && params?.receipt_number) {
       handleRecentBillListClick(params.receipt_number)
 
-      navigation.dispatch(
-        CommonActions.setParams({ receipt_number: undefined })
-      )
+      // navigation.dispatch(
+      //   CommonActions.setParams({ receipt_number: undefined })
+      // )
     }
   }, [isFocused, params?.receipt_number])
+
+  const onDialogSuccess = () => {
+    navigation.dispatch(
+      CommonActions.setParams({ receipt_number: undefined })
+    )
+    hideDialog()
+  }
 
   return (
     <SafeAreaView
@@ -564,7 +571,7 @@ function HomeScreen() {
         </View>
       </ScrollView>
 
-      <DialogBoxForReprint
+      {/* <DialogBoxForReprint
         iconSize={30}
         visible={visible}
         hide={hideDialog}
@@ -577,6 +584,19 @@ function HomeScreen() {
 
         onDialogFailure={onDialogFailure}
       // onDialogSuccecss={() => onDialogSuccecss()}
+      /> */}
+      <DialogBoxForReprint
+        iconSize={30}
+        visible={visible}
+        hide={hideDialog}
+        titleStyle={styles.title}
+        currentReceiptNo={currentReceiptNo}
+        billedSaleData={billedSaleData}
+        handleCancelBill={handleCancelBill}
+        cancelledBillStatus={cancelledBillStatus}
+        onDialogFailure={onDialogFailure}
+        onDialogSuccess={onDialogSuccess}
+        requireShare={Boolean(params?.receipt_number)}
       />
 
       <DialogForBillsInCalculatorMode
