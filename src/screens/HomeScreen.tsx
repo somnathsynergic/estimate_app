@@ -410,9 +410,11 @@ function HomeScreen() {
         {
           text: "CANCEL BILL", onPress: async () => {
             await handleCancellingBill(rcptNo);
-            navigation.dispatch(
-              CommonActions.setParams({ receipt_number: undefined })
-            )
+            if (params?.receipt_number) {
+              navigation.dispatch(
+                CommonActions.setParams({ receipt_number: undefined })
+              )
+            }
           }
         },
       ],
