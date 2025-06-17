@@ -61,7 +61,7 @@ export default function DialogBoxForReprint({
     try {
       // build the message as before...
       const header: string[] = []
-      header.push(`RCPT. NO. ${currentReceiptNo}`)
+      // header.push(`RCPT. NO. ${currentReceiptNo}`) // Remove the receipt no. while sharing
       const createdDt = billedSaleData[0]?.created_dt
         ? new Date(billedSaleData[0].created_dt).toLocaleString('en-GB')
         : ''

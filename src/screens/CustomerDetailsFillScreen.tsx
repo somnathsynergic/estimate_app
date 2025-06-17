@@ -992,7 +992,18 @@ const CustomerDetailsFillScreen = () => {
                       //   : cashAmount
                       cashAmount
                     }
-                    onChangeText={(cash: number) => setCashAmount(cash)}
+                    onChangeText={(cash: number) => {
+                      // setCashAmount(cash)
+                      const amount = Number(cash);
+                      // Allow only positive numbers greater than 0
+                      if (!isNaN(amount) && amount > 0) {
+                      setCashAmount(amount);
+                      } else {
+                      // Optionally clear or reset invalid input
+                      setCashAmount(0);
+                      }
+
+                    }}
                     keyboardType="number-pad"
                     leftIcon="cash-multiple"
                     maxLength={8}
@@ -1019,7 +1030,19 @@ const CustomerDetailsFillScreen = () => {
                     selectTextOnFocus
                     label="Received Amount"
                     value={cashAmount}
-                    onChangeText={(cash: number) => setCashAmount(cash)}
+                    onChangeText={(cash: number) => {
+                      // setCashAmount(cash)
+
+                      const amount = Number(cash);
+                      // Allow only positive numbers greater than 0
+                      if (!isNaN(amount) && amount > 0) {
+                      setCashAmount(amount);
+                      } else {
+                      // Optionally clear or reset invalid input
+                      setCashAmount(0);
+                      }
+
+                    }}
                     keyboardType="number-pad"
                     leftIcon="cash-multiple"
                     maxLength={8}

@@ -355,7 +355,7 @@ function HomeScreen() {
       .then(res => {
         setBilledSaleData(res?.data)
         setCancelledBillStatus(res?.cancel_flag)
-        console.log("handleGetBill - HOMESCREEN - fetchBill", res?.data)
+        console.log(rcptNo, "handleGetBill - HOMESCREEN - fetchBill", res?.data)
       })
       .catch(err => {
         ToastAndroid.show("Error during fetching old bill", ToastAndroid.SHORT)

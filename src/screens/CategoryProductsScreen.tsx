@@ -38,6 +38,7 @@ import { imgNotFound } from "../resources/images"
 
 // import { ADDRESSES } from "../config/api_list"
 import { BASE_URL, BASE_URL_ITEM_IMG } from "../config/config"
+import LoadingOverlay from "../components/LoadingOverlay"
 
 function CategoryProductsScreen() {
     const theme = usePaperColorScheme()
@@ -46,6 +47,7 @@ function CategoryProductsScreen() {
     // const { receiptSettings } = useContext<AppStoreContext>(AppStore)
     const { fetchCategoryItems } = useCategoryItems()
     const { params } = useRoute<CategoriesScreenRouteProp>()
+    const [loading, setLoading] = useState(() => false)
 
     const loginStore = JSON.parse(loginStorage.getString("login-data"))
     let itemsStore: []
@@ -126,7 +128,7 @@ function CategoryProductsScreen() {
     const onChangeSearch = (query: string) => {
         // copyAddedProductsList = categoryWiseItems
         setSearch(query)
-
+        
         const lowerCaseQuery = query.toLowerCase()
 
         setFilteredItems(categoryWiseItems.filter(
@@ -140,6 +142,7 @@ function CategoryProductsScreen() {
     }
 
     const handleGetItemsByCategoryId = async (catgId: number) => {
+        setLoading(true)
         const creds: CategoryItemListCredentials = {
             comp_id: loginStore?.comp_id,
             br_id: loginStore?.br_id,
@@ -148,8 +151,10 @@ function CategoryProductsScreen() {
         fetchCategoryItems(creds).then(res => {
             setCategoryWiseItems(res?.msg)
             setFilteredItems(res?.msg)
+            setLoading(false)
         }).catch(err => {
             ToastAndroid.show(`Some error occurred while fetching items.`, ToastAndroid.SHORT)
+            setLoading(false)
         })
     }
 
@@ -469,14 +474,25 @@ function CategoryProductsScreen() {
                     // }
                     />
                 </View>
+                
+
+                {/* <View>
+                <Text>{loading && <LoadingOverlay />}</Text>
+                <Text> {JSON.stringify(filteredItems.length, null, 2)}</Text>
+                </View> */}
+
 
                 <View style={{
                     paddingHorizontal: normalize(25),
                     paddingBottom: normalize(10),
                     maxHeight: SCREEN_HEIGHT / 2
                 }}>
+                    
+                    
+                    
                     {
-                        categoryWiseItems?.length !== 0
+                        // categoryWiseItems?.length !== 0
+                        filteredItems?.length !== 0
                             ?
                             <ScrollView style={{
                                 // borderWidth: 2,
@@ -484,7 +500,7 @@ function CategoryProductsScreen() {
                                 // borderStyle: "dashed",
                                 // borderRadius: 20,
                                 padding: 10,
-                            }} nestedScrollEnabled>
+                            }} nestedScrollEnabled >
                                 <View style={{
                                     flexDirection: "row",
                                     flexWrap: "wrap",
@@ -495,7 +511,7 @@ function CategoryProductsScreen() {
                                     {
                                         filteredItems?.map((item, i) => {
                                             // console.log("GGGGGGGGGGGGGGGGG", getQuantity(item?.item_id))
-                                            console.log("TTTTTTTTTTTTTTTTT", item)
+                                            // console.log("TTTTTTTTTTTTTTTTT", item)
                                             return (
                                                 // <View key={i} style={{ width: "100%" }}>
                                                 //     {/* <List.Item
@@ -515,7 +531,7 @@ function CategoryProductsScreen() {
                                                 <TouchableRipple
                                                     key={i}
                                                     onPress={() => {
-                                                        console.log(">>>>>>>>>>>>>>", item)
+                                                        console.log(">>>>>>>>>>>>>>uuuuuuuu", item)
                                                         navigation.dispatch(CommonActions.navigate({
                                                             name: navigationRoutes.categoryProductScreen,
                                                             params: {
@@ -550,7 +566,7 @@ function CategoryProductsScreen() {
                                                             <Text variant="bodySmall" style={{
                                                                 color: theme.colors.secondary,
                                                                 fontWeight: "800"
-                                                            }}>₹{item?.price}</Text>
+                                                            }}>₹{item?.price} </Text>
                                                         </View>
                                                     </View>
                                                 </TouchableRipple>
@@ -576,12 +592,14 @@ function CategoryProductsScreen() {
                                         textAlign: "center",
                                         color: theme.colors.onVanillaTertiaryContainer,
                                     }}>
-                                    No items found in this category.
+                                    {/* No items found in this category. */}
+                                    No items found.
                                 </Text>
                             </SurfacePaper>
                     }
 
                 </View>
+                {loading && <LoadingOverlay />}
             </ScrollView>
 
             {/* <View style={{

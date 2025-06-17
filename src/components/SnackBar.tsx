@@ -35,6 +35,7 @@ const SnackBar = ({
                     icon="trash-can-outline"
                     size={24}
                     onPress={handleBtn2Press}
+                    disabled={disableCart}
                 />
             </View>
 

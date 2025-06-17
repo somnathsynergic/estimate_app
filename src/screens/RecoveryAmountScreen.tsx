@@ -435,7 +435,18 @@ function RecoveryAmountScreen() {
                         }}>
                             <InputPaper
                                 label="Received Amount"
-                                onChangeText={(e: number) => setDueAmount(e)} value={dueAmount} keyboardType="numeric"
+                                onChangeText={(e: number) => {
+                                // setDueAmount(e)
+                                const amount = Number(e);
+                                // Allow only positive numbers greater than 0
+                                if (!isNaN(amount) && amount > 0) {
+                                setDueAmount(amount);
+                                } else {
+                                // Optionally clear or reset invalid input
+                                setDueAmount(0);
+                                }
+
+                                }} value={dueAmount} keyboardType="numeric"
                                 customStyle={{
                                     backgroundColor: theme.colors.vanillaSurfaceLow
                                 }}

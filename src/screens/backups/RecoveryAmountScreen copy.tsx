@@ -366,7 +366,7 @@ function RecoveryAmountScreen() {
                         borderRadius={30}
                         blur={10}
                         isBackEnabled>
-                        Recovery Amount
+                        Recovery Amount 22
                     </HeaderImage>
                 </View>
 

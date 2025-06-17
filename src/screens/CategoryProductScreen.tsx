@@ -134,6 +134,17 @@ function CategoryProductScreen() {
         handleGetItemsByCategoryId(params?.product?.catg_id)
     }, [])
 
+    // Increse quantity Product when ENTER
+    // useEffect(() => {
+    //     const prod = params?.product
+    //     if (!prod) return
+
+    //     const initialQty = getQuantity(prod.item_id)
+    //     if (initialQty === 0) {
+    //         add(prod)
+    //     }
+    // }, [])
+
     const onDialogFailure = () => {
         clearStates([setQuantity, setStock, setUpdatedStock], () => undefined)
 
@@ -462,7 +473,14 @@ function CategoryProductScreen() {
                                                 }} numberOfLines={3} ellipsizeMode="tail">{item?.item_name}</Text>}
                                                 description={<Text variant="bodyMedium" style={{ color: theme.colors.vanilla, flexWrap: "wrap" }}>₹{item?.price}</Text>}
                                                 right={props => {
-                                                    return <AddRemove value={getQuantity(item?.item_id)} add={() => add(item)} remove={() => remove(item)} key={item?.item_id} isAddDisabled={receiptSettings?.stock_flag === "Y" && getQuantity(item?.item_id) === item?.stock} onChange={txt => setQuantity(txt)} isIndividualProductScreen />
+                                                    return <AddRemove 
+                                                    value={getQuantity(item?.item_id)} 
+                                                    add={() => add(item)} 
+                                                    remove={() => remove(item)} 
+                                                    key={item?.item_id} 
+                                                    isAddDisabled={receiptSettings?.stock_flag === "Y" && getQuantity(item?.item_id) === item?.stock} 
+                                                    onChange={txt => setQuantity(txt)} 
+                                                    isIndividualProductScreen />
                                                 }}
                                                 descriptionStyle={{
                                                     color: theme.colors.green
