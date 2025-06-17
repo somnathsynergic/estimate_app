@@ -407,7 +407,14 @@ function HomeScreen() {
       `Are you sure you want to cancel this bill?`,
       [
         { text: "BACK", onPress: () => null },
-        { text: "CANCEL BILL", onPress: () => handleCancellingBill(rcptNo) },
+        {
+          text: "CANCEL BILL", onPress: async () => {
+            await handleCancellingBill(rcptNo);
+            navigation.dispatch(
+              CommonActions.setParams({ receipt_number: undefined })
+            )
+          }
+        },
       ],
       { cancelable: false },
     )
