@@ -485,7 +485,8 @@ function CategoryProductsScreen() {
                 <View style={{
                     paddingHorizontal: normalize(25),
                     paddingBottom: normalize(10),
-                    maxHeight: SCREEN_HEIGHT / 2
+                    // maxHeight: SCREEN_HEIGHT / 2
+                    maxHeight: SCREEN_HEIGHT * 0.65
                 }}>
                     
                     
@@ -500,7 +501,9 @@ function CategoryProductsScreen() {
                                 // borderStyle: "dashed",
                                 // borderRadius: 20,
                                 padding: 10,
-                            }} nestedScrollEnabled >
+                            }} nestedScrollEnabled 
+                            showsVerticalScrollIndicator={true} 
+                            >
                                 <View style={{
                                     flexDirection: "row",
                                     flexWrap: "wrap",

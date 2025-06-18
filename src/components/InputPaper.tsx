@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { KeyboardTypeOptions } from "react-native"
 import { TextInput } from "react-native-paper"
 
@@ -9,6 +10,7 @@ type InputPaperProps = {
   keyboardType?: KeyboardTypeOptions
   customStyle?: {}
   leftIcon?: string
+  rightIcon?: string
   autoFocus?: boolean
   mode?: "outlined" | "flat"
   maxLength?: number
@@ -27,6 +29,7 @@ const InputPaper = ({
   keyboardType,
   customStyle,
   leftIcon,
+  rightIcon,
   autoFocus,
   mode = "flat",
   maxLength = 10,
@@ -36,6 +39,7 @@ const InputPaper = ({
   // themeColors,
   hideUnderline = false,
 }: InputPaperProps) => {
+  const [showPassword, setShowPassword] = useState(secureTextEntry);
   return (
     <TextInput
       selectTextOnFocus={selectTextOnFocus}
@@ -44,10 +48,20 @@ const InputPaper = ({
       label={label}
       value={value?.toString()}
       onChangeText={onChangeText}
-      secureTextEntry={secureTextEntry}
+      secureTextEntry={showPassword}
       style={customStyle}
       left={leftIcon && <TextInput.Icon icon={leftIcon} />}
       // right={<TextInput.Icon icon={secureTextEntry ? "eye-off" : "eye"} onPress={() => setSecureTextEntry(!secureTextEntry)} />}
+      right={
+        secureTextEntry ? (
+          <TextInput.Icon
+            icon={showPassword ? "eye-off" : "eye"}
+            onPress={() => setShowPassword(!showPassword)}
+          />
+        ) : rightIcon ? (
+          <TextInput.Icon icon={rightIcon} />
+        ) : null
+      }
       autoFocus={autoFocus}
       maxLength={maxLength}
       // underlineColor={themeColors}

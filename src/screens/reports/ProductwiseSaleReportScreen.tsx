@@ -19,6 +19,7 @@ import { BasicReportCredentials, ProductwiseSaleReportData } from "../../models/
 import { useBluetoothPrint } from "../../hooks/printables/useBluetoothPrint"
 import { AppStore } from "../../context/AppContext"
 import { AppStoreContext } from "../../models/custom_types"
+import SurfacePaper from "../../components/SurfacePaper"
 
 export default function ProductwiseSaleReportScreen() {
   const theme = usePaperColorScheme()
@@ -97,6 +98,8 @@ export default function ProductwiseSaleReportScreen() {
 
       <View style={styles.listWrapper}>
         <ScrollView contentContainerStyle={styles.listContainer} nestedScrollEnabled>
+          {productwiseSaleReport?.length > 0 ? (
+          <>
           {productwiseSaleReport.map((item, i) => (
             <List.Item
               key={i}
@@ -114,6 +117,27 @@ export default function ProductwiseSaleReportScreen() {
               right={() => <Text>₹{item.tot_item_price}</Text>}
             />
           ))}
+          </>
+          )
+      : <SurfacePaper
+      borderRadiusEnabled
+      backgroundColor={theme.colors.vanillaTertiaryContainer}
+      elevation={2}
+      paddingEnabled
+      smallWidthEnabled
+      style={{ padding: 15 }}>
+      <Text
+      variant="titleLarge"
+      style={{
+      alignSelf: "center",
+      textAlign: "center",
+      color: theme.colors.onVanillaTertiaryContainer,
+      }}>
+      {/* No items found in this category. */}
+      No items found.
+      </Text>
+      </SurfacePaper>
+      }
         </ScrollView>
 
         {productwiseSaleReport.length > 0 && (
@@ -123,6 +147,12 @@ export default function ProductwiseSaleReportScreen() {
             </Text>
           </View>
         )}
+
+
+
+
+
+
       </View>
     </SafeAreaView>
   )

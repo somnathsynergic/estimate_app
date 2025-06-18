@@ -277,10 +277,20 @@ function CategoryProductScreen() {
             prevData?.filter((item, index) => item.item_id !== product.item_id),
         )
 
-        navigation.goBack()
+        // navigation.goBack()
 
         setVisible(!visible)
     }
+
+    // const handleOnDelete = (product: ItemsData) => {
+    // // Remove the product from addedProductsList
+    // setAddedProductsList(prevData => 
+    //     prevData?.filter(item => item.item_id !== product.item_id)
+    // );
+    
+    // // Close the dialog
+    // setVisible(false);
+    // };
 
     const handlePressBillScreen = () => {
         navigation.dispatch(
@@ -591,6 +601,7 @@ function CategoryProductScreen() {
                 top: "87.2%",
                 alignSelf: "center"
             }}>
+                
                 <SnackBar totAmt={totalPrice?.toFixed(2)} handleBtn1Press={handlePressBillScreen} handleBtn2Press={handleClear} handleBtn3Press={handleGoToCartScreen} disableNext={!totalPrice} cartItemQty={addedProductsList?.length} disableCart={!totalPrice} />
             </View>
 

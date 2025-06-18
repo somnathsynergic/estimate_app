@@ -275,9 +275,12 @@ function LoginScreen() {
                       onChangeText={(e: string) => setPasswordText(e)}
                       customStyle={{ backgroundColor: theme.colors.onPrimary }}
                       leftIcon="form-textbox-password"
+                      rightIcon="form-textbox-password"
                       keyboardType="default"
                       secureTextEntry
                     />
+
+                    
                   </View>
                   <View>
                     <ButtonPaper

@@ -545,6 +545,8 @@ function HomeScreen() {
               borderBottomRightRadius: normalize(30),
             }}>
             <View style={{ width: "100%" }}>
+              {recentBills?.length > 0 ?(
+                <>
               {recentBills?.map((item, i) => (
                 <List.Item
                   key={i}
@@ -562,6 +564,18 @@ function HomeScreen() {
                 // )}
                 />
               ))}
+              </>
+            ): <View style={styles.noActivity}>
+                  <Text
+                  variant="titleLarge"
+                  style={[styles.noActivityTxt, {
+                  color: theme.colors.onVanillaTertiaryContainer,
+                  }]}>
+                  {/* No items found in this category. */}
+                  No activity found.
+                  </Text>
+                  </View>
+            }
             </View>
             {/* <View>
               <Button
@@ -713,4 +727,11 @@ const styles = StyleSheet.create({
     left: normalize(16),
     position: "absolute",
   },
+  noActivity:{
+    padding:15
+  },
+  noActivityTxt:{
+    alignSelf: "center",
+    textAlign: "center", fontSize: 19,
+  }
 })

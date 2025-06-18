@@ -190,7 +190,7 @@ function RecoveryAmountScreen() {
     }
 
     const handleGetDueAmount = () => {
-        Alert.alert("Recover amount?", `Are you sure you want to recover ${dueAmount} ruppees?`, [
+        Alert.alert("Recover amount?", `Are you sure you want to recover ${dueAmount} rupees?`, [
             { text: "Cancel", onPress: () => null },
             { text: "Yes", onPress: async () => await getDueAmount() }
         ])
