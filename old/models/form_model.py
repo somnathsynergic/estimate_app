@@ -5,6 +5,8 @@ from typing import Annotated, Union, Optional
 class CreatePIN(BaseModel):
     PIN:str
     phone_no:str
+class SessionData(BaseModel):
+    id: str
 
 class UserLogin(BaseModel):
     user_id:str
@@ -224,10 +226,6 @@ class StockReport(BaseModel):
     comp_id:int
     br_id:int
 
-class BillwiseReport(BaseModel):
-    from_date:date
-    user_id:str
-
 # class CancelBillReport(BaseModel):
 #     from_date:date
 #     to_date:date
@@ -377,13 +375,14 @@ class DueReport(BaseModel):
     comp_id:int
     br_id:int
     date:date
+    user_id:str
 
 class DueReportMobileAPI(BaseModel):
     comp_id:int
     br_id:int
     date:date
     user_id:str
-    
+
 
 class CalReceipt(BaseModel):
     comp_id:int
@@ -409,5 +408,9 @@ class AddEditTXN(BaseModel):
 
 class CreditCust(BaseModel):
     comp_id:int
+    user_id:str
+
+class BillwiseReport(BaseModel):
+    from_date:date
     user_id:str
     

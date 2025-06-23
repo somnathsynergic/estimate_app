@@ -1,6 +1,8 @@
 __pycache__
-billing
-billing-env
+deployment_env
+lambda_deployment
+task
+temp_extract
 config
 env
 *.zip
