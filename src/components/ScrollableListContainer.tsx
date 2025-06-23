@@ -6,6 +6,9 @@ type ScrollableListContainerProps = {
   backgroundColor: string
   height?: number
   width?: number
+  padding?: number
+  borderRadius?: number
+
 }
 
 export default function ScrollableListContainer({
@@ -13,6 +16,8 @@ export default function ScrollableListContainer({
   backgroundColor,
   height = 220,
   width = 325,
+  padding = 0,
+  borderRadius = 30,
 }: PropsWithChildren<ScrollableListContainerProps>) {
   return (
     <ScrollView
@@ -22,7 +27,8 @@ export default function ScrollableListContainer({
         height: normalize(height),
         backgroundColor: backgroundColor,
         alignSelf: "center",
-        borderRadius: normalize(30),
+        borderRadius: normalize(borderRadius),
+        padding: normalize(padding),
       }}
       nestedScrollEnabled={true}>
       {children}

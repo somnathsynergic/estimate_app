@@ -19,6 +19,7 @@ type NetTotalForRePrintsProps = {
   disabled?: boolean
   cgst?: number
   sgst?: number
+  borderRadius?: number
 }
 
 export default function NetTotalForRePrints({
@@ -28,6 +29,7 @@ export default function NetTotalForRePrints({
   addedProductsList,
   netTotal,
   totalDiscount,
+  borderRadius = 30,
   width = 325,
   height = "auto",
   cgst,
@@ -76,7 +78,8 @@ export default function NetTotalForRePrints({
         height: height,
         backgroundColor: backgroundColor,
         alignSelf: "center",
-        borderRadius: normalize(30),
+        // borderRadius: normalize(30),
+        borderRadius: normalize(borderRadius),
         marginTop: normalize(15),
       }}
       onPress={onPress}>

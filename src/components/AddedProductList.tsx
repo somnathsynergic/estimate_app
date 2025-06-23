@@ -53,7 +53,8 @@ export default function AddedProductList({
         style={{
           flex: 0.2,
           justifyContent: "space-between",
-          margin: normalize(15),
+          // margin: normalize(15),
+          margin: normalize(7.5),
         }}>
         <View
           style={{
@@ -62,7 +63,7 @@ export default function AddedProductList({
           }}>
           <View>
             <Text>
-              {itemName} (₹{unitPrice})
+              {itemName} (₹{unitPrice}) 
             </Text>
           </View>
           <View>

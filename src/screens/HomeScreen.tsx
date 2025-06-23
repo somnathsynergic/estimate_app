@@ -456,7 +456,8 @@ function HomeScreen() {
             imgDark={hillsDark}
             borderRadius={30}
             blur={10}>
-            Welcome Back, Estimate!
+            {/* Welcome Back, Estimate! */}
+            Welcome, {loginStore.user_name} 
           </HeaderImage>
         </View>
 

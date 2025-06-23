@@ -111,18 +111,18 @@ export default function DialogBoxForReprint({
         <Dialog.Content>
           {/* Receipt and date */}
           <View style={{ paddingBottom: 5 }}>
-            <TouchableRipple onPress={() => copyToClipboard(currentReceiptNo)}>
+            {/* <TouchableRipple onPress={() => copyToClipboard(currentReceiptNo)}>
               <Text style={{ textAlign: "center", color: theme.colors.primary }} variant="bodyLarge">
                 RCPT. NO. {currentReceiptNo}
               </Text>
-            </TouchableRipple>
+            </TouchableRipple> */}
             <Text style={{ textAlign: "center", color: theme.colors.secondary }} variant="bodyLarge">
               {new Date(billedSaleData[0]?.created_dt).toLocaleString("en-GB")}
             </Text>
           </View>
 
           {/* Product list */}
-          <ScrollableListContainer backgroundColor={theme.colors.surfaceVariant} height={250} width={300}>
+          <ScrollableListContainer backgroundColor={theme.colors.surfaceVariant} height={360} width={300} padding={10} borderRadius={20}>
             {billedSaleData.map((item, i) => (
               <AddedProductList
                 key={i}
@@ -145,6 +145,7 @@ export default function DialogBoxForReprint({
             netTotal={billedSaleData.reduce((sum, i) => sum + i.price * i.qty, 0)}
             textColor={netTotalButtonColors[1] || theme.colors.onPinkContainer}
             totalDiscount={0}
+            borderRadius={20}
             disabled
           />
 

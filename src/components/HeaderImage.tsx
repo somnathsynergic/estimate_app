@@ -69,7 +69,8 @@ export default function HeaderImage({
         source={colorScheme !== "dark" ? imgLight : imgDark}
         style={styles.surface}>
         <Text
-          variant="displaySmall"
+          // variant="displaySmall"
+          variant="headlineLarge"
           style={{ fontFamily: "ProductSans-Medium", textAlign: "center" }}>
           {children}
         </Text>
