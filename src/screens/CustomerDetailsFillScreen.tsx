@@ -251,7 +251,7 @@ const CustomerDetailsFillScreen = () => {
       ),
     )
 
-    console.log("filteredData - handleSendSaleData", filteredData)
+    console.log("Utsabbbbbbbbbbbbbbbbbb", filteredData)
     await sendSaleDetails(filteredData)
       .then(res => {
         console.log("filteredData====filteredData", filteredData)
@@ -1025,7 +1025,7 @@ const CustomerDetailsFillScreen = () => {
 
             {checked === "R" && (
               <View>
-                <View style={{ paddingHorizontal: normalize(20), paddingBottom: normalize(12) }}>
+                {/* <View style={{ paddingHorizontal: normalize(20), paddingBottom: normalize(12) }}>
                   <InputPaper
                     selectTextOnFocus
                     label="Received Amount"
@@ -1048,7 +1048,7 @@ const CustomerDetailsFillScreen = () => {
                     maxLength={8}
                     customStyle={{ marginBottom: normalize(10) }}
                   />
-                </View>
+                </View> */}
                 <SquircleBox
                   backgroundColor={theme.colors.surface}
                   textColor={theme.colors.onSurface}
