@@ -430,6 +430,12 @@ class AddEditUser(BaseModel):
     created_by:str
     created_dt:str | None
 
+class ActivateUser(BaseModel):
+    comp_id:int
+    br_id:int
+    user_id:int
+    flag:str
+
 # ---------------Manage Outlets---------------
 
 class OneOutlet(BaseModel):
@@ -528,4 +534,7 @@ class ProdVal(BaseModel):
 
 class ProdItems(BaseModel):
     Items:List[ProdVal]
+    br_id:int
+
+class UserActiveList(BaseModel):
     br_id:int

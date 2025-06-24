@@ -6,7 +6,7 @@ from config.database import connect
 from pathlib import Path
 from models.master_model import createResponse
 from models.masterApiModel import db_select, db_Insert
-from models.admin_form_model import AddEditLocation,AddEditCompany,AddEditUser,AddEditOutletS,OneOutlet,AddHeaderFooter,AddEditSettings,AddEditUnit,Excel,EditItemDtls,Item,Device_Id,UserList
+from models.admin_form_model import AddEditLocation,AddEditCompany,AddEditUser,AddEditOutletS,OneOutlet,AddHeaderFooter,AddEditSettings,AddEditUnit,Excel,EditItemDtls,Item,Device_Id,UserList,ActivateUser
 from utils import get_hashed_password,verify_password
 from datetime import datetime
 from typing import Annotated, Union, Optional
@@ -144,6 +144,9 @@ async def add_edit_user(data:AddEditUser):
     current_datetime = datetime.now()
     formatted_dt = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
     pwd = get_hashed_password(data.password)
+    formatted_tm = current_datetime.strftime("%H:%M:%S")
+    created_dt_tm = f'{data.created_dt} {formatted_tm}'
+    print('created_dt_tm=',created_dt_tm)
 
     table_name = f"md_user"
 
@@ -171,6 +174,18 @@ async def add_edit_user(data:AddEditUser):
     
     return res_dt
 
+
+
+@superadminRouter.post('/S_Admin/active_inactive_user')
+async def active_inactive_user(data:ActivateUser):
+    table_name = f"md_user"
+    fields = f"active_flag='{data.flag}'"
+    values = f""
+    where = f"comp_id = {data.comp_id} and br_id={data.br_id} and id={data.user_id}"
+    order = f""
+    flag = 1
+    res_dt = await db_Insert(table_name,fields,values,where,flag)
+    return res_dt
 # 
 # 
 #
@@ -217,11 +232,15 @@ async def select_outlet(comp_id:int,br_id:int):
     res_dt = await db_select(select,table_name,where,order,flag)
     return res_dt
 
+
 @superadminRouter.post('/S_Admin/add_edit_outlet')
 async def add__edit_outlet(data:AddEditOutletS):
     current_datetime = datetime.now()
     formatted_dt = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    formatted_tm = current_datetime.strftime("%H:%M:%S")
     table_name = "md_branch"
+    created_dt_tm = f'{data.created_dt} {formatted_tm}'
+    print(created_dt_tm)
 
     fields = f"branch_name = '{data.branch_name}', branch_address = '{data.branch_address}', location = {data.location}, contact_person = '{data.contact_person}', phone_no = {data.phone_no}, email_id = '{data.email_id}', created_by='{data.created_by}', created_dt='{data.created_dt}', modified_by = '{data.created_by}', modified_dt = '{formatted_dt}'" if data.br_id>0 else "comp_id, branch_name, branch_address, location, contact_person, phone_no, email_id, created_by, created_dt"    
 

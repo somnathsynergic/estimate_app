@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from config.database import connect
 from models.master_model import createResponse
 from models.masterApiModel import db_select, db_Insert
-from models.admin_form_model import UserList,SaleReport,CollectionReport,PayModeReport,UserWiseReport,BillwiseReport,GSTstatement,RefundReport,CreditReport,ItemReport,ItemReportOutlet,CancelReport,CancelReportOutlet,DaybookReport,CustomerLedger,RecveryReport,DueReport,DueReportOutlet,dashboard,UserwiseReportOutlet
+from models.admin_form_model import UserActiveList, UserList,SaleReport,CollectionReport,PayModeReport,UserWiseReport,BillwiseReport,GSTstatement,RefundReport,CreditReport,ItemReport,ItemReportOutlet,CancelReport,CancelReportOutlet,DaybookReport,CustomerLedger,RecveryReport,DueReport,DueReportOutlet,dashboard,UserwiseReportOutlet
 from datetime import date
 reportRouter = APIRouter()
 
@@ -901,3 +901,15 @@ group by created_by,user_name,branch_name
         "msg":result
         }
     return resData
+
+
+#===================================================================================
+@reportRouter.post('/S_Admin/user_report')
+async def select_user(id:UserActiveList):
+    select = "id,user_name,user_id,device_id,active_flag,created_dt"
+    table_name = "md_user"
+    where = f"br_id={id.br_id} and created_dt is not null" 
+    order = f""
+    flag = 1
+    res_dt = await db_select(select,table_name,where,order,flag)
+    return res_dt
