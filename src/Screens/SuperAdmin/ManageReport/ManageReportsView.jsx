@@ -7,7 +7,7 @@ import HeaderLayout from "../../../Components/HeaderLayout";
 import axios from "axios";
 import { url } from "../../../Address/baseURL";
 
-function ManageUsersView() {
+function ManageReportsView() {
   const navigation = useNavigate();
   const [called, setCalled] = useState(false);
   const { response, callApi } = useAPI();
@@ -242,4 +242,4 @@ function ManageUsersView() {
   );
 }
 
-export default ManageUsersView;
+export default ManageReportsView;

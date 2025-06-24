@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -35,6 +35,8 @@ function ManageOutletsAddEdit() {
   //   }, [isCalled]);
 
   useEffect(() => {
+    console.log(params, 'params');
+
     if (params.id > 0)
       callApi(
         `/admin/S_Admin/select_one_outlet?comp_id=${params.id2}&br_id=${params.id}`,
@@ -43,6 +45,18 @@ function ManageOutletsAddEdit() {
 
     localStorage.setItem("compIdx", `${params.id2}`);
   }, [isCalled]);
+
+  const formatDateTimeLocal = useCallback((dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const pad = (n) => n.toString().padStart(2, "0");
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }, []);
 
   useEffect(() => {
     axios
@@ -70,6 +84,9 @@ function ManageOutletsAddEdit() {
   }, []);
 
   useEffect(() => {
+    // const currentDateTime = new Date().toISOString();
+    // console.log(currentDateTime, 'currentDateTime');
+    
     // console.log(response, Array.isArray(response?.data?.msg));
     if (Array.isArray(response?.data?.msg)) {
       console.log(response);
@@ -77,6 +94,8 @@ function ManageOutletsAddEdit() {
         // "br_id": 0,
         o_comp_id: +response?.data?.msg[0].comp_id,
         o_branch_name: response?.data?.msg[0]?.branch_name,
+        // created_dt: params.id > 0 ? response?.data?.msg[0]?.created_dt : currentDateTime,
+        created_dt: response?.data?.msg[0]?.created_dt,
         o_branch_address: response?.data?.msg[0]?.branch_address,
         o_location: response?.data?.msg[0]?.location,
         o_contact_person: response?.data?.msg[0]?.contact_person,
@@ -107,6 +126,7 @@ function ManageOutletsAddEdit() {
     // "br_id": 0,
     o_comp_id: "",
     o_branch_name: "",
+    created_dt: "",
     o_branch_address: "",
     o_location: "",
     o_contact_person: "",
@@ -115,11 +135,39 @@ function ManageOutletsAddEdit() {
     o_created_by: "",
   };
 
+//   function getLocalISOString() {
+//   const now = new Date();
+//   const year = now.getFullYear();
+//   const month = String(now.getMonth() + 1).padStart(2, '0');
+//   const day = String(now.getDate()).padStart(2, '0');
+//   const hours = String(now.getHours()).padStart(2, '0');
+//   const minutes = String(now.getMinutes()).padStart(2, '0');
+//   const seconds = String(now.getSeconds()).padStart(2, '0');
+//   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+// }
+
+//   const getInitialValues = () => {
+//   // const today = new Date().toISOString();
+//   return {
+//     o_comp_id: "",
+//     o_branch_name: "",
+//     created_dt: params.id < 1 ? getLocalISOString() : "",
+//     o_branch_address: "",
+//     o_location: "",
+//     o_contact_person: "",
+//     o_phone_no: "",
+//     o_email_id: "",
+//     o_created_by: "",
+//   };
+// };
+
   const onSubmit = (values) => {
     setCalled(true);
     console.log(values, params.id);
     // comp = localStorage.getItem("comp_id");
     userId = localStorage.getItem("user_id");
+    console.log(values, 'values');
+    
     callApi("/admin/S_Admin/add_edit_outlet", 1, {
       //   id: +params.id,
       //   comp_id: +values?.u_comp_id,
@@ -137,6 +185,7 @@ function ManageOutletsAddEdit() {
       br_id: +params.id,
       comp_id: +values?.o_comp_id,
       branch_name: values?.o_branch_name,
+      created_dt: values?.created_dt,
       branch_address: values?.o_branch_address,
       location: +values?.o_location,
       contact_person: values?.o_email_id,
@@ -150,6 +199,7 @@ function ManageOutletsAddEdit() {
     // u_br_id: Yup.string().required("Outlet is required."),
     o_comp_id: Yup.string().required("Company is required."),
     o_branch_name: Yup.string().required("Outlet name is required."),
+    // created_dt: Yup.string().required("Create Date is required."),
     // o_branch_address: Yup.string().required("Outlet address is required."),
     // o_location: Yup.string().required("Location is required."),
     // o_contact_person: Yup.string().required("Contact person is required."),
@@ -158,9 +208,11 @@ function ManageOutletsAddEdit() {
   });
 
   const [formValues, setValues] = useState(initialValues);
+  // const [formValues, setValues] = useState(getInitialValues());
   console.log(formValues);
   const formik = useFormik({
     initialValues: params.id > 0 ? formValues : initialValues,
+    // initialValues: formValues,
     onSubmit,
     validationSchema,
     enableReinitialize: true,
@@ -245,6 +297,39 @@ function ManageOutletsAddEdit() {
                   </div>
                 ) : null}
               </div>
+              
+              {params.id > 0 && (
+                <>
+                <div class="w-full">
+                <label
+                  for="created_dt"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Create Date 
+                </label>
+                <input
+                  type="datetime-local"
+                  name="created_dt"
+                  id="created_dt"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  // onChange={formik.handleChange}
+                  onChange={(e) => {
+                  formik.setFieldValue("created_dt", e.target.value);
+                  }}
+                  onBlur={formik.handleBlur}
+                  value={formatDateTimeLocal(formik.values.created_dt)}
+                  required=""
+                  disabled={params?.id < 1 ? true : false}
+                />
+                {formik.errors.created_dt && formik.touched.created_dt ? (
+                  <div className="text-red-500 text-sm">
+                    {formik.errors.created_dt}
+                  </div>
+                ) : null}
+              </div>
+                </>
+              )}
+              
+
               <div class="sm:col-span-2">
                 <label
                   for="o_branch_address"

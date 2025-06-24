@@ -8,6 +8,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { FilterMatchMode } from "primereact/api";
 import AddIcon from "@mui/icons-material/Add";
 import Tooltip from "@mui/material/Tooltip";
+import { Space, Switch } from "antd";
 const DatatableAdv = ({
   headers,
   data,
@@ -19,6 +20,7 @@ const DatatableAdv = ({
   onclick,
   setSearch,
   disabled = false,
+  onToggleSwitch,
   // onDownloadClick,
 }) => {
   const dt = useRef(null);
@@ -85,7 +87,7 @@ const DatatableAdv = ({
     onPress(id);
   };
 
-  const onRowUnselect = (event) => {};
+  const onRowUnselect = (event) => { };
 
   console.log(selectedProduct);
 
@@ -144,7 +146,6 @@ const DatatableAdv = ({
               <h2 className="text-xl font-bold bg-blue-900 text-nowrap text-white dark:text-white sm:block hidden">
                 {title}
               </h2>
-
               <label for="simple-search" class="sr-only">
                 Search
               </label>
@@ -196,6 +197,7 @@ const DatatableAdv = ({
             ref={cm}
             onHide={() => setSelectedProduct(null)}
           /> */}
+          {/* {JSON.stringify(data[0], null, 2)}  */}
           <DataTable
             // onContextMenu={(e) => cm.current.show(e.originalEvent)}
             // contextMenuSelection={selectedProduct}
@@ -226,19 +228,74 @@ const DatatableAdv = ({
             onRowSelect={!disabled && onRowSelect}
             onRowUnselect={onRowUnselect}
             metaKeySelection={false}
-            //    filters={filters} filterDisplay="row"
-            //     globalFilterFields={headers}  emptyMessage="No customers found."
+          //    filters={filters} filterDisplay="row"
+          //     globalFilterFields={headers}  emptyMessage="No customers found."
           >
-            {headers.map((item, index) => (
+            {/* {headers.map((item, index) => (
               // <>
+              <Column
+                key={index}
+                field={item.name}
+                header={item.value }
+                headerClassName="text-blue-900 bg-blue-300"
+                style={{ width: "10%" }}
+                // body={item.name=='catg_picture'? :''}
+              ></Column>
+            ))} */}
+            {headers.map((item, index) => (
               <Column
                 key={index}
                 field={item.name}
                 header={item.value}
                 headerClassName="text-blue-900 bg-blue-300"
                 style={{ width: "10%" }}
-                // body={item.name=='catg_picture'? :''}
-              ></Column>
+                body={(rowData) => {
+                  const value = rowData[item.name];
+
+                  // Show Switch if field is 'active_flag'
+                  if (item.name === "active_flag") {
+                    return (
+                      <>
+                        <Space direction="vertical">
+                          <Switch
+                            checked={value === "Y" || value === true || value === 1}
+                            onChange={(checked) => {
+                              onToggleSwitch && onToggleSwitch(checked, rowData);
+                            }}
+                            checkedChildren="Active"
+                            unCheckedChildren="In Active"
+                          />
+                        </Space>
+                      </>
+                    );
+                  }
+
+                  // 1. Return "--" for null or undefined
+                  if (value === null || value === undefined || value === "") {
+                    return "--";
+                  }
+
+                  // 2. Format if it's a date string
+                  const isISODate =
+                    typeof value === "string" &&
+                    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value);
+
+                  if (isISODate) {
+                    const date = new Date(value);
+                    return date.toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+                  }
+
+                  // 3. Return plain value otherwise
+                  return value;
+                }}
+              />
             ))}
             {/* {flag == 1 && (
               <Column

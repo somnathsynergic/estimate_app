@@ -160,6 +160,15 @@ const ManageUsersComp = lazy(() =>
 const ManageUsersView = lazy(() =>
   import("./Screens/SuperAdmin/ManageUsers/ManageUsersView")
 );
+
+const ManageReportsComp = lazy(() =>
+  import("./Screens/SuperAdmin/ManageReport/ManageReportsComp")
+);
+const ManageReportsView = lazy(() =>
+  import("./Screens/SuperAdmin/ManageReport/ManageReportsView")
+);
+
+
 const ManageUsersAddEdit = lazy(() =>
   import("./Screens/SuperAdmin/ManageUsers/ManageUsersAddEdit")
 );
@@ -388,6 +397,20 @@ const router = createBrowserRouter([
                     path: "manageuser/:id",
                     element: <ManageUsersAddEdit />,
                   },
+                ],
+              },
+              {
+                path: "managereports",
+                element: <ManageReportsComp />,
+                children: [
+                  {
+                    path: "view",
+                    element: <ManageReportsView />,
+                  },
+                  // {
+                  //   path: "manageuser/:id",
+                  //   element: <ManageUsersAddEdit />,
+                  // },
                 ],
               },
               {

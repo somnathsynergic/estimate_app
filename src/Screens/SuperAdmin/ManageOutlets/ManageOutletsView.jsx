@@ -23,7 +23,7 @@ function ManageOutletsView() {
 
   useEffect(() => {
     setCompId(compId ?? localStorage.getItem("compIdx") ?? undefined);
-    console.log(response);
+    console.log(response?.data?.msg, 'response');
     setDataSet(response?.data?.msg);
 
     if (response?.data?.msg?.length <= 0) {
@@ -69,6 +69,7 @@ function ManageOutletsView() {
   }, [compId]);
 
   const onPress = (data) => {
+    
     console.log(data);
     navigation(
       "/home/superadmin/manageoutlets/manageoutlet/" +
@@ -134,6 +135,8 @@ function ManageOutletsView() {
         <div class="mx-auto w-full">
           <div class="bg-blue-900 dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
+              
+              
               <DatatableAdv
                 onPress={(data) => onPress(data)}
                 setSearch={(val) => setSearch(val)}
@@ -145,8 +148,9 @@ function ManageOutletsView() {
                   { name: "id", value: "Outlet ID" },
                   // { name: "comp_id", value: "Company ID" },
                   { name: "branch_name", value: "Outlet Name" },
-                  { name: "phone_no", value: "Phone Number" },
-                  { name: "email_id", value: "Email" },
+                  // { name: "phone_no", value: "Phone Number" },
+                  // { name: "email_id", value: "Email" },
+                  { name: "created_dt", value: "Create Date" },
                 ]}
                 data={dataSet}
               />
