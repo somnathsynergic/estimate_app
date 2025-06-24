@@ -428,6 +428,7 @@ class AddEditUser(BaseModel):
     active_flag:str
     login_flag:str
     created_by:str
+    created_dt:str | None
 
 # ---------------Manage Outlets---------------
 
@@ -445,6 +446,7 @@ class AddEditOutletS(BaseModel):
     phone_no:int | None
     email_id:str | None
     created_by:str
+    created_dt: str | None
 
 # -------------------Manage Header Footer-------------------
 

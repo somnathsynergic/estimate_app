@@ -107,7 +107,7 @@ async def add_edit_shop(data:AddEditCompany):
 # --------------Select All Users-------------
 @superadminRouter.get('/S_Admin/select_user')
 async def select_user(id:int):
-    select = "id,comp_id,br_id,user_name,user_type,user_id,device_id,phone_no,email_id,active_flag,login_flag"
+    select = "id,comp_id,br_id,user_name,user_type,user_id,device_id,phone_no,email_id,active_flag,login_flag,created_dt,modified_dt"
     table_name = "md_user"
     where = f"id={id}" if id>0 else f""
     order = f"ORDER BY comp_id,br_id,user_type"
@@ -117,7 +117,7 @@ async def select_user(id:int):
 
 @superadminRouter.get('/S_Admin/select_user_by_shop')
 async def select_user(comp_id:int,br_id:int):
-    select = "id,comp_id,br_id,user_name,user_type,user_id,phone_no,email_id,active_flag,login_flag"
+    select = "id,comp_id,br_id,user_name,user_type,user_id,phone_no,email_id,active_flag,login_flag,created_dt,modified_dt"
     table_name = "md_user"
     where = f"comp_id={comp_id} and br_id={br_id}"
     order = f"ORDER BY user_type"
@@ -153,14 +153,14 @@ async def add_edit_user(data:AddEditUser):
     if data.user_type == 'A':
 
         # fields = f"comp_id={data.comp_id}, br_id={data.br_id}, user_name='{data.user_name}', user_type='{data.user_type}', user_id='{data.user_id}', email_id='{data.user_id}',phone_no={data.phone_no}, device_id='{data.device_id}', password='{pwd}',active_flag='{data.active_flag}',login_flag='{data.login_flag}',modified_by='{data.created_by}', modified_dt='{formatted_dt}'" if data.id>0 else f"comp_id,br_id,user_name,user_type,user_id,email_id,device_id,password,phone_no,active_flag,login_flag,created_by, created_dt"
-        fields = f"comp_id={data.comp_id}, br_id={data.br_id}, user_name='{data.user_name}', user_type='{data.user_type}', user_id='{data.user_id}',,phone_no={data.phone_no}, device_id='{data.device_id}', password='{pwd}',active_flag='{data.active_flag}',login_flag='{data.login_flag}',modified_by='{data.created_by}', modified_dt='{formatted_dt}'" if data.id>0 else f"comp_id,br_id,user_name,user_type,user_id,device_id,password,phone_no,active_flag,login_flag,created_by, created_dt"
+        fields = f"comp_id={data.comp_id}, br_id={data.br_id}, user_name='{data.user_name}', user_type='{data.user_type}', user_id='{data.user_id}',,phone_no={data.phone_no}, device_id='{data.device_id}', password='{pwd}',active_flag='{data.active_flag}',login_flag='{data.login_flag}',modified_by='{data.created_by}', modified_dt='{formatted_dt}', created_dt='{data.created_dt}'" if data.id>0 else f"comp_id,br_id,user_name,user_type,user_id,device_id,password,phone_no,active_flag,login_flag,created_by, created_dt"
 
         # values = None if data.id>0 else f"{data.comp_id},{data.br_id},'{data.user_name}','{data.user_type}','{data.user_id}','{data.user_id}',{data.device_id},'{pwd}',{data.phone_no},'Y','N','{data.created_by}', '{formatted_dt}'"
         values = None if data.id>0 else f"{data.comp_id},{data.br_id},'{data.user_name}','{data.user_type}','{data.user_id}','{data.device_id}','{pwd}',{data.phone_no},'Y','N','{data.created_by}', '{formatted_dt}'"
 
     else:
 
-        fields = f"comp_id={data.comp_id}, br_id={data.br_id}, user_name='{data.user_name}', user_type='{data.user_type}', user_id='{data.user_id}', phone_no={data.phone_no}, device_id='{data.device_id}', active_flag='{data.active_flag}', password='{pwd}',login_flag='{data.login_flag}',modified_by='{data.created_by}', modified_dt='{formatted_dt}'" if data.id>0 else f"comp_id,br_id,user_name,user_type,user_id,device_id,password,active_flag,login_flag,phone_no,created_by, created_dt"
+        fields = f"comp_id={data.comp_id}, br_id={data.br_id}, user_name='{data.user_name}', user_type='{data.user_type}', user_id='{data.user_id}', phone_no={data.phone_no}, device_id='{data.device_id}', active_flag='{data.active_flag}', password='{pwd}',login_flag='{data.login_flag}',modified_by='{data.created_by}', modified_dt='{formatted_dt}', created_dt='{data.created_dt}'" if data.id>0 else f"comp_id,br_id,user_name,user_type,user_id,device_id,password,active_flag,login_flag,phone_no,created_by, created_dt"
 
         values = None if data.id>0 else f"{data.comp_id},{data.br_id},'{data.user_name}','{data.user_type}','{data.user_id}','{data.device_id}','{pwd}','Y','N',{data.phone_no},'{data.created_by}', '{formatted_dt}'"
 
@@ -189,7 +189,7 @@ async def user_list(data:UserList):
 # ----------------company wise branch select-----------------
 @superadminRouter.get('/S_Admin/select_outlet')
 async def select_outlet(comp_id:int):
-    select = "id,comp_id,branch_name,branch_address,location,contact_person,phone_no,email_id"
+    select = "id,comp_id,branch_name,branch_address,location,contact_person,phone_no,email_id,created_dt,modified_dt"
     table_name = "md_branch"
     where = f"comp_id={comp_id}" if comp_id>0 else f""
     order = f""
@@ -209,7 +209,7 @@ async def select_outlet(comp_id:int):
 
 @superadminRouter.get('/S_Admin/select_one_outlet')
 async def select_outlet(comp_id:int,br_id:int):
-    select = "id,comp_id,branch_name,branch_address,location,contact_person,phone_no,email_id"
+    select = "id,comp_id,branch_name,branch_address,location,contact_person,phone_no,email_id,created_dt,modified_dt"
     table_name = "md_branch"
     where = f"comp_id={comp_id} AND id = {br_id}" 
     order = f""
@@ -223,7 +223,7 @@ async def add__edit_outlet(data:AddEditOutletS):
     formatted_dt = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
     table_name = "md_branch"
 
-    fields = f"branch_name = '{data.branch_name}', branch_address = '{data.branch_address}', location = {data.location}, contact_person = '{data.contact_person}', phone_no = {data.phone_no}, email_id = '{data.email_id}', modified_by = '{data.created_by}', modified_dt = '{formatted_dt}'" if data.br_id>0 else "comp_id, branch_name, branch_address, location, contact_person, phone_no, email_id, created_by, created_dt"    
+    fields = f"branch_name = '{data.branch_name}', branch_address = '{data.branch_address}', location = {data.location}, contact_person = '{data.contact_person}', phone_no = {data.phone_no}, email_id = '{data.email_id}', created_by='{data.created_by}', created_dt='{data.created_dt}', modified_by = '{data.created_by}', modified_dt = '{formatted_dt}'" if data.br_id>0 else "comp_id, branch_name, branch_address, location, contact_person, phone_no, email_id, created_by, created_dt"    
 
     values =f"{data.comp_id}, '{data.branch_name}', '{data.branch_address}', {data.location}, '{data.contact_person}', {data.phone_no}, '{data.email_id}', '{data.created_by}', '{formatted_dt}'"
 
