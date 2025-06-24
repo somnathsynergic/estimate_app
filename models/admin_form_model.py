@@ -92,13 +92,22 @@ class ItemReport(BaseModel):
     to_date:date
     comp_id:int
     br_id:int
-    # user_id:str
 
 class ItemReportOutlet(BaseModel):
     from_date:date
     to_date:date
     comp_id:int
     br_id:int
+    user_id:str
+
+class ProdInfo(BaseModel):
+    prodId:int
+    br_id:int
+    user:str
+
+class BillwiseReport(BaseModel):
+    from_date:date
+    to_date:date
     user_id:str
 
 class PayModeReport(BaseModel):
@@ -112,11 +121,6 @@ class UserWiseReport(BaseModel):
     to_date:date
     comp_id:int
     br_id:int
-
-class BillwiseReport(BaseModel):
-    from_date:date
-    to_date:date
-    user_id:str
 
 class GSTstatement(BaseModel):
     from_date:date
@@ -515,3 +519,11 @@ class AddEditBrand(BaseModel):
 class BrandId(BaseModel):
     # catg_id:int
     brand_id:int
+
+
+class ProdVal(BaseModel):
+    item_id:int
+
+class ProdItems(BaseModel):
+    Items:List[ProdVal]
+    br_id:int

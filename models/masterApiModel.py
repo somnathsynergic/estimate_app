@@ -115,3 +115,41 @@ async def db_Insert(table_name, fields, values, where, flag, selectInsert = Fals
 
     finally:
         return res_dt
+
+
+
+async def db_Delete(table_name, where):
+    res_dt = {}
+    msg = ''
+    errMsg = ''
+    
+    sql = f"DELETE FROM {table_name} WHERE {where}"
+    # print(sql)
+    msg = "Deleted Successfully !!"
+    errMsg = "Data not deleted  !!"
+
+    try:
+        conn = connect()
+        cursor = conn.cursor()
+
+        cursor.execute(sql)
+
+        conn.commit()
+        conn.close()
+        cursor.close()
+
+        # if cursor.rowcount>0:
+        res_dt = {"suc":1, "msg":msg}
+        # else:
+            # res_dt = {"suc":0, "msg":errMsg}
+
+        # print(res_dt,"##############")
+    except mysql.connector.Error as err:
+        # conn.close()
+        # cursor.close()
+        #  print(err)
+         res_dt =  {"suc": 0, "msg": err}
+         
+
+    finally:
+        return res_dt
