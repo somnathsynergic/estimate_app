@@ -120,7 +120,7 @@ async def select_user(comp_id:int,br_id:int):
     select = "id,comp_id,br_id,user_name,user_type,user_id,phone_no,email_id,active_flag,login_flag,created_dt,modified_dt"
     table_name = "md_user"
     where = f"comp_id={comp_id} and br_id={br_id}"
-    order = f"ORDER BY user_type"
+    order = f"ORDER BY created_dt desc"
     flag = 1
     res_dt = await db_select(select,table_name,where,order,flag)
     return res_dt
@@ -207,7 +207,7 @@ async def select_outlet(comp_id:int):
     select = "id,comp_id,branch_name,branch_address,location,contact_person,phone_no,email_id,created_dt,modified_dt"
     table_name = "md_branch"
     where = f"comp_id={comp_id}" if comp_id>0 else f""
-    order = f""
+    order = f"ORDER BY created_dt desc"
     flag = 1
     res_dt = await db_select(select,table_name,where,order,flag)
     return res_dt

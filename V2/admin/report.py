@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from config.database import connect
 from models.master_model import createResponse
 from models.masterApiModel import db_select, db_Insert
-from models.admin_form_model import UserActiveList, UserList,SaleReport,CollectionReport,PayModeReport,UserWiseReport,BillwiseReport,GSTstatement,RefundReport,CreditReport,ItemReport,ItemReportOutlet,CancelReport,CancelReportOutlet,DaybookReport,CustomerLedger,RecveryReport,DueReport,DueReportOutlet,dashboard,UserwiseReportOutlet
+from models.admin_form_model import dashboardData,UserActiveList, UserList,SaleReport,CollectionReport,PayModeReport,UserWiseReport,BillwiseReport,GSTstatement,RefundReport,CreditReport,ItemReport,ItemReportOutlet,CancelReport,CancelReportOutlet,DaybookReport,CustomerLedger,RecveryReport,DueReport,DueReportOutlet,dashboard,UserwiseReportOutlet
 from datetime import date
 reportRouter = APIRouter()
 
@@ -906,10 +906,35 @@ group by created_by,user_name,branch_name
 #===================================================================================
 @reportRouter.post('/S_Admin/user_report')
 async def select_user(id:UserActiveList):
-    select = "id,user_name,user_id,device_id,active_flag,created_dt"
-    table_name = "md_user"
-    where = f"br_id={id.br_id} and created_dt is not null" 
-    order = f""
+    select = "u.id,u.user_name,u.user_id,u.device_id,u.active_flag,u.created_dt,b.branch_name,b.created_dt as branch_created_dt"
+    table_name = "md_user u join md_branch b on u.br_id=b.id"
+    where = f"u.br_id={id.br_id} and u.created_dt is not null" 
+    order = f"order by u.created_dt desc"
     flag = 1
     res_dt = await db_select(select,table_name,where,order,flag)
     return res_dt
+
+@reportRouter.post('S_Admin/dashboard_data')
+async def select_user(id:dashboardData):
+    select = "count(*) as active_user_count"
+    table_name = "md_user"
+    where = f"active_flag='Y' and created_dt is not null" 
+    order = f""
+    flag = 1
+    res_dt_active = await db_select(select,table_name,where,order,flag)
+
+    select = "count(*) as inactive_user_count"
+    table_name = "md_user"
+    where = f"active_flag='N' and created_dt is not null" 
+    order = f""
+    flag = 1
+    res_dt_inactive = await db_select(select,table_name,where,order,flag)
+
+    select = "count(*) as outlet_count"
+    table_name = "md_branch"
+    where = f"created_dt is not null" 
+    order = f""
+    flag = 1
+    res_dt_outlet = await db_select(select,table_name,where,order,flag)
+    
+    res_dt = {"suc":1,"active_user":res_dt_active,"inactive_user":res_dt_inactive,"outlets":res_dt_outlet}

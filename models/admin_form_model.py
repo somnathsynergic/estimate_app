@@ -7,6 +7,11 @@ from typing import Annotated, Union, Optional, List
 # ======================================================================================================
 # Common Model 
 
+class getPass(BaseModel):
+    oldPass:str
+    newPass:str
+    user:str
+
 class CompId(BaseModel):
     comp_id:int
 
@@ -538,3 +543,6 @@ class ProdItems(BaseModel):
 
 class UserActiveList(BaseModel):
     br_id:int
+
+class dashboardData(BaseModel):
+    id:int

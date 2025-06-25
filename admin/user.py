@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from models.master_model import createResponse
 from models.masterApiModel import db_select, db_Insert
-from models.admin_form_model import UserLogin,CompId,UserList,AddUser,EditUser,UserProfile,ResetPassword,CheckPassword,AddEditOutlet
+from models.admin_form_model import getPass,UserLogin,CompId,UserList,AddUser,EditUser,UserProfile,ResetPassword,CheckPassword,AddEditOutlet
 from utils import get_hashed_password,verify_password
 # from otp_client import request_otp
 from datetime import datetime
@@ -258,6 +258,39 @@ async def add__edit_outlet(data:AddEditOutlet):
 
     res_dt = await db_Insert(table_name,fields,values,where,flag)
 
+    return res_dt
+
+
+@userRouter.post('/reset_pass')
+async def reset_pass(dt:getPass):
+    print(dt)
+    select = "password"
+    schema = "md_user"
+    where = f"id='{dt.user}'" 
+    order = ""
+    flag = 0
+    result = await db_select(select, schema, where, order, flag)
+    current_datetime = datetime.now()
+    formatted_dt = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    print(result['msg'])
+    if result['suc']==1 :
+        check=verify_password(dt.oldPass,result['msg']['user_password'])
+        if check==True:
+            fields=f'password="{get_hashed_password(dt.newPass)}",modified_by="{dt.user}",modified_at="{formatted_dt}"'
+            table_name="md_user"
+            whr=f'id="{dt.user}"'
+            flag1=1
+            values=''
+            result1 = await db_Insert(table_name, fields, values, whr, flag1)
+            if result1['suc']>0:
+                res_dt = {"suc": 1, "msg": "Password updated successfully!"}
+            else:
+                res_dt = {"suc": 0, "msg": "Error while updating!"}
+        else:
+            res_dt={"suc": 0, "msg": "Old password does not exist!"}
+
+    else:
+        res_dt={"suc": 0, "msg": result['msg']}
     return res_dt
 
 # @userRouter.post('/edit_user')
