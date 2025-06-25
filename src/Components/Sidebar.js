@@ -1452,7 +1452,7 @@ function SidebarComp() {
               > */}
             <Menu
               style={{ width: 256 }}
-              defaultOpenKeys={["sub33", "15"]}
+              defaultOpenKeys={["sub33_1", "15"]}
               mode="inline"
               items={
                 userType === "S"

@@ -23,6 +23,8 @@ const HomeScreen = () => {
   const [called, setCalled] = useState(false);
   const [users, setUsers] = useState();
   const [userType, setUserType] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [dashData, setDashData] = useState(false);
 
   const { response, callApi } = useAPI();
 
@@ -32,19 +34,19 @@ const HomeScreen = () => {
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);
     const data = {
-      labels: ["Profit", "Loss", "Average"],
+      labels: [`Active User ${Number(dashData?.active_users)}`, `Inactive Users ${Number(dashData?.inactive_users)}`, `Total Outlets ${Number(dashData?.outlets)}`],
       datasets: [
         {
-          data: [300, 50, 100],
+          data: [Number(dashData?.active_users), Number(dashData?.inactive_users), Number(dashData?.outlets)],
           backgroundColor: [
-            documentStyle.getPropertyValue("--blue-500"),
-            documentStyle.getPropertyValue("--red-500"),
-            documentStyle.getPropertyValue("--green-500"),
+            documentStyle.getPropertyValue("--blue-700"),
+            documentStyle.getPropertyValue("--purple-400"),
+            documentStyle.getPropertyValue("--orange-400"),
           ],
           hoverBackgroundColor: [
-            documentStyle.getPropertyValue("--blue-400"),
-            documentStyle.getPropertyValue("--red-400"),
-            documentStyle.getPropertyValue("--green-400"),
+            documentStyle.getPropertyValue("--blue-600"),
+            documentStyle.getPropertyValue("--purple-300"),
+            documentStyle.getPropertyValue("--orange-300"),
           ],
         },
       ],
@@ -55,7 +57,7 @@ const HomeScreen = () => {
 
     setChartData(data);
     setChartOptions(options);
-  }, []);
+  }, [dashData?.active_users, dashData?.inactive_users, dashData?.outlets]);
 
   const [chartDataLine, setChartDataLine] = useState({});
   const [chartOptionsLine, setChartOptionsLine] = useState({});
@@ -196,11 +198,43 @@ const HomeScreen = () => {
       .get(`${url}/admin/S_Admin/user_type?user_id=${userId}`)
       .then((res) => {
         setUserType(res?.data?.msg[0]?.user_type);
+
       });
 
     // console.log(response?.data?.msg[0]?.user_type);
     // console.log(items.filter((item) => item.key === "sub33"));
+
+    fetchDashboardData()
+
   }, []);
+
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    const cread = {
+      id: '0',
+    };
+
+    try {
+      const response = await axios.post(url + '/admin/S_Admin/dashboard_data/', cread, {
+        // headers: { 'auth_key': auth_key },
+      });
+
+      if (response?.data?.suc > 0) {
+        setLoading(false);
+        setDashData(response?.data?.msg)
+      }
+
+      // if(response?.data?.suc < 1) {
+      //   setLoading(false);
+      // }
+
+
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching data:", error);
+    }
+  };
 
   return (
     <>
@@ -222,32 +256,33 @@ const HomeScreen = () => {
       </div> */}
 
       {userType === "S" ? (
-        <div className="grid grid-cols-5 gap-5 my-10 align-middle -z-50 text-lg">
-          {/* <div className="col-span-2 bg-white z-10 rounded-2xl flex justify-center items-center shadow-xl h-fit p-10">
+        <div className="grid grid-cols-5 gap-5 my-0 align-middle -z-50 text-lg">
+          <div className="col-span-12">Dashboard</div>
+          {/* {JSON.stringify(dashData, null, 2)} */}
+          <div className="col-span-2 bg-white z-10 rounded-2xl flex justify-center items-center shadow-xl h-fit p-10">
             <Chart
               type="doughnut"
               data={chartData}
               options={chartOptions}
-              style={{
-                width: "70%",
-                height: 350,
-              }}
+            style={{
+              width: "70%",
+              height: 350,
+            }}
             />
           </div>
-          <div className="col-span-3 bg-white z-10 rounded-2xl flex justify-center items-center shadow-xl h-fit p-10">
+          {/* <div className="col-span-3 bg-white z-10 rounded-2xl flex justify-center items-center shadow-xl h-fit p-10">
             <Chart
               type="line"
               data={chartDataLine}
               options={chartOptionsLine}
               // height="380px"
               className="my-16"
-              style={{
-                width: "90%",
-                height: 350,
-              }}
+            // style={{
+            //   width: "90%",
+            //   height: 350,
+            // }}
             />
           </div> */}
-          Superuser Dashboard
         </div>
       ) : userType === "M" ? (
         <div className="mt-5 text-2xl">Outlet Dashboard</div>

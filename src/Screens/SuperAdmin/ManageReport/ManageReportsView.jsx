@@ -159,10 +159,11 @@ function ManageReportsView() {
                 Select outlet
               </option>
 
-              {outlets?.map((items, i) => (
-                <option key={i} value={items?.id}>
-                  {items?.branch_name}
-                </option>
+              {outlets ?.filter((item) => item.created_dt !== null)
+              .map((item, i) => (
+              <option key={i} value={item.id}>
+              {item.branch_name}
+              </option>
               ))}
             </select>
             {called && !compId ? (
