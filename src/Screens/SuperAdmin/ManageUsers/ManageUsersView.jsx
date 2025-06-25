@@ -209,16 +209,7 @@ function ManageUsersView() {
                   { name: "created_dt", value: "Create Date" },
                 ]}
                 data={dataSet}
-                // onToggleSwitch={(checked, row) => {
-                // console.log("Switched user:", row.id, "to", checked ? "Y" : "N", row?.comp_id, row?.br_id, row?.user_id);
-                // useFormStatus(row?.comp_id, row?.br_id, row?.user_id)
-                // // Optional: update local dataSet state
-                // setDataSet((prev) =>
-                // prev.map((item) =>
-                // item.id === row.id ? { ...item, active_flag: checked ? "Y" : "N" } : item
-                // )
-                // );
-                // }}
+                
                 onToggleSwitch={(checked, row) => {
                 const newStatus = checked ? "Y" : "N";
 
@@ -226,11 +217,24 @@ function ManageUsersView() {
                 updateUserStatus(row?.comp_id, row?.br_id, row?.user_id, newStatus);
 
                 // Update local state
-                setDataSet((prev) =>
-                prev.map((item) =>
-                item.id === row.id ? { ...item, active_flag: newStatus } : item
-                )
-                );
+                // setDataSet((prev) =>
+                // prev.map((item) =>
+                // item.id === row.id ? { ...item, active_flag: newStatus } : item
+                // )
+                // );
+
+                setDataSet((prev) => {
+                console.log(prev, 'prev');
+
+                const updated = prev.map((item) => {
+                console.log(item, 'item');
+                return item.id === row.id ? { ...item, active_flag: newStatus } : item;
+                });
+                console.log(updated, 'updated');
+                return updated;
+                });
+
+
                 }}
               />
             </div>

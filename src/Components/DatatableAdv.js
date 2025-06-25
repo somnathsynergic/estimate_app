@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { ContextMenu } from "primereact/contextmenu";
@@ -7,6 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { FilterMatchMode } from "primereact/api";
 import AddIcon from "@mui/icons-material/Add";
+import DownloadIcon from '@mui/icons-material/Download';
 import Tooltip from "@mui/material/Tooltip";
 import { Space, Switch } from "antd";
 const DatatableAdv = ({
@@ -21,6 +22,10 @@ const DatatableAdv = ({
   setSearch,
   disabled = false,
   onToggleSwitch,
+  rowClickDisabled = false,
+  enablePagination = true,
+  btnExportTxt,
+  pageName
   // onDownloadClick,
 }) => {
   const dt = useRef(null);
@@ -95,18 +100,50 @@ const DatatableAdv = ({
   //   dt.current.exportCSV({ selectionOnly });
   // };
 
+  // const exportExcel = () => {
+  //   import("xlsx").then((xlsx) => {
+  //     const worksheet = xlsx.utils.json_to_sheet(data);
+  //     const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
+  //     const excelBuffer = xlsx.write(workbook, {
+  //       bookType: "xlsx",
+  //       type: "array",
+  //     });
+
+  //     saveAsExcelFile(excelBuffer, "products");
+  //   });
+  // };
+
   const exportExcel = () => {
-    import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(data);
-      const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
-      const excelBuffer = xlsx.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
+  import("xlsx").then((xlsx) => {
+    const formattedData = data.map((row) => {
+      const newRow = { ...row };
+
+      // Loop through each key in the row
+      Object.keys(newRow).forEach((key) => {
+        const value = newRow[key];
+
+        // Check if value is a date string like "2025-05-09T02:30:00"
+        if (
+          typeof value === "string" &&
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)
+        ) {
+          newRow[key] = formatDate(value);
+        }
       });
 
-      saveAsExcelFile(excelBuffer, "products");
+      return newRow;
     });
-  };
+
+    const worksheet = xlsx.utils.json_to_sheet(formattedData);
+    const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
+    const excelBuffer = xlsx.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    saveAsExcelFile(excelBuffer, "products");
+  });
+};
 
   const saveAsExcelFile = (buffer, fileName) => {
     import("file-saver").then((module) => {
@@ -126,7 +163,21 @@ const DatatableAdv = ({
     });
   };
 
-  // const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
+  const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = date.toLocaleString("en-GB", { month: "short" });
+  const year = date.getFullYear();
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "pm" : "am";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0 => 12
+  const hourStr = String(hours).padStart(2, "0");
+  return `${day} ${month} ${year}, ${hourStr}:${minutes} ${ampm}`;
+};
+
+  
   const paginatorRight = (
     <Button
       type="button"
@@ -137,6 +188,18 @@ const DatatableAdv = ({
     />
   );
 
+      const formatDateTimeLocal = useCallback((value) => {
+        const date = new Date(value);
+                    return date.toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+       });
+      }, []);
+
   return (
     <>
       {title && (
@@ -144,7 +207,14 @@ const DatatableAdv = ({
           <div class="w-full">
             <div class="flex items-center justify-evenly gap-2">
               <h2 className="text-xl font-bold bg-blue-900 text-nowrap text-white dark:text-white sm:block hidden">
-                {title}
+                {title} 
+                
+                {data && data?.length > 0 && pageName == 'manageReport' && (
+                  <span style={{fontSize:13}}>
+                  (Branch: {data ? data[0]?.branch_name : ''} & Create Date: {data ? formatDateTimeLocal(data[0]?.branch_created_dt) : ''})
+                  </span>
+                )}
+                 
               </h2>
               <label for="simple-search" class="sr-only">
                 Search
@@ -186,6 +256,23 @@ const DatatableAdv = ({
                   </Tooltip>
                 </div>
               )}
+
+              
+          {btnExportTxt && data?.length > 0 && (
+          <div class="w-full md:w-auto sm:block flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+          <Tooltip title={btnExportTxt}>
+          <button
+          type="submit"
+          onClick={exportExcel}
+          className="sm:block hidden  items-center justify-center text-blue-900 bg-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">
+          <DownloadIcon /> {btnExportTxt}
+          </button>
+          </Tooltip>
+          </div>
+          )}
+  
+
+
             </div>
           </div>
         </div>
@@ -197,7 +284,7 @@ const DatatableAdv = ({
             ref={cm}
             onHide={() => setSelectedProduct(null)}
           /> */}
-          {/* {JSON.stringify(data[0], null, 2)}  */}
+          {/* {JSON.stringify(rowData, null, 2)} */}
           <DataTable
             // onContextMenu={(e) => cm.current.show(e.originalEvent)}
             // contextMenuSelection={selectedProduct}
@@ -210,7 +297,7 @@ const DatatableAdv = ({
             stripedRows
             stickyHeader="true"
             scrollable
-            paginator
+            paginator={enablePagination}
             rows={10}
             rowsPerPageOptions={[4, 10, 25, 50, data?.length]}
             tableStyle={{ minWidth: "100%", fontSize: "14px" }}
@@ -219,13 +306,15 @@ const DatatableAdv = ({
             // paginatorLeft={paginatorLeft}
             paginatorRight={paginatorRight}
             styleClass="p-datatable-gridlines"
-            selectionMode="single"
+            // selectionMode="single"
+            selectionMode={rowClickDisabled ? null : "single"}
             selection={selectedProduct}
             onSelectionChange={
               !disabled && ((e) => setSelectedProduct(e.value))
             }
             dataKey="id"
-            onRowSelect={!disabled && onRowSelect}
+            // onRowSelect={!disabled && onRowSelect}
+            onRowSelect={rowClickDisabled === true ?  disabled : onRowSelect}
             onRowUnselect={onRowUnselect}
             metaKeySelection={false}
           //    filters={filters} filterDisplay="row"
@@ -240,17 +329,23 @@ const DatatableAdv = ({
                 headerClassName="text-blue-900 bg-blue-300"
                 style={{ width: "10%" }}
                 // body={item.name=='catg_picture'? :''}
+                body={(rowData) => (
+                <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+                {JSON.stringify(rowData, null, 2)}
+                </pre>
+                )}
               ></Column>
             ))} */}
+            
             {headers.map((item, index) => (
               <Column
                 key={index}
-                field={item.name}
-                header={item.value}
+                field={item?.name}
+                header={item?.value}
                 headerClassName="text-blue-900 bg-blue-300"
                 style={{ width: "10%" }}
                 body={(rowData) => {
-                  const value = rowData[item.name];
+                const value = rowData[item.name];
 
                   // Show Switch if field is 'active_flag'
                   if (item.name === "active_flag") {
@@ -291,12 +386,14 @@ const DatatableAdv = ({
                       hour12: true,
                     });
                   }
-
+                  console.log(value, 'utsab');
+                  
                   // 3. Return plain value otherwise
                   return value;
                 }}
               />
             ))}
+            
             {/* {flag == 1 && (
               <Column
                 body={iconTemplate}
@@ -313,6 +410,7 @@ const DatatableAdv = ({
                 style={{ width: "10%" }}
                 frozen></Column>
             )} */}
+            
           </DataTable>
         </div>
 

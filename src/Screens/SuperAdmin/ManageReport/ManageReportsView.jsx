@@ -67,11 +67,16 @@ function ManageReportsView() {
 
   useEffect(() => {
     // comp = localStorage.getItem("comp_id");
+    // console.log(compId, selectedOutlet, 'compId and selectedOutlet');
+    let payload = {br_id: selectedOutlet}
+
     if (compId && selectedOutlet)
-      callApi(
-        `/admin/S_Admin/select_user_by_shop?comp_id=${compId}&br_id=${selectedOutlet}`,
-        0
-      );
+      // callApi(
+      //   `/admin/S_Admin/select_user_by_shop?comp_id=${compId}&br_id=${selectedOutlet}`,
+      //   0
+      // );
+      callApi("/admin/S_Admin/user_report", 1, payload);
+      console.log(response?.data?.msg, 'response in useEffect');
   }, [compId, selectedOutlet]);
 
   // useEffect(() => {
@@ -81,7 +86,7 @@ function ManageReportsView() {
 
   const onPress = (data) => {
     console.log(data);
-    navigation("/home/superadmin/manageusers/manageuser/" + data.id);
+    // navigation("/home/superadmin/manageusers/manageuser/" + data.id);
   };
 
   useEffect(() => {
@@ -99,38 +104,14 @@ function ManageReportsView() {
     );
   }, [search]);
 
-  const updateUserStatus = async (comp_id, br_id, user_id, active_flag) => {
-
-  console.log("Updating user status:", { comp_id, br_id, user_id, active_flag });
-    
-  // try {
-  // const payload = {
-  // comp_id,
-  // br_id,
-  // user_id,
-  // active_flag,
-  // };
-
-  // const res = await axios.post(`${url}/admin/S_Admin/update_user_status`, payload);
-
-  // if (res?.data?.success) {
-  // Message("success", "User status updated successfully!");
-  // } else {
-  // Message("error", res?.data?.msg || "Failed to update user status");
-  // }
-  // } catch (error) {
-  // console.error("Status update error:", error);
-  // Message("error", "Something went wrong while updating status.");
-  // }
-  };
 
 
   return (
     <div className="py-1 w-full ">
       <HeaderLayout
-        title={"Manage Users"}
-        btnText={"Add User"}
-        onPress={() => onPress({ id: 0 })}
+        title={"Manage Reports"}
+        // btnText={"Add User"}
+        // onPress={() => onPress({ id: 0 })}
       />
       <section class="dark:bg-gray-900 p-3 ">
         <div class="my-4 grid gap-4 sm:grid-cols-2 sm:gap-6">
@@ -192,46 +173,49 @@ function ManageReportsView() {
         <div class="mx-auto w-full">
           <div class="bg-blue-900 dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
+              {/* {JSON.stringify(selectedOutlet, null, 2)}
+                {outlets.length > 0 && (
+                outlets.map((items, i) => (
+                items?.id === selectedOutlet && (
+                <p key={i} value={items?.id}>
+                {items?.branch_name}
+                </p>
+                )
+                ))
+                )} */}
+              
               <DatatableAdv
                 onPress={(data) => onPress(data)}
+                rowClickDisabled = {true}
+                enablePagination={false}
                 setSearch={(val) => setSearch(val)}
-                title={"Manage Users"}
-                btnText={"Add User"}
-                onclick={() => onPress({ id: 0 })}
+                title={"Manage Reports "}
+                // btnText={"Add User"}
+                btnExportTxt={"Download"}
+                pageName={'manageReport'}
+                // onclick={() => onPress({ id: 0 })}
                 flag={1}
                 headers={[
                   { name: "id", value: "#" },
                   // { name: "comp_id", value: "Company ID" },
                   // { name: "br_id", value: "Branch ID" },
-                  { name: "user_name", value: "User" },
-                  // { name: "user_type", value: "User Type" },
+                  { name: "user_name", value: "User Name" },
+                  { name: "user_id", value: "User ID" },
+                  { name: "device_id", value: "Device ID" },
                   { name: "active_flag", value: "Active Flag" },
                   { name: "created_dt", value: "Create Date" },
                 ]}
                 data={dataSet}
                 // onToggleSwitch={(checked, row) => {
-                // console.log("Switched user:", row.id, "to", checked ? "Y" : "N", row?.comp_id, row?.br_id, row?.user_id);
-                // useFormStatus(row?.comp_id, row?.br_id, row?.user_id)
-                // // Optional: update local dataSet state
+                // const newStatus = checked ? "Y" : "N";
+
+                // // Update local state
                 // setDataSet((prev) =>
                 // prev.map((item) =>
-                // item.id === row.id ? { ...item, active_flag: checked ? "Y" : "N" } : item
+                // item.id === row.id ? { ...item, active_flag: newStatus } : item
                 // )
                 // );
                 // }}
-                onToggleSwitch={(checked, row) => {
-                const newStatus = checked ? "Y" : "N";
-
-                // API call
-                updateUserStatus(row?.comp_id, row?.br_id, row?.user_id, newStatus);
-
-                // Update local state
-                setDataSet((prev) =>
-                prev.map((item) =>
-                item.id === row.id ? { ...item, active_flag: newStatus } : item
-                )
-                );
-                }}
               />
             </div>
           </div>
