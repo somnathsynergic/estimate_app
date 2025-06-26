@@ -458,6 +458,7 @@ function HomeScreen() {
             blur={10}>
             {/* Welcome Back, Estimate! */}
             Welcome, {loginStore.user_name} 
+            {/* {JSON.stringify(loginStore?.id, null, 2)}  */}
           </HeaderImage>
         </View>
 

@@ -34,6 +34,7 @@ import useUpdateLoginFlag from "../hooks/api/useUpdateLoginFlag"
 import { UpdateLoginFlagCredentials } from "../models/api_types"
 // import RNEzetapSdk from "react-native-ezetap-sdk"
 import DeviceInfo from 'react-native-device-info'
+import messaging from '@react-native-firebase/messaging'
 
 function LoginScreen() {
   const navigation = useNavigation()
@@ -86,6 +87,7 @@ function LoginScreen() {
   //     openPhoneHintModal()
   //   }
   // }, [])
+  const [fcmToken, setFcmToken] = useState<string>(() => "")
 
   const onChangeCustomerMobileNumber = (mobile: string) => {
     // if (/^\d*$/.test(mobile)) {
@@ -223,6 +225,58 @@ function LoginScreen() {
   // }, [])
 
 
+  
+    const requestUserPermission = async () => {
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        if(enabled){
+         console.log('Notification permission status:', authStatus)
+        //  setAuthStatus(authStatus)
+         getFcmToken();
+        } else {
+            Alert.alert('Push Notification permission denied');
+        }
+    };
+
+    const getFcmToken = async () => {
+        try{
+            const fcmToken = await messaging().getToken();
+
+            if(fcmToken){
+                console.log("Fcm Token", fcmToken);
+                setFcmToken(fcmToken)
+            }else {
+                console.log("Failed to get Fcm token")
+            }
+        }catch (error) {
+            console.error('Error fetching FCM token:', error);
+        }
+    }
+
+    // useEffect(() => {
+    //     console.log('utsab')
+    //     requestUserPermission();
+
+    //     const unsubscribe = messaging().onMessage(async remoteMessage =>{
+    //         Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.body || ""));
+    //     })
+
+    //     messaging().onNotificationOpenedApp(remoteMessage =>{
+    //         console.log('Notification opened from background state:', remoteMessage.notification)
+    //     });
+
+    //     messaging().getInitialNotification().then(remoteMessage => {
+    //         console.log('Notification caused app to open from quit state:', remoteMessage.notification);
+    //     });
+
+    //     return unsubscribe;
+
+    // }, []);
+
+
   return (
     <SafeAreaView>
       <ScrollView keyboardShouldPersistTaps="handled">
@@ -290,7 +344,7 @@ function LoginScreen() {
                       onPress={() => {
                         if (loginText !== "" && passwordText !== "") {
                           // setNext(!next)
-                          handleLogin(loginText, passwordText)
+                          handleLogin(loginText, passwordText, fcmToken)
                           // setOtpSent(true)
                         } else {
                           ToastAndroid.show("Enter username or password properly.", ToastAndroid.SHORT)

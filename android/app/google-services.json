@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "273426920197",
+    "project_id": "estimate-notification-b03cf",
+    "storage_bucket": "estimate-notification-b03cf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273426920197:android:f9e6aa93b5b635d59b7d6c",
+        "android_client_info": {
+          "package_name": "com.estimate.notify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4qrqW-urZglYd9FciqVJJnobzAF9Z-Jk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

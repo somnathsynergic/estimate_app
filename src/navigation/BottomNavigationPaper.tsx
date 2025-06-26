@@ -17,7 +17,7 @@ function BottomNavigationPaper() {
   const currentRoute = useCurrentRouteName()
   const loginStore = JSON.parse(loginStorage.getString("login-data")) as LoginDataMessage
 
-  console.log("CURRNT ROUTE: ", currentRoute)
+  console.log(loginStore, "CURRNT ROUTE: ", currentRoute)
 
   const shouldHideTabBar = ["BottomNavigationPaper", "Home", "HomeScreen", "More", "MoreScreen", "Reports", "ReportsScreen", "Settings", "SettingsScreen", "CalculateMode", "CalculateModeScreen"].includes(currentRoute)
 

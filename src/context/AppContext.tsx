@@ -22,6 +22,7 @@ import useSendOtp2 from "../hooks/api/useSendOtp2"
 import { AppStoreContext } from "../models/custom_types"
 // import RNEzetapSdk from "react-native-ezetap-sdk"
 import DeviceInfo from "react-native-device-info"
+import messaging from '@react-native-firebase/messaging'
 
 export const AppStore = createContext<AppStoreContext>(null)
 
@@ -49,11 +50,66 @@ const AppContext = ({ children }) => {
   const { fetchCategories } = useCategories()
 
   const [deviceId, setDeviceId] = useState(() => "")
+  const [fcmToken, setFcmToken] = useState<string>(() => "")
 
   useEffect(() => {
     const uniqueId = DeviceInfo.getUniqueIdSync()
     setDeviceId(uniqueId)
   }, [])
+
+  
+    
+      const requestUserPermission = async () => {
+          const authStatus = await messaging().requestPermission();
+          const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+          if(enabled){
+           console.log('Notification permission status:', authStatus)
+          //  setAuthStatus(authStatus)
+           getFcmToken();
+          } else {
+              Alert.alert('Push Notification permission denied');
+          }
+      };
+  
+      const getFcmToken = async () => {
+          try{
+              const fcmToken = await messaging().getToken();
+  
+              if(fcmToken){
+                  console.log("Fcm Token", fcmToken);
+                  setFcmToken(fcmToken)
+              }else {
+                  console.log("Failed to get Fcm token")
+              }
+          }catch (error) {
+              console.error('Error fetching FCM token:', error);
+          }
+      }
+  
+      useEffect(() => {
+          console.log('utsab')
+          requestUserPermission();
+  
+          const unsubscribe = messaging().onMessage(async remoteMessage =>{
+              Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.body || ""));
+              console.log(remoteMessage, 'remoteMessage');
+              
+          })
+  
+          messaging().onNotificationOpenedApp(remoteMessage =>{
+              console.log('Notification opened from background state:', remoteMessage.notification)
+          });
+  
+          messaging().getInitialNotification().then(remoteMessage => {
+              console.log('Notification caused app to open from quit state:', remoteMessage.notification);
+          });
+  
+          return unsubscribe;
+  
+      }, []);
 
   // const initRazorpay = async () => {
   //   var withAppKey =
@@ -105,10 +161,10 @@ const AppContext = ({ children }) => {
   //   };
   // }, []);
 
-  const handleLogin = async (loginText: string, passwordText: string) => {
+  const handleLogin = async (loginText: string, passwordText: string, fcmToken: string) => {
     setLoading(true)
     setFlagOtp(!flagOtp)
-    console.log("@@@@@@@@@@@@@@@@", loginText, passwordText)
+    console.log("@@@@@@@@@@@@@@@@", loginText, passwordText, fcmToken)
     await login(loginText, passwordText)
       .then(loginData => {
         console.log("loginData", loginData)
