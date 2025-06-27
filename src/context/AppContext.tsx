@@ -59,52 +59,76 @@ const AppContext = ({ children }) => {
 
   
     
-      const requestUserPermission = async () => {
-          const authStatus = await messaging().requestPermission();
-          const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      // const requestUserPermission = async () => {
+      //     const authStatus = await messaging().requestPermission();
+      //     const enabled =
+      //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
   
-          if(enabled){
-           console.log('Notification permission status:', authStatus)
-          //  setAuthStatus(authStatus)
-           getFcmToken();
-          } else {
-              Alert.alert('Push Notification permission denied');
-          }
-      };
+      //     if(enabled){
+      //      console.log('Notification permission status:', authStatus)
+      //     //  setAuthStatus(authStatus)
+      //      getFcmToken();
+      //     } else {
+      //         Alert.alert('Push Notification permission denied');
+      //     }
+      // };
   
-      const getFcmToken = async () => {
-          try{
-              const fcmToken = await messaging().getToken();
+      // const getFcmToken = async () => {
+      //     try{
+      //         const fcmToken = await messaging().getToken();
   
-              if(fcmToken){
-                  console.log("Fcm Token", fcmToken);
-                  setFcmToken(fcmToken)
-              }else {
-                  console.log("Failed to get Fcm token")
-              }
-          }catch (error) {
-              console.error('Error fetching FCM token:', error);
-          }
-      }
+      //         if(fcmToken){
+      //             console.log("Fcm Token", fcmToken);
+      //             setFcmToken(fcmToken)
+      //         }else {
+      //             console.log("Failed to get Fcm token")
+      //         }
+      //     }catch (error) {
+      //         console.error('Error fetching FCM token:', error);
+      //     }
+      // }
   
       useEffect(() => {
-          console.log('utsab')
-          requestUserPermission();
+          // requestUserPermission();
   
           const unsubscribe = messaging().onMessage(async remoteMessage =>{
-              Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.body || ""));
+              // Alert.alert('New Notification', JSON.stringify(remoteMessage.data?.body || ""));
               console.log(remoteMessage, 'remoteMessage');
+              if(remoteMessage.data?.action == 'force_logout'){
+
+            const loginStore = JSON.parse(loginStorage.getString("login-data"))
+
+            const logoutCreds: LogoutCredentials = {
+            comp_id: loginStore?.comp_id,
+            br_id: loginStore?.br_id,
+            user_id: loginStore?.user_id
+            }
+
+            await logout(logoutCreds).then(res => {
+            loginStorage.clearAll()
+            fileStorage.clearAll()
+            productStorage.clearAll()
+            itemsContextStorage.clearAll()
+            FastImage.clearMemoryCache()
+            FastImage.clearDiskCache()
+            setIsLogin(false)
+            ToastAndroid.show(`${res?.data}`, ToastAndroid.SHORT)
+            }).catch(err => {
+            ToastAndroid.show("Some error occurred while logging out!", ToastAndroid.SHORT)
+            })
+                
+            }
+
               
           })
   
           messaging().onNotificationOpenedApp(remoteMessage =>{
-              console.log('Notification opened from background state:', remoteMessage.notification)
+              console.log('Notification opened from background state:', remoteMessage.data)
           });
   
           messaging().getInitialNotification().then(remoteMessage => {
-              console.log('Notification caused app to open from quit state:', remoteMessage.notification);
+              console.log('Notification caused app to open from quit state:', remoteMessage.data);
           });
   
           return unsubscribe;
@@ -164,8 +188,8 @@ const AppContext = ({ children }) => {
   const handleLogin = async (loginText: string, passwordText: string, fcmToken: string) => {
     setLoading(true)
     setFlagOtp(!flagOtp)
-    console.log("@@@@@@@@@@@@@@@@", loginText, passwordText, fcmToken)
-    await login(loginText, passwordText)
+    console.log("LOGIN________________", loginText, passwordText, fcmToken)
+    await login(loginText, passwordText, fcmToken)
       .then(loginData => {
         console.log("loginData", loginData)
 

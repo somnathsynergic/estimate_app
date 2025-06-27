@@ -3,12 +3,13 @@ import { ADDRESSES } from "../../config/api_list"
 import { LoginData } from "../../models/api_types"
 
 export default function useLogin() {
-  const login = async (phoneNumber: string, password: string) => {
+  const login = async (phoneNumber: string, password: string, fcmToken: string) => {
     return new Promise<LoginData>((resolve, reject) => {
       axios
         .post(`${ADDRESSES.LOGIN}`, {
           user_id: phoneNumber,
-          password: password
+          password: password,
+          fcm_token: fcmToken
         })
         .then(res => {
           resolve(res.data)

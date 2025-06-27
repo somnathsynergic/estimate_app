@@ -256,25 +256,25 @@ function LoginScreen() {
         }
     }
 
-    // useEffect(() => {
-    //     console.log('utsab')
-    //     requestUserPermission();
+    useEffect(() => {
+        // console.log('utsab')
+        requestUserPermission();
 
-    //     const unsubscribe = messaging().onMessage(async remoteMessage =>{
-    //         Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.body || ""));
-    //     })
+        // const unsubscribe = messaging().onMessage(async remoteMessage =>{
+        //     Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.body || ""));
+        // })
 
-    //     messaging().onNotificationOpenedApp(remoteMessage =>{
-    //         console.log('Notification opened from background state:', remoteMessage.notification)
-    //     });
+        // messaging().onNotificationOpenedApp(remoteMessage =>{
+        //     console.log('Notification opened from background state:', remoteMessage.notification)
+        // });
 
-    //     messaging().getInitialNotification().then(remoteMessage => {
-    //         console.log('Notification caused app to open from quit state:', remoteMessage.notification);
-    //     });
+        // messaging().getInitialNotification().then(remoteMessage => {
+        //     console.log('Notification caused app to open from quit state:', remoteMessage.notification);
+        // });
 
-    //     return unsubscribe;
+        // return unsubscribe;
 
-    // }, []);
+    }, []);
 
 
   return (
