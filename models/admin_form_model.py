@@ -438,7 +438,7 @@ class AddEditUser(BaseModel):
 class ActivateUser(BaseModel):
     comp_id:int
     br_id:int
-    user_id:int
+    user_id:str
     flag:str
 
 # ---------------Manage Outlets---------------

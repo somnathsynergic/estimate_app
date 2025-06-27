@@ -13,6 +13,10 @@ from typing import Annotated, Union, Optional
 from io import BytesIO
 import os
 from pandas import read_excel
+
+
+import firebase_admin
+from firebase_admin import credentials, messaging
 # import openpyxl
 
 
@@ -22,6 +26,9 @@ from pandas import read_excel
 # print("Files in %r: %s" % (cwd, files))
 # df = pd.read_excel('/home/rupsa/Documents/Data.xlsx')
 # print(df)
+
+cred = credentials.Certificate("key.json")
+firebase_admin.initialize_app(cred)
 
 UPLOAD_FOLDER = "upload_file"
 
@@ -178,13 +185,37 @@ async def add_edit_user(data:AddEditUser):
 
 @superadminRouter.post('/S_Admin/active_inactive_user')
 async def active_inactive_user(data:ActivateUser):
+    current_datetime = datetime.now()
+    formatted_dt = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
     table_name = f"md_user"
-    fields = f"active_flag='{data.flag}'"
+    fields = f"active_flag='{data.flag}',modified_by = '{data.user_id}', modified_dt = '{formatted_dt}'"
     values = f""
-    where = f"comp_id = {data.comp_id} and br_id={data.br_id} and id={data.user_id}"
+    where = f"comp_id = {data.comp_id} and br_id={data.br_id} and user_id='{data.user_id}'"
     order = f""
     flag = 1
     res_dt = await db_Insert(table_name,fields,values,where,flag)
+
+    select_id = "device_id"
+    table_name_id = "md_user"
+    where_id = f"comp_id = {data.comp_id} and br_id={data.br_id} and user_id='{data.user_id}'"
+    order_id = f""
+    flag_id = 1
+    res_dt_id = await db_select(select_id,table_name_id,where_id,order_id,flag_id)
+    print(res_dt_id)
+
+
+    # tokens = await get_fcm_tokens(user_id=data.user_id)
+    rows = res_dt_id.get('msg') or []
+    tokens = [r['device_id'] for r in rows]
+    print('tokens',tokens)
+    if tokens and data.flag=='N':
+        message = messaging.MulticastMessage(
+            data={"action": "force_logout"},
+            tokens=tokens,
+        )
+        response = messaging.send_multicast(message)
+        print("Tokens to send:", tokens)
+        print("FCM response:", response.success_count, response.failure_count)
     return res_dt
 # 
 # 
