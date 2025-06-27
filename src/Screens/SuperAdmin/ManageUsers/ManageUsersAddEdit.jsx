@@ -640,7 +640,7 @@ function ManageShopsAddEdit() {
               )} */}
 
               <>
-                <div>
+                {/* <div>
                   <label
                     for="u_active_flag"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -688,7 +688,7 @@ function ManageShopsAddEdit() {
                       {formik.errors.u_login_flag}
                     </div>
                   ) : null}
-                </div>
+                </div> */}
                 <div class="sm:col-span-2">
                   <label
                     for="u_device_id"

@@ -19,6 +19,7 @@ function ManageUsersView() {
   const [dataSet, setDataSet] = useState();
   const [search, setSearch] = useState();
   const [selectedOutlet, setSelectedOutlet] = useState(null);
+  const [selectOutlate, setSelectOutlate] = useState(() => []);
 
   var comp;
 
@@ -51,11 +52,28 @@ function ManageUsersView() {
       });
   }, []);
 
-  useEffect(() => {
-    // callApi(`/admin/S_Admin/select_location`, 0);
-    if (compId)
+  // useEffect(() => {
+  //   if (compId > 0 ){
+  //     axios
+  //       .get(`${url}/admin/S_Admin/select_outlet?comp_id=${compId}`)
+  //       .then((res) => {
+  //         setOutlets(res?.data?.msg);
+  //         console.log(res);
+  //       })
+  //       .catch((err) => {
+  //         Message("error", err);
+  //       });
+  //   } else {
+  //     setOutlets([]);
+  //   }
+  // }, [compId]);
+
+  const fetchOutlateDate = (compId_)=>{
+    console.log(compId_, 'Filtered outlet array');
+    if(compId_ > 0){
+      // alert('load data', compId_)
       axios
-        .get(`${url}/admin/S_Admin/select_outlet?comp_id=${compId}`)
+        .get(`${url}/admin/S_Admin/select_outlet?comp_id=${compId_}`)
         .then((res) => {
           setOutlets(res?.data?.msg);
           console.log(res);
@@ -63,7 +81,12 @@ function ManageUsersView() {
         .catch((err) => {
           Message("error", err);
         });
-  }, [compId]);
+    } else {
+      // alert('unload data', compId_)
+      setOutlets([]);
+    }
+   
+  }
 
   useEffect(() => {
     // comp = localStorage.getItem("comp_id");
@@ -101,28 +124,45 @@ function ManageUsersView() {
 
   const updateUserStatus = async (comp_id, br_id, user_id, active_flag) => {
 
-  console.log("Updating user status:", { comp_id, br_id, user_id, active_flag });
-    
-  // try {
-  // const payload = {
-  // comp_id,
-  // br_id,
-  // user_id,
-  // active_flag,
-  // };
-
-  // const res = await axios.post(`${url}/admin/S_Admin/update_user_status`, payload);
-
-  // if (res?.data?.success) {
-  // Message("success", "User status updated successfully!");
-  // } else {
-  // Message("error", res?.data?.msg || "Failed to update user status");
-  // }
-  // } catch (error) {
-  // console.error("Status update error:", error);
-  // Message("error", "Something went wrong while updating status.");
-  // }
+  const payload = {
+  comp_id: comp_id,
+  br_id: br_id,
+  user_id: user_id,
+  flag: active_flag
   };
+
+  console.log("Updating user status:", payload);
+    
+ 
+try {
+      const response = await axios.post(url + '/admin/S_Admin/active_inactive_user/', payload, {
+        // headers: { 'auth_key': auth_key },
+      });
+
+      console.log("Updating user status: res", response);
+
+      if (response?.data?.suc > 0) {
+        // setLoading(false);
+        // setDashData(response?.data?.msg)
+        Message("success", response?.data?.msg);
+      }
+
+      // if(response?.data?.suc < 1) {
+      //   setLoading(false);
+      // }
+
+
+    } catch (error) {
+      // setLoading(false);
+      console.error("Error fetching data:", error);
+      Message("error", "Something went wrong while updating status.");
+    }
+
+  };
+
+  const outlateActiveInactive = (id)=>{
+    setSelectOutlate(outlets.filter((item) => item.id == id));
+  }
 
 
   return (
@@ -140,14 +180,19 @@ function ManageUsersView() {
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Select Shop
             </label>
+            {/* {JSON.stringify(shops, null, 2)} */}
+            {/* {JSON.stringify(outlets[0], null, 2)} */}
             <select
               id="comp_id"
               name="comp_id"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-              onChange={(e) => setCompId(e.target.value)}
+              onChange={(e) => {
+                fetchOutlateDate(e?.target?.value)
+                setCompId(e?.target?.value)
+              }}
               // onBlur={() => null}
               value={compId}>
-              <option selected value={undefined}>
+              <option selected value={0}>
                 Select Shop
               </option>
 
@@ -171,10 +216,15 @@ function ManageUsersView() {
               id="br_id"
               name="br_id"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-              onChange={(e) => setSelectedOutlet(e.target.value)}
+              onChange={(e) => {
+                if(e.target.value > 0){
+                outlateActiveInactive(e.target.value)
+                setSelectedOutlet(e.target.value)
+                }
+              }}
               // onBlur={() => null}
               value={selectedOutlet}>
-              <option selected value={undefined}>
+              <option selected value={0}>
                 Select outlet
               </option>
 
@@ -192,11 +242,12 @@ function ManageUsersView() {
         <div class="mx-auto w-full">
           <div class="bg-blue-900 dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
+              {/* {JSON.stringify(outlets, null, 2)} */}
               <DatatableAdv
                 onPress={(data) => onPress(data)}
                 setSearch={(val) => setSearch(val)}
                 title={"Manage Users"}
-                btnText={"Add User"}
+                btnText={selectOutlate[0]?.active_flag == 'Y' ? "Add User" : ""}
                 onclick={() => onPress({ id: 0 })}
                 flag={1}
                 headers={[
@@ -209,7 +260,6 @@ function ManageUsersView() {
                   { name: "created_dt", value: "Create Date" },
                 ]}
                 data={dataSet}
-                
                 onToggleSwitch={(checked, row) => {
                 const newStatus = checked ? "Y" : "N";
 

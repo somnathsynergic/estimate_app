@@ -197,7 +197,7 @@ function ManageReportsView() {
                 // onclick={() => onPress({ id: 0 })}
                 flag={1}
                 headers={[
-                  { name: "id", value: "#" },
+                  { name: "id_report", value: "#" },
                   // { name: "comp_id", value: "Company ID" },
                   // { name: "br_id", value: "Branch ID" },
                   { name: "user_name", value: "User Name" },

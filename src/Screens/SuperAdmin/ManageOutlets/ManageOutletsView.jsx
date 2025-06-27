@@ -97,6 +97,51 @@ function ManageOutletsView() {
       )
     );
   }, [search]);
+
+
+const updateUserStatus = async (comp_id, id, active_flag) => {
+
+// comp_id:int
+// br_id:int
+// user_id:int
+// flag:'Y'/'N'
+  const payload = {
+  comp_id: comp_id,
+  br_id: id,
+  user_id: localStorage.getItem('user_id'),
+  flag: active_flag
+  };
+
+  console.log("Updating user status:", payload);
+    
+ 
+try {
+      const response = await axios.post(url + '/admin/S_Admin/active_inactive_outlet/', payload, {
+        // headers: { 'auth_key': auth_key },
+      });
+
+      console.log("Updating user status: res", response);
+
+      if (response?.data?.suc > 0) {
+        // setLoading(false);
+        Message("success", response?.data?.msg);
+      }
+
+      // if(response?.data?.suc < 1) {
+      //   setLoading(false);
+      // }
+
+
+    } catch (error) {
+      // setLoading(false);
+      console.error("Error fetching data:", error);
+      Message("error", "Something went wrong while updating status.");
+    }
+
+  };
+
+
+
   return (
     <div className="py-1 w-full ">
       <HeaderLayout
@@ -150,9 +195,37 @@ function ManageOutletsView() {
                   { name: "branch_name", value: "Outlet Name" },
                   // { name: "phone_no", value: "Phone Number" },
                   // { name: "email_id", value: "Email" },
+                  { name: "active_flag", value: "Active Flag" },
                   { name: "created_dt", value: "Create Date" },
                 ]}
                 data={dataSet}
+
+                onToggleSwitch={(checked, row) => {
+                const newStatus = checked ? "Y" : "N";
+
+                // API call
+                updateUserStatus(row?.comp_id, row?.id, newStatus);
+
+                // Update local state
+                // setDataSet((prev) =>
+                // prev.map((item) =>
+                // item.id === row.id ? { ...item, active_flag: newStatus } : item
+                // )
+                // );
+
+                setDataSet((prev) => {
+                console.log(prev, 'prev');
+
+                const updated = prev.map((item) => {
+                console.log(item, 'item');
+                return item.id === row.id ? { ...item, active_flag: newStatus } : item;
+                });
+                console.log(updated, 'updated');
+                return updated;
+                });
+
+
+                }}
               />
             </div>
           </div>

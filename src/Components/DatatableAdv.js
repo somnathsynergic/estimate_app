@@ -344,7 +344,7 @@ const DatatableAdv = ({
                 header={item?.value}
                 headerClassName="text-blue-900 bg-blue-300"
                 style={{ width: "10%" }}
-                body={(rowData) => {
+                body={(rowData, options) => {
                 const value = rowData[item.name];
 
                   // Show Switch if field is 'active_flag'
@@ -364,7 +364,10 @@ const DatatableAdv = ({
                       </>
                     );
                   }
-
+                  
+                  if(item.name === "id_report"){
+                    return options.rowIndex + 1
+                  }
                   // 1. Return "--" for null or undefined
                   if (value === null || value === undefined || value === "") {
                     return "--";

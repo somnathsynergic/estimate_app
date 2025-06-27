@@ -53,6 +53,17 @@ const HomeScreen = () => {
     };
     const options = {
       cutout: "60%",
+      plugins: {
+    legend: {
+      labels: {
+        font: {
+          size: 16, // ⬅️ Increase font size here
+        },
+        color: "#333", // Optional: set label color
+      },
+      position: "top", // Optional: move legend to bottom
+    },
+  },
     };
 
     setChartData(data);
@@ -265,7 +276,7 @@ const HomeScreen = () => {
               data={chartData}
               options={chartOptions}
             style={{
-              width: "70%",
+              width: "80%",
               height: 350,
             }}
             />
