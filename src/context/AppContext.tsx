@@ -11,8 +11,7 @@ import {
   LogoutCredentials,
   ReceiptSettingsData,
   SendOtpCredentials,
-  UnitData,
-  UserStatusData,
+  UnitData
 } from "../models/api_types"
 import useItems from "../hooks/api/useItems"
 import useUnits from "../hooks/api/useUnits"
