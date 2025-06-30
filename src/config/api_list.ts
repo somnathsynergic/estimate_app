@@ -31,6 +31,7 @@ export const ADDRESSES = {
   SALE_INSERT: `${BASE_URL}/api/saleinsert`,
   BILL_SUMMARY: `${BASE_URL}/api/billsummary`,
   RECENT_BILLS: `${BASE_URL}/api/recent_bills`,
+  USER_STATUS: `${BASE_URL}/api/get_active_status`,
   SHOW_BILL: `${BASE_URL}/api/show_bill`,
   SHOW_REFUND_BILL: `${BASE_URL}/api/show_refund_bill`,
   SEARCH_BILLS: `${BASE_URL}/api/search_bills`,

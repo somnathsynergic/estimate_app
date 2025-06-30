@@ -191,6 +191,7 @@ export type BillSummaryData = {
 }
 
 export type RecentBillsData = {
+  active_flag: string
   receipt_no: string
   trn_date: string
   price: number

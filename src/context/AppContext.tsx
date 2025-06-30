@@ -12,6 +12,7 @@ import {
   ReceiptSettingsData,
   SendOtpCredentials,
   UnitData,
+  UserStatusData,
 } from "../models/api_types"
 import useItems from "../hooks/api/useItems"
 import useUnits from "../hooks/api/useUnits"
@@ -23,6 +24,9 @@ import { AppStoreContext } from "../models/custom_types"
 // import RNEzetapSdk from "react-native-ezetap-sdk"
 import DeviceInfo from "react-native-device-info"
 import messaging from '@react-native-firebase/messaging'
+import useCheckStatus from "../hooks/api/useCheckStatus"
+
+
 
 export const AppStore = createContext<AppStoreContext>(null)
 
@@ -39,6 +43,7 @@ const AppContext = ({ children }) => {
   const [units, setUnits] = useState<UnitData[]>(() => [])
 
   const [flagOtp, setFlagOtp] = useState<boolean>(() => false)
+  const { fetchUserStatus } = useCheckStatus()
 
   const { login } = useLogin()
   const { logout } = useLogout()
@@ -88,40 +93,50 @@ const AppContext = ({ children }) => {
       //         console.error('Error fetching FCM token:', error);
       //     }
       // }
+
+      const checkUserActiveInactive = async () => {
+        console.log('checkkkkkkkkk');
+        const loginStore = JSON.parse(loginStorage.getString("login-data"))
+
+          await fetchUserStatus(
+            loginStore?.user_id,
+          )
+            .then(res => {
+              console.log('user________', 'then', res[0].active_flag);
+              if(res[0]?.active_flag == 'N'){
+                handleLogout()
+              }
+            })
+            .catch(err => {
+              console.log('user________', 'catch', err);
+              ToastAndroid.show(
+                "Error during fetching recent bills.",
+                ToastAndroid.SHORT,
+              )
+            })
+        }
   
       useEffect(() => {
           // requestUserPermission();
+
+          checkUserActiveInactive()
   
           const unsubscribe = messaging().onMessage(async remoteMessage =>{
               // Alert.alert('New Notification', JSON.stringify(remoteMessage.data?.body || ""));
               console.log(remoteMessage, 'remoteMessage');
-              if(remoteMessage.data?.action == 'force_logout'){
-
-            const loginStore = JSON.parse(loginStorage.getString("login-data"))
-
-            const logoutCreds: LogoutCredentials = {
-            comp_id: loginStore?.comp_id,
-            br_id: loginStore?.br_id,
-            user_id: loginStore?.user_id
+            if(remoteMessage.data?.action == 'force_logout'){
+            handleLogout()
             }
 
-            await logout(logoutCreds).then(res => {
-            loginStorage.clearAll()
-            fileStorage.clearAll()
-            productStorage.clearAll()
-            itemsContextStorage.clearAll()
-            FastImage.clearMemoryCache()
-            FastImage.clearDiskCache()
-            setIsLogin(false)
-            ToastAndroid.show(`${res?.data}`, ToastAndroid.SHORT)
-            }).catch(err => {
-            ToastAndroid.show("Some error occurred while logging out!", ToastAndroid.SHORT)
-            })
-                
-            }
-
-              
           })
+
+          messaging().setBackgroundMessageHandler(async remoteMessage => {
+
+            console.log(messaging(), 'Notification opened from background state:', remoteMessage.data)
+            if(remoteMessage.data?.action == 'force_logout'){
+              handleLogout()
+            }
+          });
   
           messaging().onNotificationOpenedApp(remoteMessage =>{
               console.log('Notification opened from background state:', remoteMessage.data)
@@ -130,6 +145,7 @@ const AppContext = ({ children }) => {
           messaging().getInitialNotification().then(remoteMessage => {
               console.log('Notification caused app to open from quit state:', remoteMessage.data);
           });
+          
   
           return unsubscribe;
   
