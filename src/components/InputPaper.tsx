@@ -32,7 +32,7 @@ const InputPaper = ({
   rightIcon,
   autoFocus,
   mode = "flat",
-  maxLength = 10,
+  maxLength = 16,
   selectTextOnFocus,
   disabled,
   clearTextOnFocus,
