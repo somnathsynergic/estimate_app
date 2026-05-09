@@ -72,6 +72,9 @@ const navigationRoutes = {
   calculateModeScreen: "CalculateModeScreen",
   calculateModeBillScreen: "CalculateModeBillScreen",
   saleReportCalculateModeScreen: "SaleReportCalculateModeScreen",
+
+  addCustomerNavigation: "AddCustomerNavigation",
+  addCustomerScreen: "AddCustomerScreen",
 }
 
 export default navigationRoutes

@@ -6,5 +6,5 @@ export const MORE_SCREEN_DATA = [
   // { "text": "Cancel Estimates", "icon": "table-cancel", "route": navigationRoutes.cancelBillsScreen },
   // { "text": "Search By Item", "icon": "archive-search-outline", "route": navigationRoutes.searchBillsByItemScreen },
   // { "text": "Refund Reprint", "icon": "cloud-print-outline", "route": navigationRoutes.refundReprintScreen },
-  { "text": "Recovery Amount", "icon": "refresh", "route": navigationRoutes.recoveryAmountScreen }
+  // { "text": "Recovery Amount", "icon": "refresh", "route": navigationRoutes.recoveryAmountScreen }
 ]

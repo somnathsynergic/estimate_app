@@ -10,6 +10,7 @@ export default function useCategoryItems() {
             axios
                 .post(`${ADDRESSES.CATEGORY_ITEM_LIST}`, creds)
                 .then(res => {
+
                     resolve(res.data)
                 })
                 .catch(err => {

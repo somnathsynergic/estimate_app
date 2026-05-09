@@ -11,22 +11,28 @@ import {
 import HeaderImage from "../components/HeaderImage"
 import { blurReport, blurReportDark } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { DataTable, Text } from "react-native-paper"
+import { DataTable, Text, IconButton } from "react-native-paper"
+// import { Dropdown } from 'react-native-element-dropdown'
+import useCustomerList from "../hooks/api/useCustomerList"
 import DatePicker from "react-native-date-picker"
 import ButtonPaper from "../components/ButtonPaper"
-import { useState } from "react"
-import normalize from "react-native-normalize"
+import { useContext, useEffect, useState } from "react"
+import normalize, { SCREEN_WIDTH } from "react-native-normalize"
 import { formattedDate } from "../utils/dateFormatter"
 import { loginStorage } from "../storage/appStorage"
 import { RecoveryReportCredentials, RecoveryReportData } from "../models/api_types"
 import SurfacePaper from "../components/SurfacePaper"
 import { useBluetoothPrint } from "../hooks/printables/useBluetoothPrint"
 import useRecoveryReport from "../hooks/api/useRecoveryReport"
+import { AppStore } from "../context/AppContext"
+import { AppStoreContext } from "../models/custom_types"
 
 function RecoveryReportScreen() {
     const theme = usePaperColorScheme()
 
     const loginStore = JSON.parse(loginStorage.getString("login-data"))
+
+    const { customer } = useContext<AppStoreContext>(AppStore)
 
     const { fetchRecoveryReport } = useRecoveryReport()
     const { printRecoveryReport } = useBluetoothPrint()
@@ -43,16 +49,19 @@ function RecoveryReportScreen() {
     const [isLoading, setIsLoading] = useState(() => false)
     const [isDisabled, setIsDisabled] = useState(() => false)
 
-    const formattedFromDate = formattedDate(fromDate)
-    const formattedToDate = formattedDate(toDate)
-
-    const handleGetDueReport = async (
+    const handleGetRecoveryReport = async (
         fromDate: string,
         toDate: string,
         companyId: number,
         branchId: number,
-        // userId: string,
     ) => {
+        if (fromDate > toDate) {
+            ToastAndroid.show(
+                "From date must be lower than To date.",
+                ToastAndroid.SHORT,
+            )
+            return
+        }
         setIsDisabled(true)
         setIsLoading(true)
         let recoveryReportCredObject: RecoveryReportCredentials = {
@@ -60,6 +69,7 @@ function RecoveryReportScreen() {
             br_id: branchId,
             from_date: fromDate,
             to_date: toDate,
+            cust_id: customer?.value || null
             // user_id: userId,
         }
         await fetchRecoveryReport(recoveryReportCredObject)
@@ -107,7 +117,8 @@ function RecoveryReportScreen() {
                         imgLight={blurReport}
                         imgDark={blurReportDark}
                         borderRadius={30}
-                        blur={10}>
+                        blur={10}
+                        showCustomerSelector>
                         Recovery Report
                     </HeaderImage>
                 </View>
@@ -167,7 +178,7 @@ function RecoveryReportScreen() {
                     }}>
                     <ButtonPaper
                         onPress={() =>
-                            handleGetDueReport(
+                            handleGetRecoveryReport(
                                 formattedFromDate,
                                 formattedToDate,
                                 loginStore.comp_id,
@@ -183,6 +194,7 @@ function RecoveryReportScreen() {
                         SUBMIT
                     </ButtonPaper>
                 </View>
+
 
                 <SurfacePaper backgroundColor={theme.colors.surface}>
                     <DataTable>
@@ -247,5 +259,24 @@ const styles = StyleSheet.create({
 
     title: {
         textAlign: "center",
+    },
+    dropdown: {
+        height: normalize(55),
+        borderRadius: 5,
+        paddingHorizontal: 8,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
     },
 })

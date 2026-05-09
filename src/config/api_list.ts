@@ -88,6 +88,7 @@ export const ADDRESSES = {
   REFUND_BILL_REPORT: `${BASE_URL}/api/refund_bill_report`,
   CREDIT_REPORT: `${BASE_URL}/api/credit_report`,
   CUSTOMER_INFORMATION: `${BASE_URL}/api/cust_info`,
+  CUSTOMER_LIST: `${BASE_URL}/api/cust_list`,
   RECOVERY_AMOUNT: `${BASE_URL}/api/recovery_amount`,
   RECOVERY_UPDATE: `${BASE_URL}/api/recovery_update`,
   LOGOUT: `${BASE_URL}/api/logout`,
@@ -105,4 +106,5 @@ export const ADDRESSES = {
 
   SEND_OTP2: `${BASE_URL_SMS}/sms_api/send_otp.php`,
   BILL_SMS2: `${BASE_URL_SMS}/sms_api/bill_sms.php`,
+  ADD_CUSTOMER: `${BASE_URL}/api/add_customer`,
 }

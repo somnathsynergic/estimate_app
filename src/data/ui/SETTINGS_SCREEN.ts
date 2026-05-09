@@ -9,5 +9,5 @@ export const SETTINGS_SCREEN_DATA = [
   // { "text": "Settings Master", "icon": "cog-sync-outline", "route": navigationRoutes.settingsMasterScreen },
   // { "text": "Logo Upload", "icon": "alien-outline", "route": navigationRoutes.logoUploadScreen },
   // { "text": "UPI Generate", "icon": "bank-transfer", "route": navigationRoutes.upiGenerateScreen },
-  // { "text": "Printer Connect", "icon": "printer", "route": navigationRoutes.printMain }
+  { "text": "Printer Connect", "icon": "printer", "route": navigationRoutes.printMain }
 ]

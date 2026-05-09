@@ -553,7 +553,7 @@ function CancelBillsScreen() {
         netTotalButtonColors={[theme.colors.vanillaContainer, theme.colors.onVanillaContainer]}
 
         onDialogFailure={onDialogFailure}
-        onDialogSuccecss={onDialogSuccecss}
+        onDialogSuccess={onDialogSuccecss}
       />
 
 

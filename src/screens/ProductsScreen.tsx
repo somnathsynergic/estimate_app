@@ -56,7 +56,7 @@ function ProductsScreen() {
 
   const { receiptSettings, items, handleGetItems } = useContext<AppStoreContext>(AppStore)
 
-  const loginStore = JSON.parse(loginStorage.getString("login-data"))
+  const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}')
 
   const searchProductRef = useRef(null)
 

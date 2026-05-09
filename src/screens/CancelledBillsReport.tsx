@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext, useState, useEffect } from "react"
 import {
   StyleSheet,
   ScrollView,
@@ -12,11 +12,12 @@ import {
 import HeaderImage from "../components/HeaderImage"
 import { greenRep, greenRepDark } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { DataTable, Text } from "react-native-paper"
+import { DataTable, IconButton, Text } from "react-native-paper"
+import { Dropdown } from 'react-native-element-dropdown'
+import useCustomerList from "../hooks/api/useCustomerList"
 import DatePicker from "react-native-date-picker"
 import ButtonPaper from "../components/ButtonPaper"
-import { useContext, useState } from "react"
-import normalize from "react-native-normalize"
+import normalize, { SCREEN_HEIGHT, SCREEN_WIDTH } from "react-native-normalize"
 import { formattedDate } from "../utils/dateFormatter"
 import { loginStorage } from "../storage/appStorage"
 import {
@@ -50,6 +51,33 @@ function CancelledBillsReportScreen() {
   const [isLoading, setIsLoading] = useState(() => false)
   const [isDisabled, setIsDisabled] = useState(() => false)
 
+  const { fetchCustomerList } = useCustomerList()
+  const [custData, setCustData] = useState<any[]>([])
+  const [selectedCustId, setSelectedCustId] = useState<number | null>(null)
+
+  const getCustomerList = async () => {
+    const creds = {
+      comp_id: loginStore?.comp_id,
+      user_id: loginStore?.user_id
+    }
+    await fetchCustomerList(creds).then(res => {
+      setCustData(res?.data?.map((item: any) => (
+        {
+          label: `${item?.cust_name} (ID: ${item?.cust_id})`,
+          value: item?.cust_id,
+          name: item?.cust_name,
+          phone: item?.phone_no
+        }
+      )) || [])
+    }).catch(err => {
+      console.log("Error fetching customer list", err)
+    })
+  }
+
+  useEffect(() => {
+    getCustomerList()
+  }, [])
+
   const formattedFromDate = formattedDate(new Date())
   const formattedToDate = formattedDate(new Date())
 
@@ -70,7 +98,8 @@ function CancelledBillsReportScreen() {
       to_date: toDate,
       comp_id: loginStore?.comp_id,
       br_id: loginStore?.br_id,
-      user_id: loginStore?.user_id
+      user_id: loginStore?.user_id,
+      // cust_id: selectedCustId
     }
 
     setIsDisabled(true)
@@ -83,6 +112,7 @@ function CancelledBillsReportScreen() {
       .catch(err => {
         ToastAndroid.show("Error during fetching report.", ToastAndroid.SHORT)
       })
+
     setIsDisabled(false)
     setIsLoading(false)
   }
@@ -185,6 +215,27 @@ function CancelledBillsReportScreen() {
             paddingHorizontal: normalize(20),
             paddingBottom: normalize(10),
           }}>
+          {/* <Dropdown
+            style={[styles.dropdown, { backgroundColor: theme.colors.vanillaSecondaryContainer }]}
+            placeholderStyle={[styles.placeholderStyle, { color: theme.colors.onVanillaSecondaryContainer }]}
+            selectedTextStyle={[styles.selectedTextStyle, { color: theme.colors.onVanillaSecondaryContainer }]}
+            inputSearchStyle={[styles.inputSearchStyle, { backgroundColor: theme.colors.vanillaSecondaryContainer, color: theme.colors.onVanillaSecondaryContainer }]}
+            iconStyle={[styles.iconStyle]}
+            data={custData}
+            search
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="Search Customer"
+            searchPlaceholder="Search..."
+            value={selectedCustId}
+            onChange={item => {
+              setSelectedCustId(item.value);
+            }}
+            renderLeftIcon={() => (
+              <IconButton icon={"account-search-outline"} size={20} style={{ margin: 0, padding: 0 }} />
+            )}
+          /> */}
           <ButtonPaper
             onPress={() =>
               handleGetCollectionReport(formattedFromDate, formattedToDate)
@@ -296,5 +347,25 @@ const styles = StyleSheet.create({
 
   title: {
     textAlign: "center",
+  },
+  dropdown: {
+    marginBottom: normalize(10),
+    height: normalize(55),
+    borderRadius: 5,
+    paddingHorizontal: 8,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 })

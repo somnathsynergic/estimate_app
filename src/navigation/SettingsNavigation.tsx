@@ -67,7 +67,7 @@ export default function SettingsNavigation() {
         name={navigationRoutes.logoUploadScreen}
         component={LogoUploadScreen}
       /> */}
-      {/* <Stack.Screen name={navigationRoutes.printMain} component={PrintMain} /> */}
+      <Stack.Screen name={navigationRoutes.printMain} component={PrintMain} />
       <Stack.Screen
         name={navigationRoutes.profileScreen}
         component={ProfileScreen}

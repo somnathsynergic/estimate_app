@@ -6,10 +6,12 @@ export default function useProductwiseSaleReport() {
     const fetchProductwiseSaleReport = async (
         saleRptCreds: BasicReportCredentials
     ) => {
+        console.log(saleRptCreds)
         return new Promise<PromiseLike<ProductwiseSaleReport>>((resolve, reject) => {
             axios
                 .post(`${ADDRESSES.PRODUCTWISE_SALE_REPORT}`, saleRptCreds)
                 .then(res => {
+
                     resolve(res.data)
                 })
                 .catch(err => {

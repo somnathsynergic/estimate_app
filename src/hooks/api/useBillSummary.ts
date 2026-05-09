@@ -8,6 +8,7 @@ export default function useBillSummary() {
     companyId: number,
     branchId: number,
     userId: string,
+    custId?: number | null,
   ) => {
     return new Promise<BillSummaryData>((resolve, reject) => {
       axios
@@ -16,6 +17,7 @@ export default function useBillSummary() {
           comp_id: companyId,
           br_id: branchId,
           user_id: userId,
+          cust_id: custId
         })
         .then(res => {
           resolve(res.data)

@@ -19,11 +19,12 @@ import useSendOtp from "../hooks/api/useSendOtp"
 import useLogout from "../hooks/api/useLogout"
 import useCategories from "../hooks/api/useCategories"
 import useSendOtp2 from "../hooks/api/useSendOtp2"
-import { AppStoreContext } from "../models/custom_types"
+import { AppStoreContext, Customer } from "../models/custom_types"
 // import RNEzetapSdk from "react-native-ezetap-sdk"
 import DeviceInfo from "react-native-device-info"
 import messaging from '@react-native-firebase/messaging'
 import useCheckStatus from "../hooks/api/useCheckStatus"
+import useCustomerList from "../hooks/api/useCustomerList"
 
 
 
@@ -40,6 +41,9 @@ const AppContext = ({ children }) => {
   const [items, setItems] = useState<ItemsData[]>(() => [])
   const [categories, setCategories] = useState<CategoryListData[]>(() => [])
   const [units, setUnits] = useState<UnitData[]>(() => [])
+  const [customer, setCustomer] = useState<Customer | null>(() => null)
+  const [customerList, setCustomerList] = useState<Customer[]>(() => [])
+  const [justLoggedIn, setJustLoggedIn] = useState<boolean>(() => false)
 
   const [flagOtp, setFlagOtp] = useState<boolean>(() => false)
   const { fetchUserStatus } = useCheckStatus()
@@ -52,6 +56,7 @@ const AppContext = ({ children }) => {
   // const { getOtp } = useSendOtp()
   const { getOtp } = useSendOtp2()
   const { fetchCategories } = useCategories()
+  const { fetchCustomerList } = useCustomerList()
 
   const [deviceId, setDeviceId] = useState(() => "")
   const [fcmToken, setFcmToken] = useState<string>(() => "")
@@ -61,94 +66,94 @@ const AppContext = ({ children }) => {
     setDeviceId(uniqueId)
   }, [])
 
-  
-    
-      // const requestUserPermission = async () => {
-      //     const authStatus = await messaging().requestPermission();
-      //     const enabled =
-      //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  
-      //     if(enabled){
-      //      console.log('Notification permission status:', authStatus)
-      //     //  setAuthStatus(authStatus)
-      //      getFcmToken();
-      //     } else {
-      //         Alert.alert('Push Notification permission denied');
-      //     }
-      // };
-  
-      // const getFcmToken = async () => {
-      //     try{
-      //         const fcmToken = await messaging().getToken();
-  
-      //         if(fcmToken){
-      //             console.log("Fcm Token", fcmToken);
-      //             setFcmToken(fcmToken)
-      //         }else {
-      //             console.log("Failed to get Fcm token")
-      //         }
-      //     }catch (error) {
-      //         console.error('Error fetching FCM token:', error);
-      //     }
-      // }
 
-      const checkUserActiveInactive = async () => {
-        console.log('checkkkkkkkkk');
-        const loginStore = JSON.parse(loginStorage.getString("login-data"))
 
-          await fetchUserStatus(
-            loginStore?.user_id,
-          )
-            .then(res => {
-              console.log('user________', 'then', res[0].active_flag);
-              if(res[0]?.active_flag == 'N'){
-                handleLogout()
-              }
-            })
-            .catch(err => {
-              console.log('user________', 'catch', err);
-              ToastAndroid.show(
-                "Error during fetching recent bills.",
-                ToastAndroid.SHORT,
-              )
-            })
+  // const requestUserPermission = async () => {
+  //     const authStatus = await messaging().requestPermission();
+  //     const enabled =
+  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  //     if(enabled){
+  //      console.log('Notification permission status:', authStatus)
+  //     //  setAuthStatus(authStatus)
+  //      getFcmToken();
+  //     } else {
+  //         Alert.alert('Push Notification permission denied');
+  //     }
+  // };
+
+  // const getFcmToken = async () => {
+  //     try{
+  //         const fcmToken = await messaging().getToken();
+
+  //         if(fcmToken){
+  //             console.log("Fcm Token", fcmToken);
+  //             setFcmToken(fcmToken)
+  //         }else {
+  //             console.log("Failed to get Fcm token")
+  //         }
+  //     }catch (error) {
+  //         console.error('Error fetching FCM token:', error);
+  //     }
+  // }
+
+  const checkUserActiveInactive = async () => {
+    console.log('checkkkkkkkkk');
+    const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}')
+
+    await fetchUserStatus(
+      loginStore?.user_id,
+    )
+      .then(res => {
+        console.log('user________', 'then', res[0].active_flag);
+        if (res[0]?.active_flag == 'N') {
+          handleLogout()
         }
-  
-      useEffect(() => {
-          // requestUserPermission();
+      })
+      .catch(err => {
+        console.log('user________', 'catch', err);
+        ToastAndroid.show(
+          "Error during fetching recent bills.",
+          ToastAndroid.SHORT,
+        )
+      })
+  }
 
-          checkUserActiveInactive()
-  
-          const unsubscribe = messaging().onMessage(async remoteMessage =>{
-              // Alert.alert('New Notification', JSON.stringify(remoteMessage.data?.body || ""));
-              console.log(remoteMessage, 'remoteMessage');
-            if(remoteMessage.data?.action == 'force_logout'){
-            handleLogout()
-            }
+  useEffect(() => {
+    // requestUserPermission();
 
-          })
+    checkUserActiveInactive()
 
-          messaging().setBackgroundMessageHandler(async remoteMessage => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      // Alert.alert('New Notification', JSON.stringify(remoteMessage.data?.body || ""));
+      console.log(remoteMessage, 'remoteMessage');
+      if (remoteMessage.data?.action == 'force_logout') {
+        handleLogout()
+      }
 
-            console.log(messaging(), 'Notification opened from background state:', remoteMessage.data)
-            if(remoteMessage.data?.action == 'force_logout'){
-              handleLogout()
-            }
-          });
-  
-          messaging().onNotificationOpenedApp(remoteMessage =>{
-              console.log('Notification opened from background state:', remoteMessage.data)
-          });
-  
-          messaging().getInitialNotification().then(remoteMessage => {
-              console.log('Notification caused app to open from quit state:', remoteMessage.data);
-          });
-          
-  
-          return unsubscribe;
-  
-      }, []);
+    })
+
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+
+      console.log(messaging(), 'Notification opened from background state:', remoteMessage.data)
+      if (remoteMessage.data?.action == 'force_logout') {
+        handleLogout()
+      }
+    });
+
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log('Notification opened from background state:', remoteMessage.data)
+    });
+
+    messaging().getInitialNotification().then(remoteMessage => {
+      console.log('Notification caused app to open from quit state:', remoteMessage.data);
+    });
+
+
+    return unsubscribe;
+
+  }, []);
 
   // const initRazorpay = async () => {
   //   var withAppKey =
@@ -203,52 +208,26 @@ const AppContext = ({ children }) => {
   const handleLogin = async (loginText: string, passwordText: string, fcmToken: string) => {
     setLoading(true)
     setFlagOtp(!flagOtp)
-    console.log("LOGIN________________", loginText, passwordText, fcmToken)
-    await login(loginText, passwordText, fcmToken)
+    console.log("LOGIN________________", loginText, passwordText, fcmToken, deviceId)
+    await login(loginText, passwordText, fcmToken, deviceId)
       .then(loginData => {
         console.log("loginData", loginData)
 
         if (loginData?.suc === 0) {
-          // Alert.alert("Error", "Login credentials are wrong! Please try again.")
           Alert.alert("Error", loginData?.msg?.toString())
           setIsLogin(false)
           return
         }
         if (loginData?.suc === 1) {
-          // setOtp(loginData?.otp?.otp)
-          // let otpCreds: SendOtpCredentials = {
-          //   comp_id: loginData?.msg?.comp_id,
-          //   phone: loginData?.msg?.user_id,
-          // }
-
-          if (loginData?.msg?.device_id === deviceId) {
-            loginStorage.set("login-data", JSON.stringify(loginData?.msg))
-
-            setIsLogin(true)
-          } else {
-            Alert.alert("Device Not Registered", "This device is not registered yet.")
-          }
-
-          // getOtp(otpCreds)
-          //   .then(res => {
-          //     setOtp(res?.otp)
-          //   })
-          //   .catch(err => {
-          //     ToastAndroid.show(
-          //       "Some error while sending otp.",
-          //       ToastAndroid.SHORT,
-          //     )
-          //     console.log("ERRR OTP: ", err)
-          //   })
-
-          // loginStorage.set("login-data", JSON.stringify(loginData?.msg))
+          loginStorage.set("login-data", JSON.stringify(loginData?.msg))
+          setIsLogin(true)
+          setJustLoggedIn(true)
         }
-        // setIsLogin(true)
       })
       .catch(err => {
         console.log("========", err)
         ToastAndroid.show(
-          "Some error on server while logging in.",
+          err,
           ToastAndroid.SHORT,
         )
       })
@@ -298,9 +277,10 @@ const AppContext = ({ children }) => {
   }, [])
 
   const handleGetReceiptSettings = async () => {
-    const loginStore = JSON.parse(loginStorage.getString("login-data"))
+    const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}')
 
     const companyId = loginStore.comp_id
+    if (!companyId) return;
     await fetchReceiptSettings(companyId)
       .then(res => {
         setReceiptSettings(res[0])
@@ -315,8 +295,11 @@ const AppContext = ({ children }) => {
   }
 
   const handleGetItems = async () => {
-    const loginStore = JSON.parse(loginStorage.getString("login-data"))
+    const loginData = loginStorage.getString("login-data")
+    if (!loginData) return;
+    const loginStore = JSON.parse(loginData)
     const companyId = loginStore.comp_id
+    if (!companyId) return;
     let itemsData = await fetchItems(companyId)
     // console.log("itemsData", itemsData)
 
@@ -324,7 +307,9 @@ const AppContext = ({ children }) => {
   }
 
   const handleGetCategories = async () => {
-    const loginStore = JSON.parse(loginStorage.getString("login-data"))
+    const loginData = loginStorage.getString("login-data")
+    if (!loginData) return;
+    const loginStore = JSON.parse(loginData)
 
     await fetchCategories(loginStore?.comp_id).then(res => {
       setCategories(res?.msg)
@@ -334,8 +319,11 @@ const AppContext = ({ children }) => {
   }
 
   const handleGetUnits = async () => {
-    const loginStore = JSON.parse(loginStorage.getString("login-data"))
+    const loginData = loginStorage.getString("login-data")
+    if (!loginData) return;
+    const loginStore = JSON.parse(loginData)
     const companyId = loginStore.comp_id
+    if (!companyId) return;
 
     let unitsData = await fetchUnits(companyId)
     console.log("unitsData", unitsData)
@@ -343,9 +331,42 @@ const AppContext = ({ children }) => {
     setUnits(unitsData)
   }
 
+  const handleGetCustomerList = async () => {
+    const loginData = loginStorage.getString("login-data")
+    if (!loginData) return;
+    const loginStore = JSON.parse(loginData)
+
+    const creds = {
+      comp_id: loginStore?.comp_id,
+      user_id: loginStore?.user_id
+    }
+
+    await fetchCustomerList(creds).then(res => {
+      console.log("Fetched customers in AppContext:", res?.data?.length)
+      if (res?.data && res.data.length > 0) {
+        console.log("Sample Customer Keys:", Object.keys(res.data[0]));
+        console.log("Sample Customer Data:", JSON.stringify(res.data[0]));
+      }
+      const list = (res?.data || []) as any[]
+      setCustomerList(
+        list.map((item: any) => ({
+          label: `${item?.cust_name} (ID: ${item?.cust_id})`,
+          value: item?.cust_id,
+          name: item?.cust_name,
+          phone: item?.phone_no,
+          lat: item?.lat,
+          long: item?.lng
+        }))
+      )
+    }).catch(err => {
+      console.log("Error fetching customer list", err)
+    })
+  }
+
   useEffect(() => {
     if (isLogin) {
       handleGetReceiptSettings()
+      handleGetCustomerList()
     }
   }, [isLogin])
 
@@ -393,6 +414,12 @@ const AppContext = ({ children }) => {
         handleGetUnits,
         deviceId,
         loading,
+        customer,
+        setCustomer,
+        justLoggedIn,
+        setJustLoggedIn,
+        customerList,
+        handleGetCustomerList,
         // init
       }}>
       {children}

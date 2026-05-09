@@ -225,56 +225,56 @@ function LoginScreen() {
   // }, [])
 
 
-  
-    const requestUserPermission = async () => {
-        const authStatus = await messaging().requestPermission();
-        const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-        if(enabled){
-         console.log('Notification permission status:', authStatus)
-        //  setAuthStatus(authStatus)
-         getFcmToken();
-        } else {
-            Alert.alert('Push Notification permission denied');
-        }
-    };
+  const requestUserPermission = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    const getFcmToken = async () => {
-        try{
-            const fcmToken = await messaging().getToken();
-
-            if(fcmToken){
-                console.log("Fcm Token", fcmToken);
-                setFcmToken(fcmToken)
-            }else {
-                console.log("Failed to get Fcm token")
-            }
-        }catch (error) {
-            console.error('Error fetching FCM token:', error);
-        }
+    if (enabled) {
+      console.log('Notification permission status:', authStatus)
+      //  setAuthStatus(authStatus)
+      getFcmToken();
+    } else {
+      Alert.alert('Push Notification permission denied');
     }
+  };
 
-    useEffect(() => {
-        // console.log('utsab')
-        requestUserPermission();
+  const getFcmToken = async () => {
+    try {
+      const fcmToken = await messaging().getToken();
 
-        // const unsubscribe = messaging().onMessage(async remoteMessage =>{
-        //     Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.body || ""));
-        // })
+      if (fcmToken) {
+        console.log("Fcm Token", fcmToken);
+        setFcmToken(fcmToken)
+      } else {
+        console.log("Failed to get Fcm token")
+      }
+    } catch (error) {
+      console.error('Error fetching FCM token:', error);
+    }
+  }
 
-        // messaging().onNotificationOpenedApp(remoteMessage =>{
-        //     console.log('Notification opened from background state:', remoteMessage.notification)
-        // });
+  useEffect(() => {
+    // console.log('utsab')
+    requestUserPermission();
 
-        // messaging().getInitialNotification().then(remoteMessage => {
-        //     console.log('Notification caused app to open from quit state:', remoteMessage.notification);
-        // });
+    // const unsubscribe = messaging().onMessage(async remoteMessage =>{
+    //     Alert.alert('New Notification', JSON.stringify(remoteMessage.notification?.body || ""));
+    // })
 
-        // return unsubscribe;
+    // messaging().onNotificationOpenedApp(remoteMessage =>{
+    //     console.log('Notification opened from background state:', remoteMessage.notification)
+    // });
 
-    }, []);
+    // messaging().getInitialNotification().then(remoteMessage => {
+    //     console.log('Notification caused app to open from quit state:', remoteMessage.notification);
+    // });
+
+    // return unsubscribe;
+
+  }, []);
 
 
   return (
@@ -334,7 +334,7 @@ function LoginScreen() {
                       secureTextEntry
                     />
 
-                    
+
                   </View>
                   <View>
                     <ButtonPaper
@@ -371,14 +371,14 @@ function LoginScreen() {
                       </Text>
                     </TouchableOpacity>
                   </View> */}
-                  <View>
+                  {/* <View>
                     <Text style={{
                       color: theme.colors.secondary
                     }}>Device ID</Text>
                     <Text variant="bodyLarge" style={{
                       color: theme.colors.primary
                     }}>{deviceId}</Text>
-                  </View>
+                  </View> */}
                 </View>
               )}
 

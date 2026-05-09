@@ -17,5 +17,7 @@
 
 export const BASE_URL_SMS = "https://admin.bill365.app"
 export const BASE_URL = "https://is2w4avn0g.execute-api.ap-south-2.amazonaws.com/v1"
-export const BASE_URL_ITEM_IMG = "http://98.130.88.168:3001"
+export const BASE_URL_ITEM_IMG = "https://estimateapi.opentech4u.co.in/uploads/"
 export const BASE_URL_CATEGORY_IMG = "https://apibilling.opentech4u.co.in:3010"
+// export const BASE_URL = "http://192.168.1.245:3008"
+// export const BASE_URL_ITEM_IMG = "http://98.130.88.168:3001"

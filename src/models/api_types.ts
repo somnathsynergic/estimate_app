@@ -138,6 +138,7 @@ export type ItemsData = {
   comp_id: number
   hsn_code: string
   item_name: string
+  bill_name: string
   description: string
   container_id: number
   created_by: string
@@ -212,6 +213,7 @@ export type RecentBillsData = {
   modified_dt: null
   gst_flag: "Y" | "N"
   discount_type: "P" | "A"
+  cust_id: any
 }
 
 export type ShowBillResponseData = {
@@ -236,6 +238,7 @@ export type ShowBillData = {
   modified_by: null
   modified_dt: null
   item_name: string
+  bill_name: string
   dis_pertg: number
   cgst_prtg: number
   sgst_prtg: number
@@ -641,6 +644,7 @@ export type BasicReportCredentials = {
   "comp_id": number
   "br_id": number
   "user_id"?: string
+  // "cust_id"?: number | null
 }
 
 export type CancelledBillsReportResponse = {
@@ -793,6 +797,17 @@ export type BillSmsCredentials = {
   comp_id: number
   receipt_no: number
   phone: string
+}
+
+export type AddCustomerCredentials = {
+  comp_id: number
+  br_id: number
+  cust_name: string
+  phone_no: string
+  address: string
+  lat: number | null
+  long: number | null
+  created_by: string
 }
 
 export type BillSmsResponse = {
@@ -1083,4 +1098,21 @@ export type TxnDetailsCreds = {
   "pay_status": string
   "receipt_url": string
   "created_by": string
+}
+
+export type CustomerListCredentials = {
+  user_id: string
+  comp_id: number
+}
+
+export type CustomerListResponse = {
+  status: number
+  data: CustomerListData[]
+}
+
+export type CustomerListData = {
+  cust_id: number
+  cust_name: string
+  phone_no: string
+  [key: string]: any
 }

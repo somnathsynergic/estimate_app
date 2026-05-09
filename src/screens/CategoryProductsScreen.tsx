@@ -21,7 +21,7 @@ import { itemsContextStorage, loginStorage } from "../storage/appStorage"
 import { CategoriesScreenRouteProp } from "../models/route_types"
 import useCategoryItems from "../hooks/api/useCategoryItems"
 import { CategoryItemListCredentials, ItemsData, StockSearchCredentials } from "../models/api_types"
-import normalize, { SCREEN_HEIGHT } from "react-native-normalize"
+import normalize, { SCREEN_HEIGHT, SCREEN_WIDTH } from "react-native-normalize"
 // import AddRemove from "../components/AddRemove"
 // import useStockSearch from "../hooks/api/useStockSearch"
 // import DialogBox from "../components/DialogBox"
@@ -39,17 +39,18 @@ import { imgNotFound } from "../resources/images"
 // import { ADDRESSES } from "../config/api_list"
 import { BASE_URL, BASE_URL_ITEM_IMG } from "../config/config"
 import LoadingOverlay from "../components/LoadingOverlay"
+import { AppStore } from "../context/AppContext"
+import { AppStoreContext } from "../models/custom_types"
 
 function CategoryProductsScreen() {
     const theme = usePaperColorScheme()
     const navigation = useNavigation()
     const isFocused = useIsFocused()
-    // const { receiptSettings } = useContext<AppStoreContext>(AppStore)
-    const { fetchCategoryItems } = useCategoryItems()
     const { params } = useRoute<CategoriesScreenRouteProp>()
     const [loading, setLoading] = useState(() => false)
+    const { fetchCategoryItems } = useCategoryItems()
 
-    const loginStore = JSON.parse(loginStorage.getString("login-data"))
+    const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}')
     let itemsStore: []
     let totalAmountStore: number
     let totalDiscountedAmountStore: number
@@ -128,7 +129,7 @@ function CategoryProductsScreen() {
     const onChangeSearch = (query: string) => {
         // copyAddedProductsList = categoryWiseItems
         setSearch(query)
-        
+
         const lowerCaseQuery = query.toLowerCase()
 
         setFilteredItems(categoryWiseItems.filter(
@@ -143,20 +144,26 @@ function CategoryProductsScreen() {
 
     const handleGetItemsByCategoryId = async (catgId: number) => {
         setLoading(true)
-        const creds: CategoryItemListCredentials = {
-            comp_id: loginStore?.comp_id,
-            br_id: loginStore?.br_id,
-            catg_id: catgId
-        }
-        fetchCategoryItems(creds).then(res => {
+        try {
+            const creds: CategoryItemListCredentials = {
+                comp_id: loginStore?.comp_id,
+                br_id: loginStore?.br_id,
+                catg_id: catgId
+            }
+            const res = await fetchCategoryItems(creds)
             setCategoryWiseItems(res?.msg)
             setFilteredItems(res?.msg)
-            setLoading(false)
-        }).catch(err => {
+        } catch (err) {
             ToastAndroid.show(`Some error occurred while fetching items.`, ToastAndroid.SHORT)
+            console.log("Error fetching category items: ", err)
+        } finally {
             setLoading(false)
-        })
+        }
     }
+
+    // const getCustomerList = async () => {
+    //     ... (removed)
+    // }
 
     // const productDetails = (item: ItemsData) => {
     //     setProduct(item)
@@ -444,7 +451,6 @@ function CategoryProductsScreen() {
                         blur={10}
                         isBackEnabled
                         showProductSearch={false}>
-                        {params?.category_name}
                     </HeaderImage>
                 </View>
 
@@ -474,7 +480,7 @@ function CategoryProductsScreen() {
                     // }
                     />
                 </View>
-                
+
 
                 {/* <View>
                 <Text>{loading && <LoadingOverlay />}</Text>
@@ -483,14 +489,14 @@ function CategoryProductsScreen() {
 
 
                 <View style={{
-                    paddingHorizontal: normalize(25),
+                    // paddingHorizontal: normalize(25),
                     paddingBottom: normalize(10),
                     // maxHeight: SCREEN_HEIGHT / 2
                     maxHeight: SCREEN_HEIGHT * 0.65
                 }}>
-                    
-                    
-                    
+
+
+
                     {
                         // categoryWiseItems?.length !== 0
                         filteredItems?.length !== 0
@@ -501,8 +507,8 @@ function CategoryProductsScreen() {
                                 // borderStyle: "dashed",
                                 // borderRadius: 20,
                                 padding: 10,
-                            }} nestedScrollEnabled 
-                            showsVerticalScrollIndicator={true} 
+                            }} nestedScrollEnabled
+                                showsVerticalScrollIndicator={true}
                             >
                                 <View style={{
                                     flexDirection: "row",
@@ -533,6 +539,7 @@ function CategoryProductsScreen() {
 
                                                 <TouchableRipple
                                                     key={i}
+                                                    style={{ width: '95%', alignSelf: 'center' }}
                                                     onPress={() => {
                                                         console.log(">>>>>>>>>>>>>>uuuuuuuu", item)
                                                         navigation.dispatch(CommonActions.navigate({
@@ -548,24 +555,32 @@ function CategoryProductsScreen() {
                                                 >
                                                     <View style={{
                                                         backgroundColor: theme.colors.primaryContainer,
-                                                        borderRadius: 5
+                                                        borderRadius: 5,
+                                                        gap: 5,
+                                                        marginVertical: 10
+                                                        // padding: 15
                                                     }}>
                                                         <View style={{
-                                                            padding: 5
+                                                            // padding: 25
                                                         }}>
                                                             <Image
                                                                 source={item?.item_img ? { uri: `${BASE_URL_ITEM_IMG}${item?.item_img}` } : imgNotFound}
-                                                                style={{ height: 80, width: 80 }}
+                                                                style={{ height: normalize(50), width: '100%', borderTopLeftRadius: 5, borderTopRightRadius: 5 }}
+                                                                resizeMode="cover"
                                                             />
+                                                            {/* <Text>{BASE_URL_ITEM_IMG}{item?.item_img}</Text> */}
                                                         </View>
                                                         <View style={{
-                                                            padding: 5
+                                                            padding: 10,
+                                                            flexDirection: 'column',
+                                                            justifyContent: 'center',
+                                                            alignItems: 'center'
                                                         }}>
                                                             <Text variant="bodySmall" style={{
                                                                 color: theme.colors.onPrimaryContainer,
                                                                 fontWeight: "800",
                                                                 fontSize: 13
-                                                            }} numberOfLines={1} ellipsizeMode="tail">{item?.item_name?.length > 8 ? `${item?.item_name?.substring(0, 8)}...` : item?.item_name}</Text>
+                                                            }} numberOfLines={1} ellipsizeMode="tail">{item?.item_name}</Text>
                                                             <Text variant="bodySmall" style={{
                                                                 color: theme.colors.secondary,
                                                                 fontWeight: "800"

@@ -7,17 +7,17 @@ const ItemList = ({ label, value, onPress, connected, actionText, color }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-      <View>
+      {!connected && <View>
         <Text style={[styles.label, { color: theme.colors.onSurface }]}>
           {label || "UNKNOWN"}
         </Text>
         <Text style={{ color: theme.colors.onSurface }}>{value}</Text>
-      </View>
-      {connected && (
+      </View>}
+      {/* {connected && (
         <Text style={[styles.connected, { color: theme.colors.onSurface }]}>
-          Connect
+          Connected
         </Text>
-      )}
+      )} */}
       {!connected && (
         <TouchableOpacity onPress={onPress} style={styles.button(color)}>
           <Text style={{ color: theme.colors.onSurface }}>{actionText}</Text>

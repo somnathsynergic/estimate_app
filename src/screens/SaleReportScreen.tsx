@@ -11,12 +11,14 @@ import {
 import HeaderImage from "../components/HeaderImage"
 import { blurReport, blurReportDark } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { DataTable, Text } from "react-native-paper"
+import { DataTable, Text, IconButton } from "react-native-paper"
+// import { Dropdown } from 'react-native-element-dropdown'
+import useCustomerList from "../hooks/api/useCustomerList"
 import useSaleReport from "../hooks/api/useSaleReport"
 import DatePicker from "react-native-date-picker"
 import ButtonPaper from "../components/ButtonPaper"
 import { useContext, useState } from "react"
-import normalize from "react-native-normalize"
+import normalize, { SCREEN_WIDTH } from "react-native-normalize"
 import { formattedDate } from "../utils/dateFormatter"
 import { loginStorage } from "../storage/appStorage"
 import { BasicReportCredentials, SaleReport } from "../models/api_types"
@@ -30,7 +32,7 @@ function SaleReportScreen() {
 
   const loginStore = JSON.parse(loginStorage.getString("login-data"))
 
-  const { receiptSettings } = useContext<AppStoreContext>(AppStore)
+  const { receiptSettings, customer } = useContext<AppStoreContext>(AppStore)
 
   const { fetchSaleReport } = useSaleReport()
   const { printSaleReport } = useBluetoothPrint()
@@ -67,6 +69,7 @@ function SaleReportScreen() {
       to_date: toDate,
       comp_id: companyId,
       br_id: branchId,
+      cust_id: customer?.value || null
     }
     setIsDisabled(true)
     setIsLoading(true)
@@ -116,7 +119,8 @@ function SaleReportScreen() {
             imgLight={blurReport}
             imgDark={blurReportDark}
             borderRadius={30}
-            blur={10}>
+            blur={10}
+            showCustomerSelector>
             Sale Report
           </HeaderImage>
         </View>
@@ -192,6 +196,7 @@ function SaleReportScreen() {
             SUBMIT
           </ButtonPaper>
         </View>
+
 
         <SurfacePaper backgroundColor={theme.colors.surface}>
           {/* <ScrollView horizontal> */}
@@ -293,5 +298,24 @@ const styles = StyleSheet.create({
 
   title: {
     textAlign: "center",
+  },
+  dropdown: {
+    height: normalize(55),
+    borderRadius: 5,
+    paddingHorizontal: 8,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 })

@@ -27,19 +27,24 @@ import LoadingOverlay from "../components/LoadingOverlay"
 import { clearStates } from "../utils/clearStates"
 import SurfacePaper from "../components/SurfacePaper"
 import AnimatedFABPaper from "../components/AnimatedFABPaper"
-import normalize from "react-native-normalize"
+import normalize, { SCREEN_WIDTH } from "react-native-normalize"
 import ButtonPaper from "../components/ButtonPaper"
+import { loginStorage } from "../storage/appStorage"
+import { LoginDataMessage } from "../models/api_types"
 
 function CategoriesScreen() {
     const theme = usePaperColorScheme()
     const navigation = useNavigation()
     const isFocused = useIsFocused()
 
-    const { categories, handleGetCategories } = useContext<AppStoreContext>(AppStore)
+    const { categories, handleGetCategories, customer } = useContext<AppStoreContext>(AppStore)
 
-    let itemsStore: ItemsData[]
-    let totalAmountStore: number
-    let totalDiscountedAmountStore: number
+    const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}') as LoginDataMessage
+
+
+    let itemsStore: ItemsData[] = []
+    let totalAmountStore: number = 0
+    let totalDiscountedAmountStore: number = 0
 
     try {
         const itemsData = itemsContextStorage.getString("items-data")
@@ -51,9 +56,6 @@ function CategoriesScreen() {
         totalDiscountedAmountStore = totalDiscountedAmountData ? parseFloat(totalDiscountedAmountData) : 0
     } catch (error) {
         console.error("Failed to parse items-data:", error)
-        itemsStore = []
-        totalAmountStore = 0
-        totalDiscountedAmountStore = 0
     }
 
     console.log("CATTTTT TESTTTTT DATAAAAA +++++=====", itemsStore)
@@ -71,8 +73,13 @@ function CategoriesScreen() {
 
     const getCategories = async () => {
         setLoading(true)
-        await handleGetCategories()
-        setLoading(false)
+        try {
+            await handleGetCategories()
+        } catch (err) {
+            console.log("Error getting categories: ", err)
+        } finally {
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -195,8 +202,8 @@ function CategoriesScreen() {
                         imgDark={textureReportDark}
                         borderRadius={30}
                         blur={10}
-                        isBackEnabled>
-                        Categories
+                        isBackEnabled
+                        showCustomerSelector>
                     </HeaderImage>
                 </View>
 

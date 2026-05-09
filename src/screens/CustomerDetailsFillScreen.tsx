@@ -5,13 +5,15 @@ import {
   StyleSheet,
   ToastAndroid,
   View,
+  Platform,
+  PermissionsAndroid,
 } from "react-native"
-import { List, RadioButton, Text } from "react-native-paper"
+import { IconButton, List, RadioButton, Text } from "react-native-paper"
 import LinearGradient from "react-native-linear-gradient"
 import normalize, { SCREEN_HEIGHT, SCREEN_WIDTH } from "react-native-normalize"
 import { usePaperColorScheme } from "../theme/theme"
 import InputPaper from "../components/InputPaper"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import ButtonPaper from "../components/ButtonPaper"
 import {
   CommonActions,
@@ -39,6 +41,10 @@ import {
   CustomerInfoCredentials,
   LoginDataMessage,
 } from "../models/api_types"
+import useCustomerList from "../hooks/api/useCustomerList"
+import CustomerSelector from "../components/CustomerSelector"
+import Geolocation from 'react-native-geolocation-service'
+import { getDistance } from "../utils/geofence"
 
 const CustomerDetailsFillScreen = () => {
   const isFocused = useIsFocused()
@@ -46,14 +52,18 @@ const CustomerDetailsFillScreen = () => {
   const { params } = useRoute<ProductsScreenRouteProp>()
   const theme = usePaperColorScheme()
 
-  const loginStore = JSON.parse(loginStorage.getString("login-data")) as LoginDataMessage
+  const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}') as LoginDataMessage
   const upiData = fileStorage.getString("upi-data")
 
-  const { receiptSettings, init } = useContext<AppStoreContext>(AppStore)
+  const PROXIMITY_THRESHOLD = 50;
+
+  const { receiptSettings, init, customer, setCustomer, customerList, handleGetCustomerList } = useContext<AppStoreContext>(AppStore)
+
+  const [distanceFromCustomer, setDistanceFromCustomer] = useState<number | null>(null);
 
   const { totalGST } = gstFilterationAndTotals(
-    params?.added_products,
-    receiptSettings?.gst_type,
+    params?.added_products || [],
+    receiptSettings?.gst_type || 'I',
   )
 
   const { printReceiptT } = useBluetoothPrint()
@@ -74,23 +84,41 @@ const CustomerDetailsFillScreen = () => {
   )
   const [cashAmount, setCashAmount] = useState<number>(
     () => grandTotalCalculate(
-      params?.net_total,
+      params?.net_total || 0,
       0,
     ),
   )
   const [finalCashAmount, setFinalCashAmount] = useState<number>(
     () => 0,
   )
+
   const [discountBillwise, setDiscountBillwise] = useState<number>(() => 0)
 
-  var receiptNumber: number | undefined = undefined
-  let kotNumber: number | undefined = undefined
+  const receiptNumber = useRef<number | undefined>(undefined)
+  const kotNumber = useRef<number | undefined>(undefined)
 
   const [checked, setChecked] = useState<string>(() => "C")
   const [isLoading, setIsLoading] = useState(() => false)
-  const [isDisabled, setIsDisabled] = useState(() => false)
+  const [isDisabled, setIsDisabled] = useState(() => true)
 
   const [customerInfoFlag, setCustomerInfoFlag] = useState<number>(() => 0)
+  const [selectedCustId, setSelectedCustId] = useState<number | null>(() => customer?.value || null)
+  const distanceHistory = useRef<number[]>([])
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (customerList.length === 0) {
+      handleGetCustomerList()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (customer) {
+      setCustomerName(customer.name || "")
+      setSelectedCustId(customer.value)
+      setCustomerMobileNumber(customer.phone || "")
+    }
+  }, [customer, isFocused])
 
   // let paymentModeOptionsArr = [
   //   { icon: "cash", title: "Cash", func: () => setChecked("C") },
@@ -158,7 +186,7 @@ const CustomerDetailsFillScreen = () => {
       cashAmount !== undefined
         ? cashAmount -
         grandTotalCalculate(
-          params?.net_total,
+          params?.net_total || 0,
           0,
         )
         : 0,
@@ -166,7 +194,7 @@ const CustomerDetailsFillScreen = () => {
   }, [cashAmount, discountBillwise, isFocused])
 
   useEffect(() => {
-    if (customerMobileNumber.length === 10) {
+    if (customerMobileNumber?.length === 10) {
       handleGetCustomerInfo()
     }
   }, [customerMobileNumber])
@@ -205,6 +233,7 @@ const CustomerDetailsFillScreen = () => {
   const onChangeCustomerMobileNumber = (mobile: string) => {
     if (/^\d*$/.test(mobile)) {
       setCustomerMobileNumber(mobile)
+      setSelectedCustId(null)
     }
   }
 
@@ -213,15 +242,15 @@ const CustomerDetailsFillScreen = () => {
   // }
 
   const handleSendSaleData = async () => {
-    const loginStore = JSON.parse(loginStorage.getString("login-data"))
-    const branchId = loginStore.br_id
-    const createdBy = loginStore.user_id
+    const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}')
+    const branchId = loginStore?.br_id
+    const createdBy = loginStore?.user_id
 
     const branchName = loginStore?.branch_name
     const userName = loginStore?.user_name
 
     let filteredData: FilteredItem[]
-
+    console.log(params?.added_products, 'params?.added_products')
     filteredData = (params?.added_products).map(item =>
       mapItemToFilteredItem(
         item,
@@ -230,18 +259,19 @@ const CustomerDetailsFillScreen = () => {
         params,
         checked,
         cashAmount,
-        customerName,
-        customerMobileNumber,
+        customerName || customer?.name || '',
+        selectedCustId || customer?.value || null,
+        customerMobileNumber || customer?.phone || '',
         createdBy,
         totalGST,
-        receiptSettings?.gst_flag,
-        receiptSettings?.gst_type,
-        receiptSettings?.discount_flag,
-        receiptSettings?.discount_type,
-        receiptSettings?.discount_position,
-        receiptSettings?.rcpt_type,
+        receiptSettings?.gst_flag || 'N',
+        receiptSettings?.gst_type || 'I',
+        receiptSettings?.discount_flag || 'N',
+        receiptSettings?.discount_type || 'A',
+        receiptSettings?.discount_position || 'B',
+        receiptSettings?.rcpt_type || 'B',
         customerInfoFlag,
-        receiptSettings?.stock_flag,
+        receiptSettings?.stock_flag || 'N',
 
         discountBillwise || 0,
 
@@ -251,25 +281,12 @@ const CustomerDetailsFillScreen = () => {
       ),
     )
 
-    console.log("Utsabbbbbbbbbbbbbbbbbb", filteredData)
     await sendSaleDetails(filteredData)
       .then(res => {
-        console.log("filteredData====filteredData", filteredData)
-        console.log("SALEINSERT_RESSSSSSSSSS =>>>>", res)
-
-        console.log("res.data.status===================", res.data.status)
-        if (res.data.status === 1) {
-          receiptNumber = res?.data?.data
-          kotNumber = res?.kot_no?.kot_no
-
-          console.log(
-            "=========== receiptNumber = res?.data?.data ============",
-            receiptNumber,
-          )
-          console.log(
-            "=========== kotNumber = res?.kot_no ============",
-            kotNumber,
-          )
+        console.log("SALE_INSERT_RES:", res)
+        if (res?.data?.status === 1) {
+          receiptNumber.current = res?.data?.data
+          kotNumber.current = res?.kot_no?.kot_no
 
           Alert.alert("Success", "Estimate Uploaded Successfully.", [
             {
@@ -278,55 +295,170 @@ const CustomerDetailsFillScreen = () => {
                   CommonActions.navigate({
                     name: navigationRoutes.homeScreen,
                     params: {
-                      receipt_number: receiptNumber
+                      receipt_number: receiptNumber.current
                     }
                   }),
                 )
               }
             }
           ], { cancelable: false })
-
-          // navigation.dispatch(
-          //   CommonActions.navigate({
-          //     name: navigationRoutes.categoriesScreen,
-          //   }),
-          // )
-          // navigation.dispatch(
-          //   CommonActions.navigate({
-          //     name: navigationRoutes.homeScreen,
-          //   }),
-          // )
-
-          // if (receiptSettings?.rcpt_type !== "P") {
-          //   let sendBillSmsCreds: BillSmsCredentials = {
-          //     comp_id: loginStore?.comp_id,
-          //     phone: customerMobileNumber,
-          //     receipt_no: receiptNumber,
-          //   }
-          // sendBillSms(sendBillSmsCreds)
-          //   .then(res => {
-          //     if (res?.suc === 1) {
-          //       ToastAndroid.show("SMS Sent to customer.", ToastAndroid.SHORT)
-          //     }
-          //   })
-          //   .catch(err => {
-          //     ToastAndroid.show(
-          //       "Some error occurred while sending bill sms.",
-          //       ToastAndroid.SHORT,
-          //     )
-          //   })
-          // }
         } else {
           Alert.alert("Fail", "Something Went Wrong!")
         }
       })
       .catch(err => {
         Alert.alert("Fail", "Error while sending sale details!!!!!")
-        console.log("EEEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", err)
+        console.log("SALE_INSERT_ERROR:", err)
       })
   }
 
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'ios') {
+      const auth = await Geolocation.requestAuthorization('whenInUse');
+      return auth === 'granted';
+    }
+
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return false;
+  };
+
+
+  const checkRealTimeDistance = async () => {
+    const targetCustomer = customerList.find(c => c.value === selectedCustId);
+    console.log("Checking distance for customer:", targetCustomer?.name || 'Unknown', "ID:", selectedCustId);
+    // Reset history when checking a new customer to avoid stale data from previous selections
+    distanceHistory.current = [];
+
+    const hasLat = targetCustomer?.lat && String(targetCustomer.lat) !== "0" && String(targetCustomer.lat) !== "0.000000";
+    const hasLong = targetCustomer?.long && String(targetCustomer.long) !== "0" && String(targetCustomer.long) !== "0.000000";
+
+    // Reset UI state for new calculation
+    setDistanceFromCustomer(null);
+    setGpsAccuracy(null);
+
+    if (hasLat && hasLong) {
+      // Disable while calculating
+      setIsDisabled(true);
+      const hasPermission = await requestLocationPermission();
+      if (!hasPermission) {
+        setIsDisabled(false);
+        return;
+      }
+
+      Geolocation.getCurrentPosition(
+        (position) => {
+          const rawDistance = getDistance(
+            position.coords.latitude,
+            position.coords.longitude,
+            parseFloat(String(targetCustomer.lat)),
+            parseFloat(String(targetCustomer.long))
+          );
+
+          // Smoothing Logic: Maintain a history of last 5 readings
+          distanceHistory.current.push(rawDistance);
+          if (distanceHistory.current.length > 5) {
+            distanceHistory.current.shift();
+          }
+
+          // Calculate Moving Average
+          const sum = distanceHistory.current.reduce((a, b) => a + b, 0);
+          const smoothedDistance = sum / distanceHistory.current.length;
+
+          console.log("Raw Distance:", rawDistance, "Smoothed Distance:", smoothedDistance, "GPS Accuracy:", position.coords.accuracy, "m");
+          setDistanceFromCustomer(smoothedDistance);
+          setGpsAccuracy(position.coords.accuracy);
+
+          // Disable button if out of range (20m threshold)
+          if (smoothedDistance > PROXIMITY_THRESHOLD) {
+            setIsDisabled(true);
+          } else {
+            setIsDisabled(false);
+          }
+        },
+        (error) => {
+          console.log("Error getting real-time distance:", error);
+          setIsDisabled(false);
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+      );
+    } else {
+      setDistanceFromCustomer(null);
+      // Disable save button if no customer is selected
+      if (selectedCustId === null) {
+        setIsDisabled(true);
+      } else {
+        setIsDisabled(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isFocused && selectedCustId !== null) {
+      checkRealTimeDistance();
+    }
+  }, [isFocused, selectedCustId]);
+
   const handlePrintReceipt = async (printFlag = false) => {
+    const targetCustomer = customerList.find(c => c.value === selectedCustId);
+
+    const hasLat = targetCustomer?.lat && String(targetCustomer.lat) !== "0" && String(targetCustomer.lat) !== "0.000000";
+    const hasLong = targetCustomer?.long && String(targetCustomer.long) !== "0" && String(targetCustomer.long) !== "0.000000";
+
+    if (hasLat && hasLong) {
+      const hasPermission = await requestLocationPermission();
+      if (!hasPermission) {
+        Alert.alert("Permission Denied", "Location permission is required to verify your distance from the customer.");
+        return;
+      }
+
+      setIsLoading(true);
+
+      const getCurrentLocation = () => {
+        return new Promise<{ latitude: number, longitude: number }>((resolve, reject) => {
+          Geolocation.getCurrentPosition(
+            (position) => {
+              resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              });
+            },
+            (error) => {
+              reject(error);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+          );
+        });
+      };
+
+      try {
+        const currentLoc = await getCurrentLocation();
+        const distance = getDistance(
+          currentLoc.latitude,
+          currentLoc.longitude,
+          parseFloat(String(targetCustomer.lat)),
+          parseFloat(String(targetCustomer.long))
+        );
+
+        if (distance > PROXIMITY_THRESHOLD) {
+          setIsLoading(false);
+          Alert.alert(
+            "Out of Range",
+            `You are too far from the customer's registered location. Current distance: ${distance.toFixed(2)}m. Please be within ${PROXIMITY_THRESHOLD}m range.`
+          );
+          return;
+        }
+      } catch (error) {
+        setIsLoading(false);
+        Alert.alert("Location Error", "Failed to get current location. Please check your GPS settings.");
+        return;
+      }
+    }
+
     // pass conditonal grand total after - now just written net_total
     // if (discountBillwise > params?.net_total) {
     //   ToastAndroid.show("Enter valid Bill Discount!", ToastAndroid.SHORT)
@@ -357,12 +489,12 @@ const CustomerDetailsFillScreen = () => {
       return
     }
 
-    if (checked === "R" && customerMobileNumber.length < 10) {
+    if (checked === "R" && customerMobileNumber?.length < 10) {
       ToastAndroid.show("Valid Mobile Number is mandatory for Credit Mode.", ToastAndroid.SHORT)
       return
     }
 
-    if (checked === "R" && customerName.length === 0) {
+    if (checked === "R" && (!customerName || customerName?.length === 0)) {
       ToastAndroid.show("Valid Customer Name is mandatory for Credit Mode.", ToastAndroid.SHORT)
       return
     }
@@ -378,22 +510,22 @@ const CustomerDetailsFillScreen = () => {
     console.log("Sending data and printing receipts...")
 
 
-    // const receiptFunction =
-    //   receiptSettings?.gst_flag === "N" ? printReceiptT : printReceiptT
+    const receiptFunction =
+      receiptSettings?.gst_flag === "N" ? printReceiptT : printReceiptT
 
     // if (printFlag) {
-    //   if (receiptSettings?.rcpt_type !== "S") {
-    //     receiptFunction(
-    //       params?.added_products,
-    //       params?.net_total,
-    //       0, // discount
-    //       cashAmount,
-    //       finalCashAmount,
-    //       customerName,
-    //       customerMobileNumber,
-    //       receiptNumber,
-    //       checked,
-    //     )
+    // if (receiptSettings?.rcpt_type !== "S") {
+    receiptFunction(
+      params?.added_products || [],
+      params?.net_total || 0,
+      0, // discount
+      cashAmount,
+      finalCashAmount,
+      customerName,
+      customerMobileNumber,
+      receiptNumber.current,
+      checked,
+    )
 
     //     console.log(
     //       "=================+++++++++++++++++++ params?.added_products",
@@ -739,6 +871,8 @@ const CustomerDetailsFillScreen = () => {
             </HeaderImage>
           </View>
 
+
+
           {/* <View
             style={{
               alignSelf: "center",
@@ -828,45 +962,11 @@ const CustomerDetailsFillScreen = () => {
             <View style={{ justifyContent: "center" }}>
               <View
                 style={{
-                  paddingHorizontal: normalize(20),
                   paddingVertical: normalize(5),
                   marginVertical: SCREEN_HEIGHT / 100,
                   gap: 2
                 }}>
-                {checked === "R" && <InputPaper
-                  label="Enter Mobile"
-                  value={customerMobileNumber}
-                  onChangeText={onChangeCustomerMobileNumber}
-                  keyboardType="number-pad"
-                  leftIcon="card-account-phone-outline"
-                  maxLength={10}
-                />}
-                {checked === "R" && <InputPaper
-                  selectTextOnFocus
-                  label="Enter Name"
-                  value={customerName}
-                  onChangeText={(customerName: string) =>
-                    setCustomerName(customerName)
-                  }
-                  keyboardType="default"
-                  leftIcon="account-circle-outline"
-                  maxLength={18}
-                  customStyle={{ marginBottom: normalize(2) }}
-                />}
-                {/* {receiptSettings?.cust_inf === "Y" && (
-                  <InputPaper
-                    selectTextOnFocus
-                    label="Enter Name (Optional)"
-                    value={customerName}
-                    onChangeText={(customerName: string) =>
-                      setCustomerName(customerName)
-                    }
-                    keyboardType="default"
-                    leftIcon="account-circle-outline"
-                    maxLength={18}
-                    customStyle={{ marginBottom: normalize(2) }}
-                  />
-                )} */}
+                {/* Customer selection moved to the top of the screen */}
               </View>
             </View>
 
@@ -981,7 +1081,71 @@ const CustomerDetailsFillScreen = () => {
             <View style={{ paddingVertical: normalize(10) }}></View>
 
             {checked === "C" && (
-              <View>
+              <View style={{
+                // backgroundColor: theme.colors.surfaceVariant,
+                // borderRadius: 20,
+                // width: SCREEN_WIDTH / 1.15,
+                alignSelf: "center",
+                // marginTop: normalize(10),
+                // padding: normalize(12),
+                alignItems: 'center',
+                // elevation: 2
+              }}>
+
+                {/* <Text variant="titleMedium" style={{ fontWeight: 'bold', color: theme.colors.onSurfaceVariant, marginBottom: 5 }}>
+              Selected Customer
+            </Text>
+
+            <CustomerSelector
+              data={customerList}
+              value={selectedCustId}
+              onChange={item => {
+                setSelectedCustId(item.value);
+                setCustomerMobileNumber(item.phone);
+                setCustomerName(item.name);
+                setCustomerInfoFlag(1);
+                setCustomer(item);
+                distanceHistory.current = []; // Clear history for new customer
+                // Immediate refresh when customer changes
+                setTimeout(checkRealTimeDistance, 100);
+              }}
+            /> */}
+
+                {selectedCustId !== null && (
+                  <View style={{ marginTop: 8 }}>
+                    {(() => {
+                      const targetCustomer = customerList.find(c => c.value === selectedCustId);
+                      const hasLat = targetCustomer?.lat && String(targetCustomer.lat) !== "0" && String(targetCustomer.lat) !== "0.000000";
+                      const hasLong = targetCustomer?.long && String(targetCustomer.long) !== "0" && String(targetCustomer.long) !== "0.000000";
+
+                      return hasLat && hasLong ? (
+                        <View style={{ alignItems: 'center' }}>
+                          <Text
+                            variant="labelMedium"
+                            style={{
+                              color: distanceFromCustomer !== null && distanceFromCustomer > PROXIMITY_THRESHOLD ? theme.colors.error : theme.colors.primary,
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {distanceFromCustomer !== null
+                              ? `Distance: ${distanceFromCustomer.toFixed(2)}m ${distanceFromCustomer > PROXIMITY_THRESHOLD ? " (Out of Range)" : " (In Range)"}`
+                              : "Calculating distance..."}
+                          </Text>
+                          {gpsAccuracy !== null && (
+                            <Text variant="labelSmall" style={{ color: gpsAccuracy > 20 ? theme.colors.error : theme.colors.outline, fontSize: 10 }}>
+                              GPS Accuracy: ±{gpsAccuracy.toFixed(1)}m {gpsAccuracy > 20 ? "(Weak Signal)" : "(Good Signal)"}
+                            </Text>
+                          )}
+                        </View>
+                      ) : (
+                        <Text variant="labelMedium" style={{ color: theme.colors.outline }}>
+                          Registered location not found
+                        </Text>
+                      );
+                    })()}
+                  </View>
+                )}
+                {/* </View> */}
                 <View style={{ paddingHorizontal: normalize(20), paddingBottom: normalize(12) }}>
                   <InputPaper
                     selectTextOnFocus
@@ -992,17 +1156,14 @@ const CustomerDetailsFillScreen = () => {
                       //   : cashAmount
                       cashAmount
                     }
-                    onChangeText={(cash: number) => {
-                      // setCashAmount(cash)
+                    onChangeText={(cash: any) => {
                       const amount = Number(cash);
-                      // Allow only positive numbers greater than 0
                       if (!isNaN(amount) && amount > 0) {
-                      setCashAmount(amount);
+                        setCashAmount(amount);
                       } else {
-                      // Optionally clear or reset invalid input
-                      setCashAmount(0);
+                        setCashAmount(0);
                       }
-
+                      setFinalCashAmount(amount - (grandTotalCalculate(params?.net_total || 0, 0)))
                     }}
                     keyboardType="number-pad"
                     leftIcon="cash-multiple"
@@ -1173,5 +1334,25 @@ const styles = StyleSheet.create({
   eachRadioBtn: {
     justifyContent: "center",
     alignItems: "center"
-  }
+  },
+  dropdown: {
+    marginBottom: normalize(5),
+    height: normalize(55),
+    borderRadius: 5,
+    paddingHorizontal: 8,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
 })

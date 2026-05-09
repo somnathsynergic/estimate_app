@@ -287,7 +287,7 @@ function CategoryProductScreen() {
     // setAddedProductsList(prevData => 
     //     prevData?.filter(item => item.item_id !== product.item_id)
     // );
-    
+
     // // Close the dialog
     // setVisible(false);
     // };
@@ -477,20 +477,19 @@ function CategoryProductScreen() {
                                                 }}
                                                 onPress={() => productDetails(item)}
                                                 title={({ ellipsizeMode }) => <Text variant="titleLarge" style={{
-                                                    width: "50%",
                                                     flexWrap: "wrap",
                                                     // right: 12
                                                 }} numberOfLines={3} ellipsizeMode="tail">{item?.item_name}</Text>}
                                                 description={<Text variant="bodyMedium" style={{ color: theme.colors.vanilla, flexWrap: "wrap" }}>₹{item?.price}</Text>}
                                                 right={props => {
-                                                    return <AddRemove 
-                                                    value={getQuantity(item?.item_id)} 
-                                                    add={() => add(item)} 
-                                                    remove={() => remove(item)} 
-                                                    key={item?.item_id} 
-                                                    isAddDisabled={receiptSettings?.stock_flag === "Y" && getQuantity(item?.item_id) === item?.stock} 
-                                                    onChange={txt => setQuantity(txt)} 
-                                                    isIndividualProductScreen />
+                                                    return <AddRemove
+                                                        value={getQuantity(item?.item_id)}
+                                                        add={() => add(item)}
+                                                        remove={() => remove(item)}
+                                                        key={item?.item_id}
+                                                        isAddDisabled={receiptSettings?.stock_flag === "Y" && getQuantity(item?.item_id) === item?.stock}
+                                                        onChange={txt => setQuantity(txt)}
+                                                        isIndividualProductScreen />
                                                 }}
                                                 descriptionStyle={{
                                                     color: theme.colors.green
@@ -537,7 +536,7 @@ function CategoryProductScreen() {
                         </View>
 
                         <View style={{
-                            width: SCREEN_WIDTH / 1.22,
+                            width: "95%",
                             height: "auto",
                             backgroundColor: theme.colors.vanillaContainer,
                             padding: 10,
@@ -601,7 +600,7 @@ function CategoryProductScreen() {
                 top: "87.2%",
                 alignSelf: "center"
             }}>
-                
+
                 <SnackBar totAmt={totalPrice?.toFixed(2)} handleBtn1Press={handlePressBillScreen} handleBtn2Press={handleClear} handleBtn3Press={handleGoToCartScreen} disableNext={!totalPrice} cartItemQty={addedProductsList?.length} disableCart={!totalPrice} />
             </View>
 

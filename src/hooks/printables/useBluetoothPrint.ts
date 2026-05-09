@@ -1823,14 +1823,21 @@ export const useBluetoothPrint = () => {
       // `[L]   RCPT. NO.\n` +
       // `[L]   ${rcptNo?.toString()}\n` +
       `[L]   DATE[L]${new Date().toLocaleDateString("en-GB")}\n` +
+      `[L]   CUSTOMER[L]${customerName}\n` +
+
       `[C]============================\n` +
       `[L]   Item[C]Qty[L]Amt\n` +
       `[C]============================\n`;
 
     for (const item of addedProducts) {
       totalQuantities += +item?.quantity
-      text += `[L]   ${item?.item_name?.slice(0, 12)}[C]${item?.quantity}[L]${(+item?.price * +item?.quantity)?.toFixed(2)}\n` +
-        `[C]                            \n`;
+      const itemName = item?.bill_name || "";
+      const chunks = itemName.match(/.{1,12}/g) || [""];
+      text += `[L]   ${chunks[0]}[C]${item?.quantity}[L]${(+item?.price * +item?.quantity)?.toFixed(2)}\n`;
+      for (let i = 1; i < chunks.length; i++) {
+        text += `[L]   ${chunks[i]}\n`;
+      }
+      text += `[C]                            \n`;
     }
 
     text += `[C]============================\n` +
@@ -1852,8 +1859,7 @@ export const useBluetoothPrint = () => {
       // text += `[L]   Mode[L]${paymentMode === "C" ? "CR" : paymentMode === "R" ? "Credit" : paymentMode === "U" ? "UPI" : "Err"}\n` +
 
       `[L]   GRAND TOTAL[L]${grandTotalCalculate(netTotal, 0).toFixed(2)}\n` +
-      `[C]============X============\n\n\n` +
-      `[C]                           \n\n`;
+      `[C]============X============\n`;
 
     await ThermalPrinterModule.printBluetooth({
       payload: text,
@@ -1892,14 +1898,20 @@ export const useBluetoothPrint = () => {
       // `[L]   RCPT. NO.\n` +
       // `[L]   ${rcptNo?.toString()}\n` +
       `[L]   DATE[L]${new Date().toLocaleDateString("en-GB")}\n` +
+      `[L]   CUSTOMER[L]${customerName}\n` +
       `[C]========================\n` +
       `[L]   Item[C]Qty[L]Amt\n` +
       `[C]========================\n`;
-
+    console.log(addedProducts[0])
     for (const item of addedProducts) {
       totalQuantities += +item?.qty
-      text += `[L]   ${item?.item_name?.slice(0, 12)}[C]${item?.qty}[L]${(+item?.price * +item?.qty)?.toFixed(2)}\n` +
-        `[C]                            \n`;
+      const itemName = item?.bill_name || "";
+      const chunks = itemName.match(/.{1,12}/g) || [""];
+      text += `[L]   ${chunks[0]}[C]${item?.qty}[L]${(+item?.price * +item?.qty)?.toFixed(2)}\n`;
+      for (let i = 1; i < chunks.length; i++) {
+        text += `[L]   ${chunks[i]}\n`;
+      }
+      text += `[C]                            \n`;
     }
 
     text += `[C]========================\n` +
@@ -1919,8 +1931,7 @@ export const useBluetoothPrint = () => {
     // }
 
     text += `[L]   GRAND TOTAL[L]${grandTotalCalculate(netTotal, 0).toFixed(2)}\n` +
-      `[C]============X============\n\n\n` +
-      `[C]                            \n\n`;
+      `[C]============X============\n`;
 
     await ThermalPrinterModule.printBluetooth({
       payload: text,

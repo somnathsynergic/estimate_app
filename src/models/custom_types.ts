@@ -18,6 +18,7 @@ export type FilteredItem = {
   received_amt: string
   pay_dtls: string
   cust_name: string
+  cust_id: number | null
   phone_no: string
   created_by: string
   dis_pertg: number
@@ -40,6 +41,15 @@ export type FilteredItem = {
   user_name: string
 }
 
+export type Customer = {
+  label: string
+  value: number
+  name: string
+  phone: string
+  lat?: number
+  long?: number
+}
+
 export type AppStoreContext = {
   isLogin: boolean
   otp: number
@@ -58,6 +68,12 @@ export type AppStoreContext = {
   init?: () => Promise<void>
   deviceId: string
   loading: boolean
+  customer: Customer | null
+  setCustomer: React.Dispatch<React.SetStateAction<Customer | null>>
+  justLoggedIn: boolean
+  setJustLoggedIn: React.Dispatch<React.SetStateAction<boolean>>
+  customerList: Customer[]
+  handleGetCustomerList: () => Promise<void>
 }
 
 export type Bill = {

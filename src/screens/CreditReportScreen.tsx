@@ -9,12 +9,14 @@ import {
 import HeaderImage from "../components/HeaderImage"
 import { blurReport, blurReportDark } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { DataTable, Text } from "react-native-paper"
+import { DataTable, Text, IconButton } from "react-native-paper"
+// import { Dropdown } from 'react-native-element-dropdown'
+import useCustomerList from "../hooks/api/useCustomerList"
 import useSaleReport from "../hooks/api/useSaleReport"
 import DatePicker from "react-native-date-picker"
 import ButtonPaper from "../components/ButtonPaper"
-import { useContext, useState } from "react"
-import normalize from "react-native-normalize"
+import { useContext, useEffect, useState } from "react"
+import normalize, { SCREEN_WIDTH } from "react-native-normalize"
 import { formattedDate } from "../utils/dateFormatter"
 import { loginStorage } from "../storage/appStorage"
 import { CreditReportResponseData, SaleReport } from "../models/api_types"
@@ -29,7 +31,7 @@ function CreditReportScreen() {
 
     const loginStore = JSON.parse(loginStorage.getString("login-data"))
 
-    const { receiptSettings } = useContext<AppStoreContext>(AppStore)
+    const { receiptSettings, customer } = useContext<AppStoreContext>(AppStore)
 
     const { fetchCreditReport } = useCreditReport()
     const { printCreditReport } = useBluetoothPrint()
@@ -63,7 +65,7 @@ function CreditReportScreen() {
         }
         setIsDisabled(true)
         setIsLoading(true)
-        await fetchCreditReport(fromDate, toDate, companyId, branchId, userId)
+        await fetchCreditReport(fromDate, toDate, companyId, branchId, userId, customer?.value || null)
             .then(res => {
                 setCreditReport(res?.data)
                 console.log("DDDDDDDDDDDDDDD", res?.data)
@@ -101,7 +103,8 @@ function CreditReportScreen() {
                         imgLight={blurReport}
                         imgDark={blurReportDark}
                         borderRadius={30}
-                        blur={10}>
+                        blur={10}
+                        showCustomerSelector>
                         Credit Report
                     </HeaderImage>
                 </View>
@@ -177,6 +180,7 @@ function CreditReportScreen() {
                         SUBMIT
                     </ButtonPaper>
                 </View>
+
 
                 <SurfacePaper backgroundColor={theme.colors.surface}>
                     <ScrollView horizontal>
@@ -284,5 +288,24 @@ const styles = StyleSheet.create({
 
     title: {
         textAlign: "center",
+    },
+    dropdown: {
+        height: normalize(55),
+        borderRadius: 5,
+        paddingHorizontal: 8,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
     },
 })

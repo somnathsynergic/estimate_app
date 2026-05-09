@@ -1,11 +1,13 @@
 import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+import navigationRoutes from "../routes/navigationRoutes"
 import { usePaperColorScheme } from "../theme/theme"
 import SettingsNavigation from "./SettingsNavigation"
 import HomeNavigation from "./HomeNavigation"
 import ReportsNavigation from "./ReportsNavigation"
 import MoreNavigation from "./MoreNavigation"
 import CalculateNavigation from "./CalculateModeNavigation"
+import AddCustomerNavigation from "./AddCustomerNavigation"
 import useCurrentRouteName from "../hooks/useCurrentRoute"
 import { loginStorage } from "../storage/appStorage"
 import { LoginDataMessage } from "../models/api_types"
@@ -19,7 +21,7 @@ function BottomNavigationPaper() {
 
   console.log(loginStore, "CURRNT ROUTE: ", currentRoute)
 
-  const shouldHideTabBar = ["BottomNavigationPaper", "Home", "HomeScreen", "More", "MoreScreen", "Reports", "ReportsScreen", "Settings", "SettingsScreen", "CalculateMode", "CalculateModeScreen"].includes(currentRoute)
+  const shouldHideTabBar = ["BottomNavigationPaper", "Home", "HomeScreen", "More", "MoreScreen", "Reports", "ReportsScreen", "Settings", "SettingsScreen", "CalculateMode", "CalculateModeScreen", "AddCustomer", "AddCustomerScreen"].includes(currentRoute)
 
   return (
     <Tab.Navigator
@@ -54,12 +56,38 @@ function BottomNavigationPaper() {
         }}
       />
 
+      <Tab.Screen
+        name="AddCustomer"
+        component={AddCustomerNavigation}
+        options={{
+          tabBarLabel: "Add Customer",
+          tabBarIcon: ({ color, focused }) =>
+            !focused ? (
+              <MaterialCommunityIcons
+                name="account-plus-outline"
+                color={color}
+                size={26}
+              />
+            ) : (
+              <MaterialCommunityIcons name="account-plus" color={color} size={26} />
+            ),
+        }}
+      />
+
       {
         loginStore?.mode === "N"
           ? <>
             <Tab.Screen
               name="Reports"
               component={ReportsNavigation}
+              listeners={({ navigation }) => ({
+                tabPress: (e) => {
+                  e.preventDefault()
+                  navigation.navigate("Reports", {
+                    screen: navigationRoutes.reportsScreen,
+                  })
+                },
+              })}
               options={{
                 tabBarLabel: "Reports",
                 tabBarIcon: ({ color, focused }) =>

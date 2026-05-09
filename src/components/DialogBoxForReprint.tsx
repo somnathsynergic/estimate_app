@@ -9,6 +9,7 @@ import ButtonPaper from "./ButtonPaper"
 import normalize from "react-native-normalize"
 import { ShowBillData } from "../models/api_types"
 import { usePaperColorScheme } from "../theme/theme"
+import { useBluetoothPrint } from "../hooks/printables/useBluetoothPrint"
 
 type DialogBoxProps = {
   visible: boolean
@@ -51,6 +52,25 @@ export default function DialogBoxForReprint({
   requireShare = false,
 }: PropsWithChildren<DialogBoxProps>) {
   const theme = usePaperColorScheme()
+  const { rePrintT } = useBluetoothPrint()
+
+  const handleRePrint = async () => {
+    const netTotal = billedSaleData.reduce((sum, i) => sum + i.price * i.qty, 0)
+    await rePrintT(
+      billedSaleData,
+      netTotal,
+      0,
+      billedSaleData[0]?.received_amt,
+      0, // returnedAmt
+      billedSaleData[0]?.cust_name,
+      billedSaleData[0]?.phone_no,
+      parseInt(currentReceiptNo),
+      billedSaleData[0]?.pay_mode,
+      false, // isRefunded
+      false, // isRefundedDuplicate
+      cancelledBillStatus === 'Y' // cancelFlag
+    )
+  }
 
   const copyToClipboard = (value: string) => {
     Clipboard.setString(value)
@@ -119,6 +139,7 @@ export default function DialogBoxForReprint({
             <Text style={{ textAlign: "center", color: theme.colors.secondary }} variant="bodyLarge">
               {new Date(billedSaleData[0]?.created_dt).toLocaleString("en-GB")}
             </Text>
+            <Text style={{ textAlign: "center", color: theme.colors.secondary }} variant="bodyLarge">{billedSaleData[0]?.cust_name}</Text>
           </View>
 
           {/* Product list */}
@@ -150,7 +171,7 @@ export default function DialogBoxForReprint({
           />
 
           {/* Actions */}
-          <View style={{ paddingTop: normalize(10) }}>
+          <View style={{ paddingTop: normalize(10), flexDirection: 'row', justifyContent: 'space-between' }}>
             <ButtonPaper
               icon="cancel"
               mode="contained-tonal"
@@ -158,8 +179,18 @@ export default function DialogBoxForReprint({
               buttonColor={theme.colors.error}
               textColor={theme.colors.onError}
               disabled={cancelledBillStatus === 'Y'}
+            // customStyle={{ marginBottom: normalize(10) }}
             >
-              CANCEL ESTIMATE
+              CANCEL
+            </ButtonPaper>
+            <ButtonPaper
+              icon="printer"
+              mode="contained-tonal"
+              onPress={handleRePrint}
+              buttonColor={theme.colors.primary}
+              textColor={theme.colors.onPrimary}
+            >
+              PRINT
             </ButtonPaper>
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', paddingTop: 10 }}>
@@ -168,7 +199,7 @@ export default function DialogBoxForReprint({
               mode="text"
               onPress={onDialogFailure}
               textColor={theme.colors.error}
-              disabled={requireShare}
+            // disabled={requireShare}
             >
               Okay
             </ButtonPaper>

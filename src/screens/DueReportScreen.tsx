@@ -11,11 +11,13 @@ import {
 import HeaderImage from "../components/HeaderImage"
 import { blurReport, blurReportDark } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { DataTable, Text } from "react-native-paper"
+import { DataTable, Text, IconButton } from "react-native-paper"
+// import { Dropdown } from 'react-native-element-dropdown'
+import useCustomerList from "../hooks/api/useCustomerList"
 import DatePicker from "react-native-date-picker"
 import ButtonPaper from "../components/ButtonPaper"
-import { useState } from "react"
-import normalize from "react-native-normalize"
+import { useContext, useEffect, useState } from "react"
+import normalize, { SCREEN_WIDTH } from "react-native-normalize"
 import { formattedDate } from "../utils/dateFormatter"
 import { loginStorage } from "../storage/appStorage"
 import { DueReportCredentials, DueReportData } from "../models/api_types"
@@ -23,11 +25,15 @@ import SurfacePaper from "../components/SurfacePaper"
 import { useBluetoothPrint } from "../hooks/printables/useBluetoothPrint"
 import useCollectionReport from "../hooks/api/useCollectionReport"
 import useDueReport from "../hooks/api/useDueReport"
+import { AppStore } from "../context/AppContext"
+import { AppStoreContext } from "../models/custom_types"
 
 function DueReportScreen() {
     const theme = usePaperColorScheme()
 
     const loginStore = JSON.parse(loginStorage.getString("login-data"))
+
+    const { customer } = useContext<AppStoreContext>(AppStore)
 
     const { fetchDueReport } = useDueReport()
     const { printDueReport } = useBluetoothPrint()
@@ -36,7 +42,6 @@ function DueReportScreen() {
         () => [],
     )
 
-    // const [fromDate, setFromDate] = useState(() => new Date())
     const [toDate, setToDate] = useState(() => new Date())
     const [openFromDate, setOpenFromDate] = useState(() => false)
     const [openToDate, setOpenToDate] = useState(() => false)
@@ -108,7 +113,8 @@ function DueReportScreen() {
                         imgLight={blurReport}
                         imgDark={blurReportDark}
                         borderRadius={30}
-                        blur={10}>
+                        blur={10}
+                        showCustomerSelector>
                         Due Report
                     </HeaderImage>
                 </View>
@@ -186,6 +192,7 @@ function DueReportScreen() {
                     </ButtonPaper>
                 </View>
 
+
                 <SurfacePaper backgroundColor={theme.colors.surface}>
                     <DataTable>
                         <DataTable.Header style={titleStyle}>
@@ -249,5 +256,24 @@ const styles = StyleSheet.create({
 
     title: {
         textAlign: "center",
+    },
+    dropdown: {
+        height: normalize(55),
+        borderRadius: 5,
+        paddingHorizontal: 8,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
     },
 })

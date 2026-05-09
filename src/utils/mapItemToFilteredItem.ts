@@ -11,6 +11,7 @@ export function mapItemToFilteredItem(
   checked: string,
   cashAmount: number,
   customerName: string,
+  cust_id: number | null,
   customerMobileNumber: string,
   createdBy: string,
   totalGST: number,
@@ -25,7 +26,9 @@ export function mapItemToFilteredItem(
 
   discountBillwise: number,
   branchName: string,
-  userName: string
+  userName: string,
+  kotFlag?: string,
+  rcvCashFlag?: string
 ): FilteredItem {
   const {
     netTotalWithGSTInclCalculate,
@@ -126,7 +129,7 @@ export function mapItemToFilteredItem(
     discount_amt: discountAmt,
     item_id: item_id,
     qty: quantity,
-    price: price,
+    price: Number(price),
     // price: price * quantity,
     br_id: parseInt(branchId),
     tprice: parseFloat(params?.net_total?.toFixed(2)), // total price of all the items (td_receipt table)
@@ -145,25 +148,26 @@ export function mapItemToFilteredItem(
     received_amt: cashAmount?.toString() || (0).toString(),
     pay_dtls:
       receiptSettings?.discount_type === "P" ? "something P" : "something A",
-    cust_name: customerName,
-    phone_no: customerMobileNumber,
-    created_by: createdBy?.toString(),
-    dis_pertg: receiptSettings?.discount_type === "P" ? discount : 0,
-    cgst_prtg: receiptSettings?.gst_flag === "Y" ? cgst : 0,
-    sgst_prtg: receiptSettings?.gst_flag === "Y" ? sgst : 0,
-    gst_flag: gstFlag,
-    gst_type: gstType,
-    discount_flag: discountFlag,
-    discount_type: discountType,
-    discount_position: discountPosition,
-    rcpt_type: receiptType,
-    cust_info_flag: customerInfoFlag,
-    stock_flag: stockFlag,
-    kot_flag: receiptSettings?.kot_flag,
-    table_no: params.table_no || (0).toString(),
-    rcv_cash_flag: receiptSettings?.rcv_cash_flag,
+    cust_name: customerName || "",
+    cust_id: cust_id || null,
+    phone_no: customerMobileNumber || "",
+    created_by: createdBy?.toString() || "",
+    dis_pertg: receiptSettings?.discount_type === "P" ? discount || 0 : 0,
+    cgst_prtg: receiptSettings?.gst_flag === "Y" ? cgst || 0 : 0,
+    sgst_prtg: receiptSettings?.gst_flag === "Y" ? sgst || 0 : 0,
+    gst_flag: gstFlag || "N",
+    gst_type: gstType || "E",
+    discount_flag: discountFlag || "N",
+    discount_type: discountType || "A",
+    discount_position: discountPosition || "I",
+    rcpt_type: receiptType || "P",
+    cust_info_flag: customerInfoFlag || 0,
+    stock_flag: stockFlag || "Y",
+    kot_flag: kotFlag || receiptSettings?.kot_flag || "N",
+    table_no: params.table_no || 0,
+    rcv_cash_flag: rcvCashFlag || receiptSettings?.rcv_cash_flag || "N",
     // /////////////////////////
-    branch_name: branchName,
-    user_name: userName
+    branch_name: branchName || "",
+    user_name: userName || ""
   }
 }

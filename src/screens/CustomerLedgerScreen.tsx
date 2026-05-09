@@ -9,7 +9,11 @@ import {
 import HeaderImage from "../components/HeaderImage"
 import { blurReport, blurReportDark } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { DataTable, Searchbar, Text } from "react-native-paper"
+import { DataTable, Searchbar, Text, IconButton } from "react-native-paper"
+// import { Dropdown } from 'react-native-element-dropdown'
+import { AppStore } from "../context/AppContext"
+import { AppStoreContext } from "../models/custom_types"
+import { useContext, useEffect } from "react"
 import ButtonPaper from "../components/ButtonPaper"
 import { useState } from "react"
 import normalize from "react-native-normalize"
@@ -23,18 +27,20 @@ import { useIsFocused } from "@react-navigation/native"
 import useCustomerLedger from "../hooks/api/useCustomerLedger"
 import { useBluetoothPrint } from "../hooks/printables/useBluetoothPrint"
 
+
 function CustomerLedgerScreen() {
     const isFocused = useIsFocused()
     const theme = usePaperColorScheme()
 
     const loginStore = JSON.parse(loginStorage.getString("login-data"))
 
+    const { customer } = useContext<AppStoreContext>(AppStore)
+
     const { fetchCustomerLedger } = useCustomerLedger()
     const { printCustomerLedger } = useBluetoothPrint()
 
-    const [search, setSearch] = useState<string>(() => "")
+    const [search, setSearch] = useState<string>(() => customer?.phone || "")
     const [custLedgerData, setCustLedgerData] = useState<CustomerLedgerData[]>(() => [])
-
 
     const [isLoading, setIsLoading] = useState(() => false)
     const [isDisabled, setIsDisabled] = useState(() => false)
@@ -69,6 +75,12 @@ function CustomerLedgerScreen() {
         setIsLoading(false)
     }
 
+    useEffect(() => {
+        if (customer) {
+            setSearch(customer.phone)
+        }
+    }, [customer])
+
 
     const handlePrint = (
         cusLed: CustomerLedgerData[],
@@ -95,7 +107,8 @@ function CustomerLedgerScreen() {
                         imgLight={blurReport}
                         imgDark={blurReportDark}
                         borderRadius={30}
-                        blur={10}>
+                        blur={10}
+                        showCustomerSelector>
                         Customer Ledger
                     </HeaderImage>
                 </View>
@@ -136,6 +149,7 @@ function CustomerLedgerScreen() {
                         SUBMIT
                     </ButtonPaper>
                 </View>
+
 
                 <SurfacePaper backgroundColor={theme.colors.surface}>
                     <View style={{ padding: normalize(10) }}>
@@ -203,5 +217,24 @@ const styles = StyleSheet.create({
 
     title: {
         textAlign: "center",
+    },
+    dropdown: {
+        height: normalize(55),
+        borderRadius: 5,
+        paddingHorizontal: 8,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
     },
 })

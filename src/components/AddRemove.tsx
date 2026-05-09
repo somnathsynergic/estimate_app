@@ -19,39 +19,26 @@ const AddRemove = ({ add, remove, value, isAddDisabled, onChange, isIndividualPr
     return (
         <View style={{
             flexDirection: "row",
-            position: "absolute",
-            left: !isIndividualProductScreen ? 170 : 160,
-            justifyContent: "center",
             alignItems: "center",
-            alignSelf: "center"
+            justifyContent: "center",
         }}>
             <IconButton style={{
-                borderTopRightRadius: 6,
-                borderBottomRightRadius: 6
-            }} icon="minus-thick" onPress={remove} mode="contained" iconColor={theme.colors.onErrorContainer} containerColor={theme.colors.errorContainer} size={isIndividualProductScreen ? 30 : 20} />
+                margin: 0
+            }} icon="minus-thick" onPress={remove} mode="contained" iconColor={theme.colors.onErrorContainer} containerColor={theme.colors.errorContainer} size={isIndividualProductScreen ? 25 : 20} />
             <View style={{
                 width: !isIndividualProductScreen ? normalize(40) : normalize(45),
-                height: !isIndividualProductScreen ? "75%" : "80%",
+                height: !isIndividualProductScreen ? normalize(32) : normalize(38),
                 justifyContent: "center",
                 alignItems: "center",
-                alignSelf: "center",
                 borderRadius: 8,
                 backgroundColor: theme.colors.vanillaSecondaryContainer,
-                // borderStyle: "dashed",
-                // borderWidth: 1
+                marginHorizontal: 4
             }}>
                 <Text variant='bodyMedium' style={{ color: theme.colors.onVanillaSecondaryContainer }}>{value}</Text>
-                {/* <TextInput style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    textAlign: "center",
-                    color: theme.colors.onVanillaSecondaryContainer
-                }} value={value?.toString()} selectTextOnFocus onChange={onChange} keyboardType='number-pad' /> */}
             </View>
             <IconButton disabled={isAddDisabled} style={{
-                borderBottomLeftRadius: 6,
-                borderTopLeftRadius: 6
-            }} icon="plus-thick" onPress={add} mode="contained" iconColor={theme.colors.onVanillaTertiaryContainer} containerColor={theme.colors.vanillaTertiaryContainer} size={isIndividualProductScreen ? 30 : 20} />
+                margin: 0
+            }} icon="plus-thick" onPress={add} mode="contained" iconColor={theme.colors.onVanillaTertiaryContainer} containerColor={theme.colors.vanillaTertiaryContainer} size={isIndividualProductScreen ? 25 : 20} />
         </View>
     )
 }

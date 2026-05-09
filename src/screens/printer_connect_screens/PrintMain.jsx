@@ -25,7 +25,38 @@ import { flowerSetting, flowerSettingDark } from "../../resources/images"
 import { usePaperColorScheme } from "../../theme/theme"
 import ButtonPaper from "../../components/ButtonPaper"
 
-class BluetoothManager {}
+class BluetoothManager {
+  static async isBluetoothEnabled() {
+    try {
+      await BleManager.enableBluetooth()
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+  static connect(address) {
+    return Promise.resolve(true)
+  }
+  static unpaire(address) {
+    return Promise.resolve(true)
+  }
+  static async scanDevices() {
+    try {
+      const bonded = await BleManager.getBondedPeripherals()
+      const paired = bonded.map(d => ({ address: d.id, name: d.name || "Unknown" }))
+      if (Platform.OS === 'android') {
+        DeviceEventEmitter.emit("EVENT_DEVICE_ALREADY_PAIRED", { devices: paired })
+      }
+      return { paired, found: "[]" }
+    } catch (e) {
+      return { paired: [], found: "[]" }
+    }
+  }
+  static EVENT_DEVICE_ALREADY_PAIRED = "EVENT_DEVICE_ALREADY_PAIRED"
+  static EVENT_DEVICE_FOUND = "EVENT_DEVICE_FOUND"
+  static EVENT_CONNECTION_LOST = "EVENT_CONNECTION_LOST"
+  static EVENT_BLUETOOTH_NOT_SUPPORT = "EVENT_BLUETOOTH_NOT_SUPPORT"
+}
 
 const PrintMain = () => {
   const theme = usePaperColorScheme()
@@ -130,7 +161,7 @@ const PrintMain = () => {
       } else {
         try {
           ds = JSON.parse(rsp.devices)
-        } catch (e) {}
+        } catch (e) { }
       }
       if (ds && ds.length) {
         let pared = pairedDevices
@@ -366,7 +397,7 @@ const PrintMain = () => {
         <View style={styles.bluetoothStatusContainer}>
           <Text
             style={styles.bluetoothStatus(bleOpend ? "#47BF34" : "#A8A9AA")}>
-            Bluetooth {bleOpend ? "Active" : "Not Active"}
+            Bluetooth {bleOpend ? "Activated" : "Not Activated"}
           </Text>
         </View>
         {!bleOpend && (
@@ -444,16 +475,22 @@ const styles = StyleSheet.create({
   },
   containerList: { flex: 1, flexDirection: "column" },
   bluetoothStatusContainer: {
-    justifyContent: "flex-end",
-    alignSelf: "flex-end",
+    justifyContent: "center",
+    alignSelf: "center",
+    fontWeight: '800',
+    fontSize: 22
+
   },
   bluetoothStatus: color => ({
-    backgroundColor: color,
+    color: color,
     padding: 8,
     borderRadius: 2,
-    color: "white",
+    // color: "white",
     paddingHorizontal: 14,
     marginBottom: 20,
+    fontSize: 20,
+    fontWeight: "800",
+    fontFamily: "Poppins",
   }),
   bluetoothInfo: {
     textAlign: "center",

@@ -11,6 +11,7 @@ export default function useSearchBills() {
     userId: number,
   ) => {
     return new Promise<PromiseLike<SearchBillsData>>((resolve, reject) => {
+      console.log("useSearchBills =>>>", fromDate, toDate, companyId, branchId, userId)
       axios
         .post(`${ADDRESSES.SEARCH_BILLS}`, {
           from_date: fromDate,

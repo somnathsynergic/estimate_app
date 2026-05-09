@@ -60,8 +60,8 @@ function SearchBillsByDateScreen() {
   const [gstType, setGstType] = useState<"I" | "E">()
   const [discountType, setDiscountType] = useState<"P" | "A">()
 
-  const formattedFromDate = formattedDate(new Date())
-  const formattedToDate = formattedDate(new Date())
+  const formattedFromDate = formattedDate(fromDate)
+  const formattedToDate = formattedDate(toDate)
 
   const [isLoading, setIsLoading] = useState(() => false)
   const [isDisabled, setIsDisabled] = useState(() => false)
@@ -212,6 +212,7 @@ function SearchBillsByDateScreen() {
   const handleGetBillsByDate = async (fromDate: string, toDate: string) => {
     setIsDisabled(true)
     setIsLoading(true)
+    console.log("handleGetBillsByDate =>>>", fromDate, toDate)
     let billResponseData = await fetchSearchedBills(
       fromDate,
       toDate,
@@ -271,7 +272,7 @@ function SearchBillsByDateScreen() {
           </HeaderImage>
         </View>
 
-        {/* <View
+        <View
           style={{
             padding: 10,
             flexDirection: "row",
@@ -295,11 +296,12 @@ function SearchBillsByDateScreen() {
             modal
             mode="date"
             // minimumDate={toDate.setMonth(toDate.getMonth() - 1)}
-            maximumDate={new Date(fromDate)}
-            minimumDate={new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1))}
+            // maximumDate={new Date(fromDate)}
+            // minimumDate={new Date(new Date(fromDate).setDate(new Date(fromDate).getDate() - 1))}
             open={openFromDate}
             date={fromDate}
             onConfirm={date => {
+              console.log("from date =>>>", date)
               setOpenFromDate(false)
               setFromDate(date)
             }}
@@ -310,11 +312,12 @@ function SearchBillsByDateScreen() {
           <DatePicker
             modal
             mode="date"
-            maximumDate={new Date(toDate)}
-            minimumDate={new Date(new Date(toDate).setDate(new Date(toDate).getDate() - 1))}
+            // maximumDate={new Date(toDate)}
+            // minimumDate={new Date(new Date(toDate).setDate(new Date(toDate).getDate() - 1))}
             open={openToDate}
             date={toDate}
             onConfirm={date => {
+              console.log("to date =>>>", date)
               setOpenToDate(false)
               setToDate(date)
             }}
@@ -322,7 +325,7 @@ function SearchBillsByDateScreen() {
               setOpenToDate(false)
             }}
           />
-        </View> */}
+        </View>
 
         <View
           style={{
@@ -353,7 +356,7 @@ function SearchBillsByDateScreen() {
               }}
               key={i}
               title={`${item?.receipt_no}`}
-              description={`₹${item?.net_amt}`}
+              description={`${item?.cust_name}-₹${item?.net_amt}`}
               onPress={() => handleBillListClick(item?.receipt_no)}
               left={props => <List.Icon {...props} icon="basket" />}
             // right={props => (
@@ -375,7 +378,7 @@ function SearchBillsByDateScreen() {
         cancelledBillStatus={cancelledBillStatus}
 
         onDialogFailure={onDialogFailure}
-        onDialogSuccecss={onDialogSuccecss}
+        onDialogSuccess={onDialogSuccecss}
         netTotalButtonColors={[theme.colors.vanillaContainer, theme.colors.onVanillaContainer]}
       />
     </SafeAreaView>

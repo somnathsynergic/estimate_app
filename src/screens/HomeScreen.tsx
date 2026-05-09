@@ -9,7 +9,7 @@ import {
   Linking,
   Animated,
 } from "react-native"
-import React, { useCallback, useContext, useEffect, useState } from "react"
+import React, { useCallback, useContext, useEffect, useState, useMemo } from "react"
 import SplashScreen from "react-native-splash-screen"
 import AnimatedFABPaper from "../components/AnimatedFABPaper"
 import {
@@ -22,7 +22,11 @@ import {
   SegmentedButtons,
   Text,
   TouchableRipple,
+  IconButton,
 } from "react-native-paper"
+import { Dropdown } from 'react-native-element-dropdown'
+import useCustomerList from "../hooks/api/useCustomerList"
+import CustomerSelector from "../components/CustomerSelector"
 import { usePaperColorScheme } from "../theme/theme"
 import HeaderImage from "../components/HeaderImage"
 import {
@@ -54,6 +58,7 @@ import useCalculatorShowBill from "../hooks/api/useCalculatorShowBill"
 import AddedProductList from "../components/AddedProductList"
 import NetTotalForRePrints from "../components/NetTotalForRePrints"
 import { useBluetoothPrint } from "../hooks/printables/useBluetoothPrint"
+import { formattedDate } from "../utils/dateFormatter"
 import useVersionCheck from "../hooks/api/useVersionCheck"
 import DeviceInfo from "react-native-device-info"
 import ButtonPaper from "../components/ButtonPaper"
@@ -74,7 +79,7 @@ function HomeScreen() {
 
   let version = DeviceInfo.getVersion()
 
-  const { handleGetReceiptSettings } = useContext<AppStoreContext>(AppStore)
+  const { handleGetReceiptSettings, customer, setCustomer, justLoggedIn, setJustLoggedIn, handleLogout, customerList, handleGetCustomerList } = useContext<AppStoreContext>(AppStore)
 
   const { fetchBillSummary } = useBillSummary()
   const { fetchRecentBills } = useRecentBills()
@@ -103,12 +108,6 @@ function HomeScreen() {
 
   const [isExtended, setIsExtended] = useState<boolean>(() => true)
 
-  const [totalBills, setTotalBills] = useState<number | undefined>(
-    () => undefined,
-  )
-  const [amountCollected, setAmountCollected] = useState<number | undefined>(
-    () => undefined,
-  )
   const [recentBills, setRecentBills] = useState<RecentBillsData[]>(() => [])
   const [billedSaleData, setBilledSaleData] = useState<ShowBillData[]>(() => [])
   const [currentReceiptNo, setCurrentReceiptNo] = useState<string | undefined>(
@@ -120,6 +119,19 @@ function HomeScreen() {
 
   const [refreshing, setRefreshing] = useState<boolean>(() => false)
   const [updateUrl, setUpdateUrl] = useState<string>()
+  const today = formattedDate(new Date())
+
+  const filteredRecentBills = useMemo(() => {
+    return recentBills
+  }, [recentBills])
+
+  const displayTotalBills = useMemo(() => {
+    return recentBills.length
+  }, [recentBills])
+
+  const displayAmountCollected = useMemo(() => {
+    return recentBills.reduce((acc, curr) => acc + (curr.net_amt || 0), 0)
+  }, [recentBills])
 
   const [visible, setVisible] = useState<boolean>(() => false)
   const hideDialog = () => setVisible(() => false)
@@ -133,17 +145,33 @@ function HomeScreen() {
 
   const [calculatorModeBillArray, setCalculatorModeBillArray] = useState<CalculatorShowBillData[]>(() => [])
 
+  // Login-time customer picker
+  const [custPickerVisible, setCustPickerVisible] = useState(() => false)
+  const [custPickerSelected, setCustPickerSelected] = useState<number | null>(() => null)
+
+  const dismissCustPicker = () => {
+    setCustPickerVisible(false)
+    setJustLoggedIn(false)
+  }
+
+  const confirmCustPicker = () => {
+    dismissCustPicker()
+  }
+
   const showDialogForAppUpdate = () => setVisibleUpdatePortal(true)
   const hideDialogForAppUpdate = () => setVisibleUpdatePortal(false)
 
-  let today = new Date()
-  let year = today.getFullYear()
-  let month = ("0" + (today.getMonth() + 1)).slice(-2)
-  let day = ("0" + today.getDate()).slice(-2)
-  let formattedDate = year + "-" + month + "-" + day
-
   // let netTotal = 0
   // let totalDiscount = 0
+
+  useEffect(() => {
+    if (!justLoggedIn) return
+    
+    if (customerList.length === 0) {
+      handleGetCustomerList()
+    }
+    setCustPickerVisible(true)
+  }, [justLoggedIn])
 
   useEffect(() => {
     SplashScreen.hide()
@@ -154,7 +182,7 @@ function HomeScreen() {
   const onRefresh = useCallback(() => {
     setRefreshing(true)
     handleGetReceiptSettings()
-    // handleGetBillSummary()
+    handleGetBillSummary()
     handleGetRecentBills()
     setTimeout(() => {
       setRefreshing(false)
@@ -284,34 +312,37 @@ function HomeScreen() {
     })
   }
 
-  // const handleGetBillSummary = async () => {
-  //   await fetchBillSummary(
-  //     formattedDate,
-  //     loginStore.comp_id,
-  //     loginStore.br_id,
-  //     loginStore.user_id,
-  //   )
-  //     .then(res => {
-  //       setTotalBills(res?.data[0]?.total_bills)
-  //       setAmountCollected(res?.data[0]?.amount_collected)
-  //     })
-  //     .catch(err => {
-  //       ToastAndroid.show(
-  //         "Check your internet connection or something went wrong in the server.",
-  //         ToastAndroid.SHORT,
-  //       )
-  //       console.log("handleGetBillSummary - HomeScreen", err, formattedDate)
-  //     })
-  // }
-
-  const handleGetRecentBills = async () => {
-    await fetchRecentBills(
-      formattedDate,
+  const handleGetBillSummary = async () => {
+    await fetchBillSummary(
+      today,
       loginStore.comp_id,
       loginStore.br_id,
       loginStore.user_id,
+      null
     )
       .then(res => {
+        // setTotalBills(res?.data[0]?.total_bills)
+        // setAmountCollected(res?.data[0]?.amount_collected)
+      })
+      .catch(err => {
+        ToastAndroid.show(
+          "Check your internet connection or something went wrong in the server.",
+          ToastAndroid.SHORT,
+        )
+        console.log("handleGetBillSummary - HomeScreen", err, today)
+      })
+  }
+
+  const handleGetRecentBills = async () => {
+    await fetchRecentBills(
+      today,
+      loginStore.comp_id,
+      loginStore.br_id,
+      loginStore.user_id,
+      null
+    )
+      .then(res => {
+        console.log("handleGetRecentBills =>>>", res)
         setRecentBills(res)
       })
       .catch(err => {
@@ -340,7 +371,7 @@ function HomeScreen() {
   }
 
   useEffect(() => {
-    // handleGetBillSummary()
+    handleGetBillSummary()
     handleGetRecentBills()
 
     handleGetVersion()
@@ -353,6 +384,7 @@ function HomeScreen() {
   const handleGetBill = async (rcptNo: string) => {
     await fetchBill(rcptNo)
       .then(res => {
+        console.log(res?.data, 'mmmmmmmmmmmmmmm')
         setBilledSaleData(res?.data)
         setCancelledBillStatus(res?.cancel_flag)
         console.log(rcptNo, "handleGetBill - HOMESCREEN - fetchBill", res?.data)
@@ -424,15 +456,15 @@ function HomeScreen() {
 
   let totalQty: number = 0
 
-  useEffect(() => {
-    if (isFocused && params?.receipt_number) {
-      handleRecentBillListClick(params.receipt_number)
+  // useEffect(() => {
+  //   if (isFocused && params?.receipt_number) {
+  //     handleRecentBillListClick(params.receipt_number)
 
-      // navigation.dispatch(
-      //   CommonActions.setParams({ receipt_number: undefined })
-      // )
-    }
-  }, [isFocused, params?.receipt_number])
+  //     // navigation.dispatch(
+  //     //   CommonActions.setParams({ receipt_number: undefined })
+  //     // )
+  //   }
+  // }, [isFocused, params?.receipt_number])
 
   const onDialogSuccess = () => {
     navigation.dispatch(
@@ -450,24 +482,11 @@ function HomeScreen() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
-        <View style={{ alignItems: "center" }}>
-          <HeaderImage
-            imgLight={hills}
-            imgDark={hillsDark}
-            borderRadius={30}
-            blur={10}>
-            {/* Welcome Back, Estimate! */}
-            Welcome, {loginStore.user_name} 
-            {/* {JSON.stringify(loginStore?.id, null, 2)}  */}
-          </HeaderImage>
-        </View>
-
-        {/* <View
+        <View
           style={{
             alignSelf: "center",
             width: "85%",
-            marginTop: -9,
-            paddingBottom: normalize(10),
+            paddingTop: normalize(15),
           }}>
           <ButtonPaper
             icon="magnify-scan"
@@ -488,7 +507,80 @@ function HomeScreen() {
             textColor={theme.colors.onPurpleContainer}>
             SEARCH PRODUCTS
           </ButtonPaper>
-        </View> */}
+        </View>
+
+        <View style={{ alignItems: "center" }}>
+          <HeaderImage
+            imgLight={hills}
+            imgDark={hillsDark}
+            borderRadius={30}
+            blur={10}
+            showCustomerSelector
+            showProductSearch={false}>
+            {/* Welcome Back, Estimate! */}
+            Welcome, {loginStore.user_name}
+          </HeaderImage>
+        </View>
+
+
+
+        {/* Login-time customer picker */}
+        <Portal>
+          <Dialog
+            visible={custPickerVisible}
+            onDismiss={dismissCustPicker}
+            dismissable={false}
+            style={{ borderRadius: normalize(20) }}>
+            <Dialog.Title style={{ textAlign: 'center' }}>Select Customer</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium" style={{ marginBottom: normalize(12), opacity: 0.7 }}>
+                Choose a customer to filter data.
+              </Text>
+              <CustomerSelector
+                data={customerList}
+                value={custPickerSelected}
+                onChange={item => {
+                  setCustPickerSelected(item.value)
+                  setCustomer(item)
+                }}
+                placeholder="Search customer..."
+              />
+            </Dialog.Content>
+            <Dialog.Actions style={{ flexDirection: 'column', gap: normalize(10), paddingHorizontal: normalize(20), paddingBottom: normalize(15) }}>
+              <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+                <Button
+                  mode="outlined"
+                  onPress={handleLogout}
+                  style={{ borderRadius: normalize(10), flex: 1, marginRight: normalize(10) }}
+                  textColor={theme.colors.error}
+                >
+                  Logout
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={confirmCustPicker}
+                  disabled={!custPickerSelected}
+                  buttonColor={theme.colors.primary}
+                  textColor={theme.colors.onPrimary}
+                  style={{ borderRadius: normalize(10), flex: 1 }}
+                >
+                  Confirm
+                </Button>
+              </View>
+              <Button
+                mode="text"
+                onPress={() => {
+                  setCustPickerVisible(false);
+                  navigation.navigate("AddCustomer" as never);
+                }}
+                style={{ width: '100%' }}
+                icon="account-plus-outline"
+              >
+                Add New Customer
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
 
         <Portal>
           <Dialog visible={visibleUpdatePortal} dismissable={false}>
@@ -504,80 +596,122 @@ function HomeScreen() {
         </Portal>
 
         <View style={{ alignItems: "center", marginTop: -10 }}>
-          {/* <SurfacePaper
+          <SurfacePaper
             smallWidthEnabled
-            borderRadiusEnabled={false}
+            borderRadiusEnabled
             paddingEnabled
             elevation={1}
-            backgroundColor={theme.colors.peachContainer}
+            backgroundColor={theme.colors.purpleContainer}
             style={{
-              borderTopRightRadius: normalize(30),
-              borderTopLeftRadius: normalize(30),
+              marginBottom: normalize(15),
             }}>
             <View style={{ width: "100%", padding: normalize(15) }}>
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
+                  marginBottom: normalize(8),
                 }}>
                 <View>
-                  <Text variant="titleLarge" style={{
-                    color: theme.colors.onPeachContainer
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
                   }}>Amount Collected</Text>
                 </View>
                 <View>
-                  <Text variant="titleLarge" style={{
-                    color: theme.colors.onPeachContainer
-                  }}>₹{amountCollected}</Text>
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
+                  }}>₹{displayAmountCollected || 0}</Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: 'center'
+                }}>
+                <View>
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
+                  }}>Total Bills</Text>
+                </View>
+                <View>
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
+                  }}>{displayTotalBills || 0}</Text>
                 </View>
               </View>
             </View>
-          </SurfacePaper> */}
+          </SurfacePaper>
+
+          {/* <View
+            style={{
+              alignSelf: "center",
+              width: "85%",
+              paddingBottom: normalize(15),
+            }}>
+            <ButtonPaper
+              icon="magnify-scan"
+              mode="contained"
+              buttonColor={theme.colors.purpleContainer}
+              onPress={() => navigation.dispatch(
+                CommonActions.navigate(
+                  {
+                    name: navigationRoutes.categoryProductsScreen,
+                    params: {
+                      category_id: 0,
+                      category_name: "All Items",
+                      category_photo: ""
+                    }
+                  }
+                )
+              )}
+              textColor={theme.colors.onPurpleContainer}>
+              SEARCH PRODUCTS
+            </ButtonPaper>
+          </View> */}
 
           <SurfacePaper
             smallWidthEnabled
-            borderRadiusEnabled={false}
+            borderRadiusEnabled
             paddingEnabled
             isBorderEnabled
             heading="Recent Activities"
             elevation={1}
             backgroundColor={theme.colors.tertiaryContainer}
-            style={{
-              borderBottomLeftRadius: normalize(30),
-              borderBottomRightRadius: normalize(30),
-            }}>
+            style={{}}>
             <View style={{ width: "100%" }}>
-              {recentBills?.length > 0 ?(
+              {filteredRecentBills?.length > 0 ? (
                 <>
-              {recentBills?.map((item, i) => (
-                <List.Item
-                  key={i}
-                  title={`${item?.receipt_no}`}
-                  description={`₹${item?.net_amt}`}
-                  onPress={() => {
-                    loginStore?.mode !== "C"
-                      ? handleRecentBillListClick(item?.receipt_no)
-                      : handleBillListClickCalculatorMode(item?.receipt_no)
-                  }}
-                  // onPress={() => null}
-                  left={props => <List.Icon {...props} icon="basket" />}
-                // right={props => (
-                //   <List.Icon {...props} icon="download" />
-                // )}
-                />
-              ))}
-              </>
-            ): <View style={styles.noActivity}>
-                  <Text
+                  {filteredRecentBills?.map((item, i) => (
+                    <List.Item
+                      key={i}
+                      title={`${item?.receipt_no}`}
+                      description={`${item?.cust_name}(${item?.cust_id})-₹${item?.net_amt}`}
+                      onPress={() => {
+                        loginStore?.mode !== "C"
+                          ? handleRecentBillListClick(item?.receipt_no)
+                          : handleBillListClickCalculatorMode(item?.receipt_no)
+                      }}
+                      // onPress={() => null}
+                      left={props => <List.Icon {...props} icon="basket" />}
+                    // right={props => (
+                    //   <List.Icon {...props} icon="download" />
+                    // )}
+                    />
+                  ))}
+                </>
+              ) : <View style={styles.noActivity}>
+                <Text
                   variant="titleLarge"
                   style={[styles.noActivityTxt, {
-                  color: theme.colors.onVanillaTertiaryContainer,
+                    color: theme.colors.onVanillaTertiaryContainer,
                   }]}>
                   {/* No items found in this category. */}
                   No activity found.
-                  </Text>
-                  </View>
-            }
+                </Text>
+              </View>
+              }
             </View>
             {/* <View>
               <Button
@@ -677,17 +811,37 @@ function HomeScreen() {
             variant="tertiary"
             icon="apps"
             label="Categories"
-            onPress={() =>
+            onPress={() => {
+              if (!customer) {
+                Alert.alert("Customer Selection Required", "Please select a customer from the dropdown before proceeding to categories.")
+                return
+              }
               navigation.dispatch(
                 CommonActions.navigate({
                   name: navigationRoutes.categoriesScreen,
                 }),
               )
-            }
+            }}
             extended={isExtended}
             animateFrom="right"
             iconMode="dynamic"
             customStyle={[styles.fabStyle, { backgroundColor: theme.colors.peachContainer }]}
+          />
+
+          <AnimatedFABPaper
+            color={theme.colors.onSecondaryContainer}
+            variant="secondary"
+            icon="file-chart"
+            label="Sales"
+            onPress={() => {
+              navigation.navigate("Reports", {
+                screen: navigationRoutes.productwiseSaleReportScreen,
+              })
+            }}
+            extended={isExtended}
+            animateFrom="left"
+            iconMode="dynamic"
+            customStyle={[styles.fabStyle2, { backgroundColor: theme.colors.secondaryContainer }]}
           />
         </>
       }
@@ -729,11 +883,30 @@ const styles = StyleSheet.create({
     left: normalize(16),
     position: "absolute",
   },
-  noActivity:{
-    padding:15
+  noActivity: {
+    padding: 15
   },
-  noActivityTxt:{
+  noActivityTxt: {
     alignSelf: "center",
     textAlign: "center", fontSize: 19,
-  }
+  },
+  dropdown: {
+    height: normalize(55),
+    borderRadius: 5,
+    paddingHorizontal: 8,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
 })

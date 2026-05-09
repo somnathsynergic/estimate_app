@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from "react"
+import React, { useContext, useState, useMemo, useEffect } from "react"
 import {
   StyleSheet,
   ScrollView,
@@ -9,7 +9,8 @@ import {
 import HeaderImage from "../../components/HeaderImage"
 import { blurReport, blurReportDark } from "../../resources/images"
 import { usePaperColorScheme } from "../../theme/theme"
-import { List, Text } from "react-native-paper"
+import { IconButton, List, Text } from "react-native-paper"
+import { Dropdown } from 'react-native-element-dropdown'
 import useProductwiseSaleReport from "../../hooks/api/useProductwiseSaleReport"
 import ButtonPaper from "../../components/ButtonPaper"
 import normalize, { SCREEN_HEIGHT } from "react-native-normalize"
@@ -17,14 +18,12 @@ import { formattedDate } from "../../utils/dateFormatter"
 import { loginStorage } from "../../storage/appStorage"
 import { BasicReportCredentials, ProductwiseSaleReportData } from "../../models/api_types"
 import { useBluetoothPrint } from "../../hooks/printables/useBluetoothPrint"
-import { AppStore } from "../../context/AppContext"
 import { AppStoreContext } from "../../models/custom_types"
 import SurfacePaper from "../../components/SurfacePaper"
 
 export default function ProductwiseSaleReportScreen() {
   const theme = usePaperColorScheme()
   const loginStore = JSON.parse(loginStorage.getString("login-data"))
-  const { receiptSettings } = useContext<AppStoreContext>(AppStore)
   const { fetchProductwiseSaleReport } = useProductwiseSaleReport()
   const { printProductwiseSaleReport } = useBluetoothPrint()
 
@@ -55,13 +54,18 @@ export default function ProductwiseSaleReportScreen() {
     try {
       const res = await fetchProductwiseSaleReport(saleCreds)
       setProductwiseSaleReport(res?.data || [])
-    } catch (err) {
+    } catch (err: any) {
+      console.log(err?.response)
       ToastAndroid.show("Error fetching sale report.", ToastAndroid.SHORT)
     } finally {
       setIsDisabled(false)
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    handleGetSaleReport()
+  }, [])
 
   const totalNetAmount = useMemo(
     () => productwiseSaleReport.reduce((sum, item) => sum + Number(item.tot_item_price), 0),
@@ -78,8 +82,9 @@ export default function ProductwiseSaleReportScreen() {
           imgDark={blurReportDark}
           borderRadius={30}
           blur={10}
+          showCustomerSelector={false}
         >
-          Productwise Estimates
+          SKU wise Sales
         </HeaderImage>
       </View>
 
@@ -92,52 +97,52 @@ export default function ProductwiseSaleReportScreen() {
           loading={isLoading}
           disabled={isDisabled}
         >
-          SUBMIT
+          SUBMIT/REFRESH
         </ButtonPaper>
       </View>
 
       <View style={styles.listWrapper}>
         <ScrollView contentContainerStyle={styles.listContainer} nestedScrollEnabled>
           {productwiseSaleReport?.length > 0 ? (
-          <>
-          {productwiseSaleReport.map((item, i) => (
-            <List.Item
-              key={i}
-              title={`${item.tot_item_qty}${item.unit_name.charAt(0)} x ${item.item_name}`}
-              description={() => (
-                <View>
-                  <Text style={{ color: theme.colors.green }}>
-                    Price: ₹{item.unit_price}
-                  </Text>
-                  <Text style={{ color: theme.colors.purple }}>
-                    Category: {item.category_name}
-                  </Text>
-                </View>
-              )}
-              right={() => <Text>₹{item.tot_item_price}</Text>}
-            />
-          ))}
-          </>
+            <>
+              {productwiseSaleReport.map((item, i) => (
+                <List.Item
+                  key={i}
+                  title={`${item.tot_item_qty} x ${item.item_name}`}
+                  description={() => (
+                    <View>
+                      <Text style={{ color: theme.colors.green }}>
+                        Price: ₹{item.unit_price}
+                      </Text>
+                      <Text style={{ color: theme.colors.purple }}>
+                        Category: {item.category_name}
+                      </Text>
+                    </View>
+                  )}
+                  right={() => <Text>₹{item.tot_item_price}</Text>}
+                />
+              ))}
+            </>
           )
-      : <SurfacePaper
-      borderRadiusEnabled
-      backgroundColor={theme.colors.vanillaTertiaryContainer}
-      elevation={2}
-      paddingEnabled
-      smallWidthEnabled
-      style={{ padding: 15 }}>
-      <Text
-      variant="titleLarge"
-      style={{
-      alignSelf: "center",
-      textAlign: "center",
-      color: theme.colors.onVanillaTertiaryContainer,
-      }}>
-      {/* No items found in this category. */}
-      No items found.
-      </Text>
-      </SurfacePaper>
-      }
+            : <SurfacePaper
+              borderRadiusEnabled
+              backgroundColor={theme.colors.vanillaTertiaryContainer}
+              elevation={2}
+              paddingEnabled
+              smallWidthEnabled
+              style={{ padding: 15 }}>
+              <Text
+                variant="titleLarge"
+                style={{
+                  alignSelf: "center",
+                  textAlign: "center",
+                  color: theme.colors.onVanillaTertiaryContainer,
+                }}>
+                {/* No items found in this category. */}
+                No items found.
+              </Text>
+            </SurfacePaper>
+          }
         </ScrollView>
 
         {productwiseSaleReport.length > 0 && (
@@ -182,5 +187,25 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontWeight: "bold",
+  },
+  dropdown: {
+    marginBottom: normalize(10),
+    height: normalize(55),
+    borderRadius: 5,
+    paddingHorizontal: 8,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 })
