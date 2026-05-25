@@ -250,9 +250,9 @@ export default function ProfileScreen() {
             <ButtonPaper
               icon="logout"
               mode="contained"
-              buttonColor={theme.colors.errorContainer}
+              buttonColor={theme.colors.error}
               onPress={showDialog}
-              textColor={theme.colors.onErrorContainer}>
+              textColor={theme.colors.errorContainer}>
               LOG OUT
             </ButtonPaper>
           </View>

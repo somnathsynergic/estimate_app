@@ -810,6 +810,17 @@ export type AddCustomerCredentials = {
   created_by: string
 }
 
+export type EditCustomerCredentials = {
+  comp_id: number
+  br_id: number
+  user_id: number
+  cust_id: number
+  address: string
+  lat: number | null
+  long: number | null
+  created_by: string
+}
+
 export type BillSmsResponse = {
   suc: number
   msg: string

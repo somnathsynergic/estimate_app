@@ -557,7 +557,8 @@ function CategoryProductsScreen() {
                                                         backgroundColor: theme.colors.primaryContainer,
                                                         borderRadius: 5,
                                                         gap: 5,
-                                                        marginVertical: 10
+                                                        marginVertical: 5,
+                                                        elevation: 10
                                                         // padding: 15
                                                     }}>
                                                         <View style={{
@@ -598,7 +599,7 @@ function CategoryProductsScreen() {
 
                             : <SurfacePaper
                                 borderRadiusEnabled
-                                backgroundColor={theme.colors.vanillaTertiaryContainer}
+                                backgroundColor={theme.colors.onPrimary}
                                 elevation={2}
                                 paddingEnabled
                                 smallWidthEnabled
@@ -608,7 +609,7 @@ function CategoryProductsScreen() {
                                     style={{
                                         alignSelf: "center",
                                         textAlign: "center",
-                                        color: theme.colors.onVanillaTertiaryContainer,
+                                        color: theme.colors.primary,
                                     }}>
                                     {/* No items found in this category. */}
                                     No items found.

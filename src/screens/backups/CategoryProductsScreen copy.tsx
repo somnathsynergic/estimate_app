@@ -414,7 +414,7 @@ function CategoryProductsScreen() {
 
                             : <SurfacePaper
                                 borderRadiusEnabled
-                                backgroundColor={theme.colors.vanillaTertiaryContainer}
+                                backgroundColor={theme.colors.onPrimary}
                                 elevation={2}
                                 paddingEnabled
                                 smallWidthEnabled
@@ -424,7 +424,7 @@ function CategoryProductsScreen() {
                                     style={{
                                         alignSelf: "center",
                                         textAlign: "center",
-                                        color: theme.colors.onVanillaTertiaryContainer,
+                                        color: theme.colors.primary,
                                     }}>
                                     No items found in this category.
                                 </Text>

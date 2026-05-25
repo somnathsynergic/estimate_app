@@ -164,20 +164,7 @@ const AddCustomerScreen = () => {
                     </HeaderImage>
                 </View>
 
-                <View style={[styles.container, {
-                    backgroundColor: theme.colors.elevation?.level1 || theme.colors.surface,
-                    marginHorizontal: normalize(20),
-                    marginTop: normalize(15),
-                    marginBottom: normalize(25),
-                    borderRadius: 24,
-                    shadowColor: theme.colors.shadow || "#000",
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
-                    elevation: 5,
-                    borderWidth: 1,
-                    borderColor: theme.colors.outlineVariant || theme.colors.surfaceVariant,
-                }]}>
+                <View style={styles.container}>
                     <View style={styles.inputWrapper}>
                         <InputPaper
                             label="Customer Name"
@@ -218,11 +205,9 @@ const AddCustomerScreen = () => {
                         </ButtonPaper>
                     </View>
 
-                    <View style={{ marginTop: normalize(10) }}>
+                    <View style={{ marginTop: 20 }}>
                         <ButtonPaper
                             mode="contained"
-                            buttonColor={theme.colors.purple}
-                            textColor={theme.colors.onPurple}
                             onPress={handleSave}
                             loading={isLoading}
                             disabled={isLoading || !name.trim() || !phone.trim() || !location}

@@ -41,6 +41,25 @@ function CategoriesScreen() {
 
     const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}') as LoginDataMessage
 
+    const getCategoryIcon = (name: string): string => {
+        const lower = name.toLowerCase();
+        if (lower.includes("all")) return "grid";
+        if (lower.includes("cake") || lower.includes("pastry") || lower.includes("bake")) return "cake-variant";
+        if (lower.includes("coffee") || lower.includes("tea") || lower.includes("chai") || lower.includes("beverage")) return "coffee";
+        if (lower.includes("drink") || lower.includes("soda") || lower.includes("cold")) return "glass-cocktail";
+        if (lower.includes("pizza")) return "pizza";
+        if (lower.includes("burger") || lower.includes("sandwich")) return "food-burger";
+        if (lower.includes("ice") || lower.includes("cream")) return "ice-cream";
+        if (lower.includes("juice") || lower.includes("shake")) return "fruit-grapes";
+        if (lower.includes("snack") || lower.includes("chips") || lower.includes("fry") || lower.includes("fast")) return "cookie";
+        if (lower.includes("sweet") || lower.includes("candy") || lower.includes("dessert")) return "candy";
+        if (lower.includes("bakery") || lower.includes("bread") || lower.includes("bun")) return "bread-slice";
+        if (lower.includes("food") || lower.includes("meal") || lower.includes("rice") || lower.includes("curry") || lower.includes("dinner") || lower.includes("lunch")) return "food";
+        if (lower.includes("chicken") || lower.includes("meat") || lower.includes("fish")) return "food-meat-2";
+        if (lower.includes("veg") || lower.includes("salad") || lower.includes("green")) return "carrot";
+        return "tag-text-outline";
+    }
+
 
     let itemsStore: ItemsData[] = []
     let totalAmountStore: number = 0
@@ -239,12 +258,9 @@ function CategoriesScreen() {
                     ? <ReportButtonsWrapper>
                         <ReportButton
                             text={"All Items"}
-                            color={theme.colors.vanillaSecondaryContainer}
-                            textColor={theme.colors.onVanillaContainer}
-                            icon={"hexagon-multiple-outline"}
-                            // withImage
-                            // imageSource={item?.catg_picture}
-                            // imageSourceObject={cate}
+                            color="#FFFFFF"
+                            textColor="#090446"
+                            icon={getCategoryIcon("All Items")}
                             onPress={() => onPress(0, "All Items")}
                         />
                         {
@@ -252,12 +268,10 @@ function CategoriesScreen() {
                                 <ReportButton
                                     key={index}
                                     text={item?.category_name}
-                                    color={index % 2 === 0 ? theme.colors.vanillaContainer : theme.colors.vanillaSecondaryContainer}
-                                    textColor={index % 2 === 0 ? theme.colors.onVanillaSecondaryContainer : theme.colors.onVanillaContainer}
-                                    icon={"hexagon-multiple-outline"}
-                                    // withImage
-                                    // imageSource={item?.catg_picture}
-                                    // imageSourceObject={cate}
+                                    color="#FFFFFF"
+                                    textColor="#090446"
+                                    icon={getCategoryIcon(item?.category_name || "")}
+                                    imageSource={item?.catg_picture}
                                     onPress={() => onPress(item?.sl_no, item?.category_name, item?.catg_picture)}
                                 />
                             ))

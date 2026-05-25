@@ -8,28 +8,13 @@ import {
   Alert,
   Linking,
   Animated,
-  Text as NativeText,
+  TouchableOpacity,
 } from "react-native"
+import LinearGradient from 'react-native-linear-gradient'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import React, { useCallback, useContext, useEffect, useState, useMemo } from "react"
 import SplashScreen from "react-native-splash-screen"
 import AnimatedFABPaper from "../components/AnimatedFABPaper"
-
-const MaterialCommunityIcons = ({ name, size, color, style }: { name: string; size: number; color: string; style?: any }) => {
-  const emojiMap: { [key: string]: string } = {
-    'cash-multiple': '💰',
-    'receipt': '🧾',
-    'receipt-text-outline': '🧾',
-    'trophy': '🏆',
-    'chevron-right': '›',
-    'history': '🕐',
-    'basket': '🛒',
-  }
-  return (
-    <NativeText style={[{ fontSize: size, color, textAlign: 'center' }, style]}>
-      {emojiMap[name] || '•'}
-    </NativeText>
-  )
-}
 import {
   ActivityIndicator,
   Button,
@@ -184,7 +169,7 @@ function HomeScreen() {
 
   useEffect(() => {
     if (!justLoggedIn) return
-
+    
     if (customerList.length === 0) {
       handleGetCustomerList()
     }
@@ -494,156 +479,301 @@ function HomeScreen() {
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {loginStore?.user_type === 'M' ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: theme.colors.onBackground, fontSize: 24, fontWeight: 'bold' }}>Welcome Manager</Text>
+      <ScrollView
+        onScroll={onScroll}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+        <View
+          style={{
+            alignSelf: "center",
+            width: "85%",
+            paddingTop: normalize(15),
+          }}>
+          <ButtonPaper
+            icon="magnify-scan"
+            mode="contained"
+            buttonColor={theme.colors.purpleContainer}
+            onPress={() => navigation.dispatch(
+              CommonActions.navigate(
+                {
+                  name: navigationRoutes.categoryProductsScreen,
+                  params: {
+                    category_id: 0,
+                    category_name: "All Items",
+                    category_photo: ""
+                  }
+                }
+              )
+            )}
+            textColor={theme.colors.onPurpleContainer}>
+            SEARCH PRODUCTS
+          </ButtonPaper>
         </View>
-      ) : (
-        <>
-          <ScrollView keyboardShouldPersistTaps="handled" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} onScroll={onScroll}>
-            <View style={{ alignItems: "center" }}>
-              <HeaderImage
-                imgLight={hills}
-                imgDark={hillsDark}
-                borderRadius={30}
-                blur={10}
-                isBackEnabled
-                showProductSearch={false}
-              >
-                Welcome, {loginStore.user_name}
-              </HeaderImage>
-            </View>
-            <View style={{ alignItems: "center", marginTop: -5, width: "100%" }}>
-              <ButtonPaper icon="magnify-scan" mode="contained" buttonColor={theme.colors.primary} onPress={() => navigation.dispatch(CommonActions.navigate({ name: navigationRoutes.categoryProductsScreen, params: { category_id: 0, category_name: "All Items", category_photo: "" } }))} textColor={theme.colors.onPrimary} style={{ borderRadius: 24, elevation: 4 }}>
-                SEARCH PRODUCTS
-              </ButtonPaper>
-            </View>
-            {/* Summary Section */}
-            <View style={{ alignSelf: "center", width: "85%", paddingTop: normalize(15) }}>
-              <View style={{ borderRadius: 24, padding: normalize(15), elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' }}>
-                <Text style={{ color: theme.colors.primary, fontFamily: 'ProductSans-Bold', fontSize: normalize(12), marginBottom: normalize(12), textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>TODAY'S SUMMARY</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <View style={{ backgroundColor: theme.colors.primaryContainer, padding: normalize(8), borderRadius: 10, marginRight: normalize(8) }}>
-                      <MaterialCommunityIcons name="cash-multiple" size={20} color={theme.colors.primary} />
-                    </View>
-                    <View>
-                      <Text style={{ color: '#64748B', fontFamily: 'ProductSans-Medium', fontSize: normalize(10) }}>Collected</Text>
-                      <Text style={{ color: '#0F172A', fontFamily: 'ProductSans-Bold', fontSize: normalize(16) }}>₹{displayAmountCollected || 0}</Text>
-                    </View>
-                  </View>
-                  <View style={{ width: 1, height: normalize(30), backgroundColor: '#E2E8F0', marginHorizontal: normalize(5) }} />
-                  <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <View style={{ backgroundColor: theme.colors.secondaryContainer, padding: normalize(8), borderRadius: 10, marginRight: normalize(8) }}>
-                      <MaterialCommunityIcons name="receipt" size={20} color={theme.colors.secondary} />
-                    </View>
-                    <View>
-                      <Text style={{ color: '#64748B', fontFamily: 'ProductSans-Medium', fontSize: normalize(10) }}>Total Bills</Text>
-                      <Text style={{ color: '#0F172A', fontFamily: 'ProductSans-Bold', fontSize: normalize(16) }}>{displayTotalBills || 0}</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
-            {/* League Dashboard */}
-            <TouchableRipple onPress={() => navigation.navigate("League" as never)} rippleColor="rgba(255, 255, 255, .32)" style={{ alignSelf: 'center', width: "85%", marginVertical: normalize(15), borderRadius: 20, overflow: 'hidden', elevation: 4 }}>
-              <View style={{ padding: normalize(15), flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: '#090446' }}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: 8, borderRadius: 12, marginRight: 12 }}>
-                    <MaterialCommunityIcons name="trophy" size={24} color="#FFB800" />
-                  </View>
-                  <View>
-                    <Text style={{ color: '#FFF', fontFamily: 'ProductSans-Bold', fontSize: normalize(16) }}>League Dashboard</Text>
-                    <Text style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'ProductSans-Medium', fontSize: normalize(11) }}>View your rank and daily quests</Text>
-                  </View>
-                </View>
-                <MaterialCommunityIcons name="chevron-right" size={24} color="#FFF" />
-              </View>
-            </TouchableRipple>
-            {/* Recent Activities List */}
-            <View style={{ alignItems: "center", marginTop: -5, width: "100%" }}>
-              <View style={{ width: "85%", marginBottom: normalize(20) }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: normalize(10), paddingHorizontal: normalize(5) }}>
-                  <Text style={{ color: theme.dark ? '#F8FAFC' : '#0F172A', fontFamily: 'ProductSans-Bold', fontSize: normalize(18) }}>Recent Activities</Text>
-                  <MaterialCommunityIcons name="history" size={24} color={theme.colors.primary} />
-                </View>
-                {filteredRecentBills?.length > 0 ? (
-                  <View style={{
-                    backgroundColor: theme.dark ? '#1E293B' : '#FFFFFF',
-                    borderRadius: 24,
-                    overflow: 'hidden',
-                    elevation: 3,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.05,
-                    shadowRadius: 8,
-                    borderWidth: 1,
-                    borderColor: theme.dark ? '#334155' : '#F1F5F9'
-                  }}>
-                    {filteredRecentBills.map((item, i) => (
-                      <TouchableRipple
-                        key={i}
-                        onPress={() => {
-                          loginStore?.mode !== "C"
-                            ? handleRecentBillListClick(item?.receipt_no)
-                            : handleBillListClickCalculatorMode(item?.receipt_no)
-                        }}
-                        rippleColor="rgba(0, 0, 0, .1)"
-                        style={{
-                          padding: normalize(16),
-                          borderBottomWidth: i === filteredRecentBills.length - 1 ? 0 : 1,
-                          borderBottomColor: theme.dark ? '#334155' : '#F1F5F9',
-                          flexDirection: 'row',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <>
-                          <View style={{ backgroundColor: theme.colors.primaryContainer, padding: 10, borderRadius: 12, marginRight: 15 }}>
-                            <MaterialCommunityIcons name="basket" size={22} color={theme.colors.primary} />
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={{ color: theme.dark ? '#F8FAFC' : '#0F172A', fontFamily: 'ProductSans-Bold', fontSize: normalize(14), marginBottom: 2 }}>
-                              {item?.receipt_no}
-                            </Text>
-                            <Text style={{ color: theme.dark ? '#94A3B8' : '#64748B', fontFamily: 'ProductSans-Medium', fontSize: normalize(12) }}>
-                              {item?.cust_name} ({item?.cust_id})
-                            </Text>
-                          </View>
-                          <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{ color: theme.colors.primary, fontFamily: 'ProductSans-Bold', fontSize: normalize(15) }}>
-                              ₹{item?.net_amt}
-                            </Text>
-                            <MaterialCommunityIcons name="chevron-right" size={20} color={theme.dark ? '#64748B' : '#CBD5E1'} style={{ marginTop: 2 }} />
-                          </View>
-                        </>
-                      </TouchableRipple>
-                    ))}
-                  </View>
-                ) : (
-                  <View style={{
-                    backgroundColor: theme.dark ? '#1E293B' : '#FFFFFF',
-                    borderRadius: 24,
-                    padding: normalize(30),
-                    alignItems: 'center',
-                    elevation: 3,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.05,
-                    shadowRadius: 8,
-                    borderWidth: 1,
-                    borderColor: theme.dark ? '#334155' : '#F1F5F9'
-                  }}>
-                    <MaterialCommunityIcons name="receipt-text-outline" size={48} color={theme.dark ? '#475569' : '#CBD5E1'} style={{ marginBottom: normalize(10) }} />
-                    <Text style={{ color: theme.dark ? '#94A3B8' : '#64748B', fontFamily: 'ProductSans-Medium', fontSize: normalize(16) }}>
-                      No activity found.
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </View>
-          </ScrollView>
 
-          {/* <DialogBoxForReprint
+        <View style={{ alignItems: "center" }}>
+          <HeaderImage
+            imgLight={hills}
+            imgDark={hillsDark}
+            borderRadius={30}
+            blur={10}
+            showCustomerSelector
+            showProductSearch={false}>
+            {/* Welcome Back, Estimate! */}
+            Welcome, {loginStore.user_name}
+          </HeaderImage>
+        </View>
+
+
+
+        {/* Login-time customer picker */}
+        <Portal>
+          <Dialog
+            visible={custPickerVisible}
+            onDismiss={dismissCustPicker}
+            dismissable={false}
+            style={{ borderRadius: normalize(20) }}>
+            <Dialog.Title style={{ textAlign: 'center' }}>Select Customer</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium" style={{ marginBottom: normalize(12), opacity: 0.7 }}>
+                Choose a customer to filter data.
+              </Text>
+              <CustomerSelector
+                data={customerList}
+                value={custPickerSelected}
+                onChange={item => {
+                  setCustPickerSelected(item.value)
+                  setCustomer(item)
+                }}
+                placeholder="Search customer..."
+              />
+            </Dialog.Content>
+            <Dialog.Actions style={{ flexDirection: 'column', gap: normalize(10), paddingHorizontal: normalize(20), paddingBottom: normalize(15) }}>
+              <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+                <Button
+                  mode="outlined"
+                  onPress={handleLogout}
+                  style={{ borderRadius: normalize(10), flex: 1, marginRight: normalize(10) }}
+                  textColor={theme.colors.error}
+                >
+                  Logout
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={confirmCustPicker}
+                  disabled={!custPickerSelected}
+                  buttonColor={theme.colors.primary}
+                  textColor={theme.colors.onPrimary}
+                  style={{ borderRadius: normalize(10), flex: 1 }}
+                >
+                  Confirm
+                </Button>
+              </View>
+              <Button
+                mode="text"
+                onPress={() => {
+                  setCustPickerVisible(false);
+                  navigation.navigate("AddCustomer" as never);
+                }}
+                style={{ width: '100%' }}
+                icon="account-plus-outline"
+              >
+                Add New Customer
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+
+        <Portal>
+          <Dialog visible={visibleUpdatePortal} dismissable={false}>
+            <Dialog.Title>UPDATE FOUND!</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">Please update your app.</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              {/* <Button onPress={hideDialog}>Cancel</Button> */}
+              <Button onPress={updateApp}>Download</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+
+        <View style={{ alignItems: "center", marginTop: -10 }}>
+          <SurfacePaper
+            smallWidthEnabled
+            borderRadiusEnabled
+            paddingEnabled
+            elevation={1}
+            backgroundColor={theme.colors.purpleContainer}
+            style={{
+              marginBottom: normalize(15),
+            }}>
+            <View style={{ width: "100%", padding: normalize(15) }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: normalize(8),
+                }}>
+                <View>
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
+                  }}>Amount Collected</Text>
+                </View>
+                <View>
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
+                  }}>₹{displayAmountCollected || 0}</Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: 'center'
+                }}>
+                <View>
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
+                  }}>Total Bills</Text>
+                </View>
+                <View>
+                  <Text variant="titleMedium" style={{
+                    color: theme.colors.onPurpleContainer
+                  }}>{displayTotalBills || 0}</Text>
+                </View>
+              </View>
+            </View>
+          </SurfacePaper>
+
+          <TouchableRipple
+            onPress={() => navigation.navigate("League" as never)}
+            rippleColor="rgba(255, 255, 255, .32)"
+            style={{
+              width: "85%",
+              marginBottom: normalize(15),
+              borderRadius: 20,
+              overflow: 'hidden',
+              elevation: 4,
+            }}
+          >
+            <LinearGradient
+              colors={['#004AAD', '#006BFF']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{
+                padding: normalize(15),
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  padding: 8,
+                  borderRadius: 12,
+                  marginRight: 12
+                }}>
+                  <MaterialCommunityIcons name="trophy" size={24} color="#FFB800" />
+                </View>
+                <View>
+                  <Text style={{ color: '#FFF', fontFamily: 'ProductSans-Bold', fontSize: normalize(16) }}>League Dashboard</Text>
+                  <Text style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'ProductSans-Medium', fontSize: normalize(11) }}>View your rank and daily quests</Text>
+                </View>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={24} color="#FFF" />
+            </LinearGradient>
+          </TouchableRipple>
+
+          {/* <View
+            style={{
+              alignSelf: "center",
+              width: "85%",
+              paddingBottom: normalize(15),
+            }}>
+            <ButtonPaper
+              icon="magnify-scan"
+              mode="contained"
+              buttonColor={theme.colors.purpleContainer}
+              onPress={() => navigation.dispatch(
+                CommonActions.navigate(
+                  {
+                    name: navigationRoutes.categoryProductsScreen,
+                    params: {
+                      category_id: 0,
+                      category_name: "All Items",
+                      category_photo: ""
+                    }
+                  }
+                )
+              )}
+              textColor={theme.colors.onPurpleContainer}>
+              SEARCH PRODUCTS
+            </ButtonPaper>
+          </View> */}
+
+          <SurfacePaper
+            smallWidthEnabled
+            borderRadiusEnabled
+            paddingEnabled
+            isBorderEnabled
+            heading="Recent Activities"
+            elevation={1}
+            backgroundColor={theme.colors.tertiaryContainer}
+            style={{}}>
+            <View style={{ width: "100%" }}>
+              {filteredRecentBills?.length > 0 ? (
+                <>
+                  {filteredRecentBills?.map((item, i) => (
+                    <List.Item
+                      key={i}
+                      title={`${item?.receipt_no}`}
+                      description={`${item?.cust_name}(${item?.cust_id})-₹${item?.net_amt}`}
+                      onPress={() => {
+                        loginStore?.mode !== "C"
+                          ? handleRecentBillListClick(item?.receipt_no)
+                          : handleBillListClickCalculatorMode(item?.receipt_no)
+                      }}
+                      // onPress={() => null}
+                      left={props => <List.Icon {...props} icon="basket" />}
+                    // right={props => (
+                    //   <List.Icon {...props} icon="download" />
+                    // )}
+                    />
+                  ))}
+                </>
+              ) : <View style={styles.noActivity}>
+                <Text
+                  variant="titleLarge"
+                  style={[styles.noActivityTxt, {
+                    color: theme.colors.onVanillaTertiaryContainer,
+                  }]}>
+                  {/* No items found in this category. */}
+                  No activity found.
+                </Text>
+              </View>
+              }
+            </View>
+            {/* <View>
+              <Button
+                textColor={theme.colors.onPinkContainer}
+                onPress={() =>
+                  navigation.dispatch(
+                    CommonActions.navigate({
+                      name: navigationRoutes.allBillsScreen,
+                    }),
+                  )
+                }>
+                ALL BILLS
+              </Button>
+            </View> */}
+          </SurfacePaper>
+        </View>
+      </ScrollView>
+
+      {/* <DialogBoxForReprint
         iconSize={30}
         visible={visible}
         hide={hideDialog}
@@ -657,32 +787,32 @@ function HomeScreen() {
         onDialogFailure={onDialogFailure}
       // onDialogSuccecss={() => onDialogSuccecss()}
       /> */}
-          <DialogBoxForReprint
-            iconSize={30}
-            visible={visible}
-            hide={hideDialog}
-            titleStyle={styles.title}
-            currentReceiptNo={currentReceiptNo}
-            billedSaleData={billedSaleData}
-            handleCancelBill={handleCancelBill}
-            cancelledBillStatus={cancelledBillStatus}
-            onDialogFailure={onDialogFailure}
-            onDialogSuccess={onDialogSuccess}
-            requireShare={Boolean(params?.receipt_number)}
-          />
+      <DialogBoxForReprint
+        iconSize={30}
+        visible={visible}
+        hide={hideDialog}
+        titleStyle={styles.title}
+        currentReceiptNo={currentReceiptNo}
+        billedSaleData={billedSaleData}
+        handleCancelBill={handleCancelBill}
+        cancelledBillStatus={cancelledBillStatus}
+        onDialogFailure={onDialogFailure}
+        onDialogSuccess={onDialogSuccess}
+        requireShare={Boolean(params?.receipt_number)}
+      />
 
-          <DialogForBillsInCalculatorMode
-            visible={visible2}
-            hide={hideDialog2}
+      <DialogForBillsInCalculatorMode
+        visible={visible2}
+        hide={hideDialog2}
 
-            currentReceiptNumber={currentReceiptNo}
-            showCalculatedBillData={calculatorModeBillArray}
+        currentReceiptNumber={currentReceiptNo}
+        showCalculatedBillData={calculatorModeBillArray}
 
-            onDialogFailure={hideDialog2}
-            onDialogSuccecss={() => onDialogSuccecss(true)}
-          />
+        onDialogFailure={hideDialog2}
+        onDialogSuccecss={() => onDialogSuccecss(true)}
+      />
 
-          {/* {
+      {/* {
         loginStore?.mode === "N"
           ? <AnimatedFABPaper
             icon="plus"
@@ -717,49 +847,48 @@ function HomeScreen() {
       } */}
 
 
-          {
-            loginStore?.mode !== "C" && <>
-              <AnimatedFABPaper
-                color="#FFFFFF"
-                variant="tertiary"
-                icon="apps"
-                label="Categories"
-                onPress={() => {
-                  if (!customer) {
-                    Alert.alert("Customer Selection Required", "Please select a customer from the dropdown before proceeding to categories.")
-                    return
-                  }
-                  navigation.dispatch(
-                    CommonActions.navigate({
-                      name: navigationRoutes.categoriesScreen,
-                    }),
-                  )
-                }}
-                extended={isExtended}
-                animateFrom="right"
-                iconMode="dynamic"
-                customStyle={[styles.fabStyle, { backgroundColor: '#090446' }]}
-              />
+      {
+        loginStore?.mode !== "C" && <>
+          <AnimatedFABPaper
+            color={theme.colors.onPeachContainer}
+            variant="tertiary"
+            icon="apps"
+            label="Categories"
+            onPress={() => {
+              if (!customer) {
+                Alert.alert("Customer Selection Required", "Please select a customer from the dropdown before proceeding to categories.")
+                return
+              }
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: navigationRoutes.categoriesScreen,
+                }),
+              )
+            }}
+            extended={isExtended}
+            animateFrom="right"
+            iconMode="dynamic"
+            customStyle={[styles.fabStyle, { backgroundColor: theme.colors.peachContainer }]}
+          />
 
-              <AnimatedFABPaper
-                color="#FFFFFF"
-                variant="secondary"
-                icon="file-chart"
-                label="Sales"
-                onPress={() => {
-                  navigation.navigate("Reports", {
-                    screen: navigationRoutes.productwiseSaleReportScreen,
-                  })
-                }}
-                extended={isExtended}
-                animateFrom="left"
-                iconMode="dynamic"
-                customStyle={[styles.fabStyle2, { backgroundColor: '#090446' }]}
-              />
-            </>
-          }
+          <AnimatedFABPaper
+            color={theme.colors.onSecondaryContainer}
+            variant="secondary"
+            icon="file-chart"
+            label="Sales"
+            onPress={() => {
+              navigation.navigate("Reports", {
+                screen: navigationRoutes.productwiseSaleReportScreen,
+              })
+            }}
+            extended={isExtended}
+            animateFrom="left"
+            iconMode="dynamic"
+            customStyle={[styles.fabStyle2, { backgroundColor: theme.colors.secondaryContainer }]}
+          />
         </>
-      )}
+      }
+
     </SafeAreaView>
   )
 }

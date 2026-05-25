@@ -31,13 +31,21 @@ export default function ReportButton({
     <TouchableRipple
       onPress={onPress}
       style={{
-        width: 102,
-        height: 102,
-        padding: 10,
+        width: 104,
+        height: 104,
+        padding: 8,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 20,
-        backgroundColor: color,
+        borderRadius: 12, // Modern squarer look
+        backgroundColor: '#FFFFFF', // Enforced solid white card layout
+        elevation: 3, // Premium slight shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        margin: 4,
       }}>
       <>
         {
@@ -51,9 +59,9 @@ export default function ReportButton({
               style={styles.buttonImageIconStyle}
               resizeMode={FastImage.resizeMode.cover}
             />
-            : <IconButton icon={icon} iconColor={textColor} />
+            : <IconButton icon={icon} iconColor="#090446" size={26} style={{ margin: 0 }} />
         }
-        <Text style={{ textAlign: "center", color: textColor }}>{text}</Text>
+        <Text style={{ textAlign: "center", color: '#090446', fontFamily: 'ProductSans-Medium', fontSize: 11, marginTop: 2 }}>{text}</Text>
       </>
     </TouchableRipple>
   )

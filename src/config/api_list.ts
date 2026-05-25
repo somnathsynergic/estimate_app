@@ -107,4 +107,8 @@ export const ADDRESSES = {
   SEND_OTP2: `${BASE_URL_SMS}/sms_api/send_otp.php`,
   BILL_SMS2: `${BASE_URL_SMS}/sms_api/bill_sms.php`,
   ADD_CUSTOMER: `${BASE_URL}/api/add_customer`,
+  EDIT_CUSTOMER: `${BASE_URL}/api/edit_customer`,
+  GAMIFICATION_DASHBOARD: `${BASE_URL}/gamification/ds_dashboard`,
+  GAMIFICATION_LEADERBOARD: `${BASE_URL}/gamification/leaderboard`,
+  GAMIFICATION_COIN_HISTORY: `${BASE_URL}/gamification/coin_history`,
 }

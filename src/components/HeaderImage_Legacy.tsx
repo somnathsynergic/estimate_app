@@ -1,10 +1,10 @@
 import { PropsWithChildren, useContext, useEffect, useState } from "react"
 import {
+  ImageBackground,
   useColorScheme,
   StyleSheet,
   View,
 } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
 import normalize, { SCREEN_HEIGHT, SCREEN_WIDTH } from "react-native-normalize"
 import { IconButton, Text } from "react-native-paper"
 import { usePaperColorScheme } from "../theme/theme"
@@ -120,7 +120,7 @@ export default function HeaderImage({
         <View>
           <IconButton
             icon="arrow-left"
-            iconColor={theme.colors.onPrimary}
+            iconColor={theme.colors.onBackground}
             size={20}
             onPress={
               !isBackCustom
@@ -137,24 +137,26 @@ export default function HeaderImage({
         </View>
       )}
 
-      <View
+      <ImageBackground
+        imageStyle={{ borderRadius: normalize(borderRadius) }}
+        blurRadius={blur}
+        source={colorScheme !== "dark" ? imgLight : imgDark}
         style={[
           styles.surface,
           showCustomerSelector && styles.surfaceWithSelector,
-          { borderRadius: normalize(borderRadius || 24), backgroundColor: '#090446', elevation: 4 }
         ]}>
 
         {/* Title row */}
         <View style={styles.titleRow}>
           <Text
             variant="headlineMedium"
-            style={[styles.titleText, { color: '#FFFFFF', fontFamily: 'ProductSans-Bold' }]}>
+            style={styles.titleText}>
             {children}
           </Text>
           {categoryName ? (
             <Text
               variant="bodySmall"
-              style={[styles.categoryText, { color: 'rgba(255, 255, 255, 0.8)', fontFamily: 'ProductSans-Medium' }]}>
+              style={styles.categoryText}>
               Category: {categoryName}
             </Text>
           ) : null}
@@ -163,7 +165,7 @@ export default function HeaderImage({
         {/* Customer selector embedded inside the header card */}
         {showCustomerSelector && (
           <View style={[styles.selectorWrapper, {
-            backgroundColor: "rgba(255,255,255,0.15)",
+            backgroundColor: "rgba(255,255,255,0.12)",
             borderRadius: normalize(12),
           }]}>
             <CustomerSelector
@@ -177,7 +179,7 @@ export default function HeaderImage({
             />
           </View>
         )}
-      </View>
+      </ImageBackground>
     </>
   )
 }

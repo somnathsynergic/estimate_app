@@ -113,10 +113,10 @@ const AppContext = ({ children }) => {
       })
       .catch(err => {
         console.log('user________', 'catch', err);
-        ToastAndroid.show(
-          "Error during fetching recent bills.",
-          ToastAndroid.SHORT,
-        )
+        // ToastAndroid.show(
+        //   "Error during fetching recent bills",
+        //   ToastAndroid.SHORT,
+        // )
       })
   }
 

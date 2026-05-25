@@ -24,7 +24,7 @@ const AddRemove = ({ add, remove, value, isAddDisabled, onChange, isIndividualPr
         }}>
             <IconButton style={{
                 margin: 0
-            }} icon="minus-thick" onPress={remove} mode="contained" iconColor={theme.colors.onErrorContainer} containerColor={theme.colors.errorContainer} size={isIndividualProductScreen ? 25 : 20} />
+            }} icon="minus-thick" onPress={remove} mode="contained" iconColor={theme.colors.onPrimary} containerColor={theme.colors.error} size={isIndividualProductScreen ? 25 : 20} />
             <View style={{
                 width: !isIndividualProductScreen ? normalize(40) : normalize(45),
                 height: !isIndividualProductScreen ? normalize(32) : normalize(38),
@@ -38,7 +38,7 @@ const AddRemove = ({ add, remove, value, isAddDisabled, onChange, isIndividualPr
             </View>
             <IconButton disabled={isAddDisabled} style={{
                 margin: 0
-            }} icon="plus-thick" onPress={add} mode="contained" iconColor={theme.colors.onVanillaTertiaryContainer} containerColor={theme.colors.vanillaTertiaryContainer} size={isIndividualProductScreen ? 25 : 20} />
+            }} icon="plus-thick" onPress={add} mode="contained" iconColor={theme.colors.onPrimary} containerColor={theme.colors.primary} size={isIndividualProductScreen ? 25 : 20} />
         </View>
     )
 }

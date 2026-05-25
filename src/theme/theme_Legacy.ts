@@ -58,103 +58,103 @@ export const usePaperColorScheme = () => {
       ...MD3DarkTheme,
       colors: {
         ...MD3DarkTheme.colors,
-        // Highly Premium Sober Light Slate Theme (Unified high legibility)
-        primary: "#090446", // Custom Luxury Navy Blue
+        // Highly Premium Blue & White Dark Theme
+        primary: "#3B82F6", // Vibrant Blue
         onPrimary: "#FFFFFF",
-        primaryContainer: "#EFF2F9",
-        onPrimaryContainer: "#090446",
-        secondary: "#3B82F6", // Sober Royal Blue
+        primaryContainer: "#1E3A8A",
+        onPrimaryContainer: "#DBEAFE",
+        secondary: "#60A5FA", // Light Blue
         onSecondary: "#FFFFFF",
-        secondaryContainer: "#EFF6FF",
-        onSecondaryContainer: "#1E40AF",
-        tertiary: "#0284C7", // Ocean Blue
-        onTertiary: "#FFFFFF",
-        tertiaryContainer: "#E0F2FE",
-        onTertiaryContainer: "#0C4A6E",
-        error: "#DC2626",
-        onError: "#FFFFFF",
-        errorContainer: "#FEE2E2",
-        onErrorContainer: "#7F1D1D",
+        secondaryContainer: "#1E40AF",
+        onSecondaryContainer: "#EFF6FF",
+        tertiary: "#93C5FD", // Ice Blue
+        onTertiary: "#0F172A",
+        tertiaryContainer: "#2563EB",
+        onTertiaryContainer: "#FFFFFF",
+        error: "#F87171",
+        onError: "#450A0A",
+        errorContainer: "#7F1D1D",
+        onErrorContainer: "#FECACA",
         
-        // Premium Sober Light Slate Backgrounds
-        background: "#FFFFFF", // True Crisp White
-        onBackground: "#0F172A", // Deep Navy Text
-        surface: "#F8FAFC", // Ice Blue/White Card
-        onSurface: "#0F172A",
-        surfaceVariant: "#F1F5F9",
-        onSurfaceVariant: "#334155",
-        outline: "#94A3B8",
-        outlineVariant: "#CBD5E1",
+        // Deep Navy/Slate Backgrounds
+        background: "#020617", // Ultra Dark Navy Black
+        onBackground: "#F8FAFC", // Crisp White
+        surface: "#0F172A", // Dark Slate Blue Card
+        onSurface: "#F1F5F9",
+        surfaceVariant: "#1E293B", // Elevated Slate Blue
+        onSurfaceVariant: "#CBD5E1",
+        outline: "#475569",
+        outlineVariant: "#334155",
         shadow: "#000000",
         scrim: "#000000",
-        inverseSurface: "#0F172A",
-        inverseOnSurface: "#F8FAFC",
-        inversePrimary: "#60A5FA",
+        inverseSurface: "#F8FAFC",
+        inverseOnSurface: "#020617",
+        inversePrimary: "#2563EB",
         elevation: {
           level0: "transparent",
-          level1: "#FFFFFF",
-          level2: "#F8FAFC",
-          level3: "#F1F5F9",
-          level4: "#E2E8F0",
-          level5: "#CBD5E1",
+          level1: "#0F172A",
+          level2: "#1E293B",
+          level3: "#334155",
+          level4: "#475569",
+          level5: "#64748B",
         },
-        surfaceDisabled: "rgba(15, 23, 42, 0.12)",
-        onSurfaceDisabled: "rgba(15, 23, 42, 0.38)",
-        backdrop: "rgba(9, 4, 70, 0.4)",
+        surfaceDisabled: "rgba(248, 250, 252, 0.12)",
+        onSurfaceDisabled: "rgba(248, 250, 252, 0.38)",
+        backdrop: "rgba(2, 6, 23, 0.6)",
 
-        // Unified Blue/White Custom Colors (Clean, Sober Light Mappings)
-        green: "#090446", 
+        // Unified Blue/White Custom Colors
+        green: "#38BDF8", // Cyan Blue
         onGreen: "#FFFFFF",
-        greenContainer: "#EFF2F9",
-        onGreenContainer: "#090446",
-        greenTertiary: "#93C5FD",
-        onGreenTertiary: "#090446",
-        greenContainerTertiary: "#EFF2F9",
-        onGreenContainerTertiary: "#090446",
+        greenContainer: "#075985",
+        onGreenContainer: "#E0F2FE",
+        greenTertiary: "#7DD3FC",
+        onGreenTertiary: "#082F49",
+        greenContainerTertiary: "#0369A1",
+        onGreenContainerTertiary: "#BAE6FD",
 
-        orange: "#3B82F6", 
+        orange: "#818CF8", // Indigo Blue
         onOrange: "#FFFFFF",
-        orangeContainer: "#EFF6FF",
-        onOrangeContainer: "#1E40AF",
+        orangeContainer: "#3730A3",
+        onOrangeContainer: "#E0E7FF",
 
-        pink: "#0284C7", 
+        pink: "#A78BFA", // Violet Blue
         onPink: "#FFFFFF",
-        pinkContainer: "#E0F2FE",
-        onPinkContainer: "#0C4A6E",
+        pinkContainer: "#4C1D95",
+        onPinkContainer: "#EDE9FE",
 
-        purple: "#090446", 
+        purple: "#2563EB", // Royal Blue
         onPurple: "#FFFFFF",
-        purpleContainer: "#EFF2F9",
-        onPurpleContainer: "#090446",
+        purpleContainer: "#1E3A8A",
+        onPurpleContainer: "#DBEAFE",
 
-        teal: "#3B82F6", 
+        teal: "#0EA5E9", // Ocean Blue
         onTeal: "#FFFFFF",
-        tealContainer: "#EFF6FF",
-        onTealContainer: "#1E40AF",
+        tealContainer: "#0C4A6E",
+        onTealContainer: "#E0F2FE",
 
-        peach: "#090446", 
-        onPeach: "#FFFFFF",
-        peachContainer: "#EFF2F9",
-        onPeachContainer: "#090446",
-        peachTertiary: "#93C5FD",
-        onPeachTertiary: "#090446",
-        peachTertiaryContainer: "#EFF2F9",
-        onPeachTertiaryContainer: "#090446",
+        peach: "#93C5FD", // Soft Blue
+        onPeach: "#0F172A",
+        peachContainer: "#1E3A8A",
+        onPeachContainer: "#DBEAFE",
+        peachTertiary: "#BFDBFE",
+        onPeachTertiary: "#0F172A",
+        peachTertiaryContainer: "#1E40AF",
+        onPeachTertiaryContainer: "#EFF6FF",
 
-        vanilla: "#090446", // Custom Luxury Navy Blue
-        onVanilla: "#FFFFFF",
-        vanillaContainer: "#EFF2F9", 
-        onVanillaContainer: "#090446", 
-        vanillaSecondary: "#3B82F6", 
-        onVanillaSecondary: "#FFFFFF",
-        vanillaSecondaryContainer: "#EFF6FF",
-        onVanillaSecondaryContainer: "#1E40AF",
-        vanillaTertiary: "#93C5FD", 
-        onVanillaTertiary: "#090446",
-        vanillaTertiaryContainer: "#EFF2F9", 
-        onVanillaTertiaryContainer: "#090446",
-        vanillaSurface: "#FFFFFF", 
-        vanillaSurfaceLow: "#F8FAFC"
+        vanilla: "#bcd063",
+        onVanilla: "#2b3400",
+        vanillaContainer: "#404c00",
+        onVanillaContainer: "#d8ed7c",
+        vanillaSecondary: "#c5c9a8",
+        onVanillaSecondary: "#2e331b",
+        vanillaSecondaryContainer: "#45492f",
+        onVanillaSecondaryContainer: "#e1e6c3",
+        vanillaTertiary: "#a1d0c4",
+        onVanillaTertiary: "#04372f",
+        vanillaTertiaryContainer: "#214e45",
+        onVanillaTertiaryContainer: "#bdece0",
+        vanillaSurface: "#13140d",
+        vanillaSurfaceLow: "#1b1c15"
       },
       fonts: configureFonts({ config: fontConfig }),
     }
@@ -163,10 +163,10 @@ export const usePaperColorScheme = () => {
       colors: {
         ...MD3LightTheme.colors,
         // Highly Premium Blue & White Light Theme
-        primary: "#090446", // Custom Luxury Navy Blue
+        primary: "#2563EB", // Royal Blue
         onPrimary: "#FFFFFF",
-        primaryContainer: "#EFF2F9",
-        onPrimaryContainer: "#090446",
+        primaryContainer: "#DBEAFE",
+        onPrimaryContainer: "#1E3A8A",
         secondary: "#3B82F6", // Bright Blue
         onSecondary: "#FFFFFF",
         secondaryContainer: "#EFF6FF",
@@ -226,10 +226,10 @@ export const usePaperColorScheme = () => {
         pinkContainer: "#EDE9FE",
         onPinkContainer: "#4C1D95",
 
-        purple: "#090446", // Custom Luxury Navy Blue
+        purple: "#2563EB", // Royal Blue
         onPurple: "#FFFFFF",
-        purpleContainer: "#EFF2F9",
-        onPurpleContainer: "#090446",
+        purpleContainer: "#DBEAFE",
+        onPurpleContainer: "#1E3A8A",
 
         teal: "#0891B2", // Cyan
         onTeal: "#FFFFFF",
@@ -245,20 +245,20 @@ export const usePaperColorScheme = () => {
         peachTertiaryContainer: "#DBEAFE",
         onPeachTertiaryContainer: "#1E3A8A",
 
-        vanilla: "#090446", // Custom Luxury Navy Blue
+        vanilla: "#65A30D",
         onVanilla: "#FFFFFF",
-        vanillaContainer: "#EFF2F9", // Ice Blue/White
-        onVanillaContainer: "#090446", // Slate Blue
-        vanillaSecondary: "#3B82F6", // Bright Blue
+        vanillaContainer: "#ECFCCB",
+        onVanillaContainer: "#3F6212",
+        vanillaSecondary: "#4D7C0F",
         onVanillaSecondary: "#FFFFFF",
-        vanillaSecondaryContainer: "#DBEAFE",
-        onVanillaSecondaryContainer: "#1E3A8A",
-        vanillaTertiary: "#0284C7", // Ocean Blue
+        vanillaSecondaryContainer: "#D9F99D",
+        onVanillaSecondaryContainer: "#365314",
+        vanillaTertiary: "#15803D",
         onVanillaTertiary: "#FFFFFF",
-        vanillaTertiaryContainer: "#E0F2FE",
-        onVanillaTertiaryContainer: "#0C4A6E",
-        vanillaSurface: "#FFFFFF",
-        vanillaSurfaceLow: "#F8FAFC"
+        vanillaTertiaryContainer: "#DCFCE7",
+        onVanillaTertiaryContainer: "#14532D",
+        vanillaSurface: "#F7FEE7",
+        vanillaSurfaceLow: "#F0FDF4"
       },
       fonts: configureFonts({ config: fontConfig }),
     }

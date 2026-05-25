@@ -476,7 +476,7 @@ function CategoryProductScreen() {
                                                     paddingVertical: 10
                                                 }}
                                                 onPress={() => productDetails(item)}
-                                                title={({ ellipsizeMode }) => <Text variant="titleLarge" style={{
+                                                title={({ ellipsizeMode }) => <Text variant="titleMedium" style={{
                                                     flexWrap: "wrap",
                                                     // right: 12
                                                 }} numberOfLines={3} ellipsizeMode="tail">{item?.item_name}</Text>}
@@ -536,7 +536,7 @@ function CategoryProductScreen() {
                         </View>
 
                         <View style={{
-                            width: "95%",
+                            width: "100%",
                             height: "auto",
                             backgroundColor: theme.colors.vanillaContainer,
                             padding: 10,
@@ -589,7 +589,7 @@ function CategoryProductScreen() {
                             //     }
                             // )
                             CommonActions.goBack()
-                        )} icon="plus-thick" textColor={theme.colors.vanillaSecondary} buttonColor={theme.colors.vanillaSecondaryContainer}>ADD ITEM</ButtonPaper>
+                        )} icon="plus-thick" textColor={theme.colors.primary} buttonColor={theme.colors.onPrimary}>ADD ITEM</ButtonPaper>
                     </View>
 
                 </View>

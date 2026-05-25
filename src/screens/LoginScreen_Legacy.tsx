@@ -280,22 +280,19 @@ function LoginScreen() {
   return (
     <SafeAreaView>
       <ScrollView keyboardShouldPersistTaps="handled">
-        <View
-          style={[styles.loginWrapper, { backgroundColor: '#090446' }]}>
-          <View
-            style={[styles.containerBox, {
-              backgroundColor: '#FFFFFF',
-              borderColor: '#FFFFFF',
-              borderWidth: 1,
-            }]}>
-            <View style={{ alignItems: 'center', marginBottom: normalize(20) }}>
-              <Text style={{ fontFamily: 'ProductSans-Bold', fontSize: normalize(24), color: '#090446' }}>
-                Welcome Back
-              </Text>
-              <Text style={{ fontFamily: 'ProductSans-Medium', fontSize: normalize(14), color: '#64748B', marginTop: normalize(5) }}>
-                Sign in to continue
-              </Text>
-            </View>
+        <ImageBackground
+          resizeMode="cover"
+          blurRadius={10}
+          source={colorScheme === "dark" ? flower2Dark : flower2}
+          style={[
+            styles.loginWrapper,
+            { backgroundColor: theme.colors.background },
+          ]}>
+          <LinearGradient
+            start={{ x: 0, y: 1 }}
+            end={{ x: 0, y: 0 }}
+            colors={[theme.colors.onPrimary, theme.colors.primaryContainer]}
+            style={styles.containerBox}>
             {/* <View
               style={{
                 alignSelf: "center",
@@ -319,7 +316,7 @@ function LoginScreen() {
                       value={loginText}
                       label={"User ID"}
                       onChangeText={onChangeCustomerMobileNumber}
-                      customStyle={{ backgroundColor: theme.dark ? '#1E293B' : '#F1F5F9' }}
+                      customStyle={{ backgroundColor: theme.colors.onPrimary }}
                       leftIcon="account-circle-outline"
                       keyboardType="default"
                       autoFocus
@@ -330,24 +327,25 @@ function LoginScreen() {
                       value={passwordText}
                       label={"Password"}
                       onChangeText={(e: string) => setPasswordText(e)}
-                      customStyle={{ backgroundColor: theme.dark ? '#1E293B' : '#F1F5F9' }}
+                      customStyle={{ backgroundColor: theme.colors.onPrimary }}
                       leftIcon="form-textbox-password"
                       rightIcon="form-textbox-password"
                       keyboardType="default"
                       secureTextEntry
                     />
+
+
                   </View>
-                  <View style={{ marginTop: normalize(10) }}>
+                  <View>
                     <ButtonPaper
                       loading={loading}
                       disabled={loading}
                       mode="contained"
-                      buttonColor={theme.colors.primary}
-                      textColor={theme.colors.onPrimary}
-                      style={{ borderRadius: 24, paddingVertical: normalize(2), elevation: 4 }}
                       onPress={() => {
                         if (loginText !== "" && passwordText !== "") {
+                          // setNext(!next)
                           handleLogin(loginText, passwordText, fcmToken)
+                          // setOtpSent(true)
                         } else {
                           ToastAndroid.show("Enter username or password properly.", ToastAndroid.SHORT)
                         }
@@ -465,20 +463,27 @@ function LoginScreen() {
                 </View>
               )} */}
             </View>
-            <View style={{ marginTop: 'auto' }}>
+            <View>
               <Text
                 style={{
                   textAlign: "center",
-                  fontSize: normalize(12),
-                  fontFamily: 'ProductSans-Medium',
-                  color: theme.dark ? '#64748B' : '#94A3B8',
-                  paddingVertical: normalize(10),
+                  justifyContent: "flex-end",
+                  backgroundColor: theme.colors.surface,
+                  color: theme.colors.onSurface,
+                  padding: normalize(5),
                 }}>
                 Powered by, Synergic Softek Solutions Pvt. Ltd.
               </Text>
             </View>
-          </View>
-        </View>
+            {/* <View style={{ flexDirection: "row", position: "absolute", top: 442, alignSelf: "center" }}>
+              {
+                new Array(25).fill(2).map((item, i) => (
+                  <InvertedTriangle key={i} />
+                ))
+              }
+            </View> */}
+          </LinearGradient>
+        </ImageBackground>
       </ScrollView>
     </SafeAreaView>
   )
@@ -496,15 +501,10 @@ const styles = StyleSheet.create({
 
   containerBox: {
     paddingTop: normalize(30),
-    paddingBottom: normalize(30),
-    borderRadius: 24,
-    justifyContent: "center",
-    width: "100%",
-    elevation: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
+    height: SCREEN_HEIGHT / 1.8,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    justifyContent: "space-between",
   },
 
   forgotOrResetText: {

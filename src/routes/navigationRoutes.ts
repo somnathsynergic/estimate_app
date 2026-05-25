@@ -75,6 +75,8 @@ const navigationRoutes = {
 
   addCustomerNavigation: "AddCustomerNavigation",
   addCustomerScreen: "AddCustomerScreen",
+
+  leagueScreen: "LeagueScreen",
 }
 
 export default navigationRoutes

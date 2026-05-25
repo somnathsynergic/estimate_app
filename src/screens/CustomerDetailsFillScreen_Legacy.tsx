@@ -911,21 +911,16 @@ const CustomerDetailsFillScreen = () => {
           </View> */}
 
           <View style={{
-            backgroundColor: "#FFFFFF",
-            borderRadius: 24,
-            width: SCREEN_WIDTH * 0.9,
+            backgroundColor: theme.colors.surfaceVariant,
+            borderRadius: 35,
+            width: SCREEN_WIDTH / 1.15,
             alignSelf: "center",
-            marginTop: normalize(10),
-            padding: normalize(15),
+            marginTop: normalize(2),
+            padding: 10,
+            // height: "auto",
+            // paddingVertical: normalize(15),
             justifyContent: "center",
-            alignItems: "center",
-            shadowColor: "#1A73E8",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.12,
-            shadowRadius: 10,
-            elevation: 6,
-            borderWidth: 1,
-            borderColor: "#E3EEFF",
+            alignItems: "center"
           }}>
             {/* {receiptSettings?.discount_flag === "Y" && receiptSettings?.discount_position === "B" && (
               <View
@@ -949,8 +944,8 @@ const CustomerDetailsFillScreen = () => {
             <NetTotalButton
               width={290}
               disabled
-              backgroundColor="#FFFFFF"
-              textColor="#1A73E8"
+              backgroundColor={theme.colors.onSurfaceVariant}
+              textColor={theme.colors.surfaceVariant}
               addedProductsList={params?.added_products}
               netTotal={params?.net_total}
               // totalDiscount={
@@ -966,21 +961,12 @@ const CustomerDetailsFillScreen = () => {
 
           <View
             style={{
-              backgroundColor: theme.colors.elevation?.level1 || theme.colors.surface,
-              borderRadius: 24,
-              width: SCREEN_WIDTH * 0.9,
+              backgroundColor: theme.colors.surfaceVariant,
+              borderRadius: 40,
+              width: SCREEN_WIDTH / 1.15,
               alignSelf: "center",
-              marginTop: normalize(15),
-              marginBottom: normalize(25),
-              paddingTop: normalize(10),
-              shadowColor: theme.colors.shadow || "#000",
-              shadowOffset: { width: 0, height: 6 },
-              shadowOpacity: 0.1,
-              shadowRadius: 8,
-              elevation: 5,
-              borderWidth: 1,
-              borderColor: theme.colors.outlineVariant || theme.colors.surfaceVariant,
-              overflow: "hidden",
+              marginTop: normalize(10),
+              marginBottom: normalize(10),
             }}>
             <View style={{ justifyContent: "center" }}>
               <View
@@ -1142,44 +1128,29 @@ const CustomerDetailsFillScreen = () => {
                       const hasLong = targetCustomer?.long && String(targetCustomer.long) !== "0" && String(targetCustomer.long) !== "0.000000";
 
                       return hasLat && hasLong ? (
-                        <View style={{
-                          alignItems: 'center',
-                          backgroundColor: distanceFromCustomer !== null && distanceFromCustomer > PROXIMITY_THRESHOLD ? theme.colors.errorContainer : '#e3f8e2ff',
-                          paddingVertical: 6,
-                          paddingHorizontal: 12,
-                          borderRadius: 12,
-                          marginTop: 4,
-                          marginBottom: 10
-                        }}>
+                        <View style={{ alignItems: 'center' }}>
                           <Text
                             variant="labelMedium"
                             style={{
-                              color: distanceFromCustomer !== null && distanceFromCustomer > PROXIMITY_THRESHOLD ? theme.colors.onErrorContainer : theme.colors.onPrimaryContainer,
+                              color: distanceFromCustomer !== null && distanceFromCustomer > PROXIMITY_THRESHOLD ? theme.colors.error : theme.colors.primary,
                               fontWeight: 'bold'
                             }}
                           >
                             {distanceFromCustomer !== null
-                              ? `Distance: ${distanceFromCustomer.toFixed(2)}m ${distanceFromCustomer > PROXIMITY_THRESHOLD ? " (Out of Range)" : " (Verified)"}`
-                              : calculatingDistance
-                                ? "Calculating distance..."
+                              ? `Distance: ${distanceFromCustomer.toFixed(2)}m ${distanceFromCustomer > PROXIMITY_THRESHOLD ? " (Out of Range)" : " (In Range)"}`
+                              : calculatingDistance 
+                                ? "Calculating distance..." 
                                 : "Location not verified"}
                           </Text>
                           {gpsAccuracy !== null && (
-                            <Text variant="labelSmall" style={{ color: distanceFromCustomer !== null && distanceFromCustomer > PROXIMITY_THRESHOLD ? theme.colors.onErrorContainer : theme.colors.onPrimaryContainer, fontSize: 10, opacity: 0.8 }}>
+                            <Text variant="labelSmall" style={{ color: gpsAccuracy > 20 ? theme.colors.error : theme.colors.outline, fontSize: 10 }}>
                               GPS Accuracy: ±{gpsAccuracy.toFixed(1)}m {gpsAccuracy > 20 ? "(Weak Signal)" : "(Good Signal)"}
                             </Text>
                           )}
                         </View>
                       ) : (
-                        <View style={{
-                          alignItems: 'center',
-                          backgroundColor: theme.colors.surfaceVariant,
-                          paddingVertical: 6,
-                          paddingHorizontal: 12,
-                          borderRadius: 12,
-                          marginTop: 4
-                        }}>
-                          <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant, fontWeight: '500' }}>
+                        <View style={{ alignItems: 'center' }}>
+                          <Text variant="labelMedium" style={{ color: theme.colors.outline }}>
                             Registered location not found
                           </Text>
                         </View>
@@ -1311,19 +1282,17 @@ const CustomerDetailsFillScreen = () => {
               )
             } */}
 
-            <View style={{ padding: normalize(20), flexDirection: "column", gap: 12 }}>
+            <View style={{ padding: normalize(20), flexDirection: "column", gap: 10 }}>
               {selectedCustId && (
                 <ButtonPaper
-                  mode="contained-tonal"
-                  buttonColor={theme.colors.secondaryContainer}
-                  textColor={theme.colors.onSecondaryContainer}
+                  mode="outlined"
                   onPress={checkRealTimeDistance}
                   loading={calculatingDistance}
                   disabled={calculatingDistance || isLoading}
-                  icon="map-marker-radius"
-                  style={{ borderRadius: 12 }}
+                  icon="map-marker-check-outline"
+                  style={{ marginBottom: 5 }}
                 >
-                  Verify Proximity
+                  Verify Location
                 </ButtonPaper>
               )}
               <ButtonPaper

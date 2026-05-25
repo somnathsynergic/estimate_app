@@ -8,6 +8,7 @@ import ReportsNavigation from "./ReportsNavigation"
 import MoreNavigation from "./MoreNavigation"
 import CalculateNavigation from "./CalculateModeNavigation"
 import AddCustomerNavigation from "./AddCustomerNavigation"
+import LeagueNavigation from "./LeagueNavigation"
 import useCurrentRouteName from "../hooks/useCurrentRoute"
 import { loginStorage } from "../storage/appStorage"
 import { LoginDataMessage } from "../models/api_types"
@@ -21,7 +22,7 @@ function BottomNavigationPaper() {
 
   console.log(loginStore, "CURRNT ROUTE: ", currentRoute)
 
-  const shouldHideTabBar = ["BottomNavigationPaper", "Home", "HomeScreen", "More", "MoreScreen", "Reports", "ReportsScreen", "Settings", "SettingsScreen", "CalculateMode", "CalculateModeScreen", "AddCustomer", "AddCustomerScreen"].includes(currentRoute)
+  const shouldHideTabBar = ["BottomNavigationPaper", "Home", "HomeScreen", "More", "MoreScreen", "Reports", "ReportsScreen", "Settings", "SettingsScreen", "CalculateMode", "CalculateModeScreen", "AddCustomer", "AddCustomerScreen", "League", "LeagueScreen"].includes(currentRoute)
 
   return (
     <Tab.Navigator
@@ -52,6 +53,23 @@ function BottomNavigationPaper() {
               />
             ) : (
               <MaterialCommunityIcons name="home" color={color} size={26} />
+            ),
+        }}
+      />
+      <Tab.Screen
+        name="League"
+        component={LeagueNavigation}
+        options={{
+          tabBarLabel: "League",
+          tabBarIcon: ({ color, focused }) =>
+            !focused ? (
+              <MaterialCommunityIcons
+                name="trophy-outline"
+                color={color}
+                size={26}
+              />
+            ) : (
+              <MaterialCommunityIcons name="trophy" color={color} size={26} />
             ),
         }}
       />

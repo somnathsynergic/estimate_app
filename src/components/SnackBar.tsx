@@ -64,7 +64,7 @@ const SnackBar = ({
                 icon="arrow-right-thick"
                 onPress={handleBtn1Press}
                 disabled={disableNext}
-                style={[styles.nextBtn, { backgroundColor: theme.colors.secondary }]}
+                style={[styles.nextBtn, { backgroundColor: theme.colors.primary }]}
             >
                 NEXT
             </ButtonPaper>
