@@ -69,6 +69,7 @@ async def user_list(data:UserList):
 async def user_login(data_login:UserLogin):
     # pwd = get_hashed_password(data_login.password)
     # print(pwd)
+    print('I am in user login admin api v2---------------------------------------------')
     res_dt = {}
     select = "a.id,a.user_name,a.user_type,a.user_id,a.phone_no,a.email_id,a.device_id,a.password,a.active_flag,a.login_flag,a.created_by,a.created_dt,a.modified_by,a.modified_dt,b.id br_id,b.branch_name,b.branch_address,b.location,b.contact_person, c.id comp_id, c.company_name,c.mode,c.address,c.web_portal,c.max_user"
     table_name = "md_user a, md_branch b, md_company c"
@@ -77,6 +78,7 @@ async def user_login(data_login:UserLogin):
     order = f''
     flag = 0
     result = await db_select(select,table_name,where,order,flag)
+    print(result, 'Result USER--------')
     if(result['suc'] > 0 and result['suc'] < 2):
         if(verify_password(data_login.password, result['msg']['password'])):
             res_dt = {"suc": 1, "msg": [result['msg']]}
@@ -153,6 +155,34 @@ async def edit_user(data:EditUser):
     flag = 1
     res_dt = await db_Insert(table_name,fields,values,where,flag)
 
+    return res_dt
+    
+    
+from pydantic import BaseModel
+
+class StockFlagUpdate(BaseModel):
+    user_id: str
+    stock_flag: str
+    
+@userRouter.post('/update_stock_flag')
+async def update_stock_flag(data: StockFlagUpdate):
+    table_name = "md_company"
+    fields = f"stock_flag = '{data.stock_flag}'"
+    values = None
+    where = f""
+    flag = 1
+    res_dt = await db_Insert(table_name, fields, values, where, flag)
+    return res_dt
+    
+    
+@userRouter.get('/stock_flag')
+async def get_stock_flag():
+    select = "stock_flag"
+    table_name = "md_company"
+    where = f""
+    order = f''
+    flag = 1
+    res_dt = await db_select(select,table_name,where,order,flag)
     return res_dt
 
 ##################################################################################################

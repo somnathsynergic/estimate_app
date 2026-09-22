@@ -181,6 +181,72 @@ async def add_edit_user(data:AddEditUser):
     
     return res_dt
 
+# @superadminRouter.post('/S_Admin/active_inactive_outlet')
+# async def active_inactive_user(data:ActivateOutlet):
+#     current_datetime = datetime.now()
+#     formatted_dt = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+#     table_name = f"md_branch"
+#     fields = f"active_flag='{data.flag}',modified_by = '{data.user_id}', modified_dt = '{formatted_dt}'"
+#     values = f""
+#     where = f"comp_id = {data.comp_id} and id={data.br_id}"
+#     order = f""
+#     flag = 1
+#     res_dt = await db_Insert(table_name,fields,values,where,flag)
+
+#     select_id = "fcm_token,user_id"
+#     table_name_id = "md_user"
+#     where_id = f"comp_id = {data.comp_id} and br_id={data.br_id}"
+#     order_id = f""
+#     flag_id = 1
+#     res_dt_id = await db_select(select_id,table_name_id,where_id,order_id,flag_id)
+
+#     print(res_dt_id)
+
+#     table_name = f"md_user"
+#     fields = f"active_flag='{data.flag}',modified_by = '{data.user_id}', modified_dt = '{formatted_dt}'"
+#     values = f""
+#     where = f"comp_id = {data.comp_id} and br_id={data.br_id}"
+#     order = f""
+#     flag = 1
+#     res_dt = await db_Insert(table_name,fields,values,where,flag)
+
+    
+#     for dt in res_dt_id['msg']:
+           
+#             # select_id = "fcm_token"
+#             # table_name_id = "md_user"
+#             # where_id = f"comp_id = {data.comp_id} and br_id={data.br_id} and user_id='{data.user_id}'"
+#             # order_id = f""
+#             # flag_id = 1
+#             # res_dt_id = await db_select(select_id,table_name_id,where_id,order_id,flag_id)
+#             # print(res_dt_id)
+#             print('dt',dt)
+
+#             tokens = dt['fcm_token']
+#             # tokens = await get_fcm_tokens(user_id=data.user_id)
+#             # rows = res_dt_id.get('msg') or []
+#             # tokens = [r['device_id'] for r in rows]
+#             # tokens = 'f8-lUCvITFWU7yTF4Sz8CR:APA91bEiAtKRw54IPZd6-qMXA2ZrGGBi2OmeueHHCvoKZDKqdxIC2C2GWZSNs3Y0U90KncmGgv2XHC9J4asCtlAaAjUTOLe14H9RA6NBR7U594uRHcEcd5g'
+#             # tokens = 'eb8Q0WIpSYOCA20cAAMEdB:APA91bG7jFI5To4XrP5Uk_48dig-g7LYr7IcRLwANmnPWV9KTIKm2iAdHJwCirLymuUknEW09dxOBOFlfkh4JbEh4mSytS-AQfeT2HMdrRcuzfPsDMQQvDs'
+#             print('tokens',tokens)
+#             # for token in tokens:
+#             #     if not isinstance(token, str) or not token:
+#             #          continue  # skip bad tokens
+#             if data.flag == 'N' and tokens:
+#                 message = messaging.Message(
+#                         data={"code":'L',"action": "force_logout","body":'Admin/Superadmin has deactivated you account, you will be logged out'},
+#                         token=tokens, 
+#                 )
+#                 try:
+#                     resp = messaging.send(message)
+#                     print("Successfully sent to", tokens)
+#                 except firebase_admin.exceptions.FirebaseError as e:
+#                     print("Failed token", tokens, ":", e)
+#                     print('message',message)
+#                     response = messaging.send(message)
+#                     print("Tokens to send:", tokens)
+#                     print("FCM response:", response.success_count, response.failure_count)
+#     return res_dt
 
 
 @superadminRouter.post('/S_Admin/active_inactive_user')
@@ -195,7 +261,8 @@ async def active_inactive_user(data:ActivateUser):
     flag = 1
     res_dt = await db_Insert(table_name,fields,values,where,flag)
 
-    select_id = "device_id"
+    
+    select_id = "fcm_token"
     table_name_id = "md_user"
     where_id = f"comp_id = {data.comp_id} and br_id={data.br_id} and user_id='{data.user_id}'"
     order_id = f""
@@ -203,19 +270,79 @@ async def active_inactive_user(data:ActivateUser):
     res_dt_id = await db_select(select_id,table_name_id,where_id,order_id,flag_id)
     print(res_dt_id)
 
-
+    tokens = res_dt_id['msg'][0]['fcm_token']
     # tokens = await get_fcm_tokens(user_id=data.user_id)
-    rows = res_dt_id.get('msg') or []
-    tokens = [r['device_id'] for r in rows]
+    # rows = res_dt_id.get('msg') or []
+    # tokens = [r['device_id'] for r in rows]
+    # tokens = 'f8-lUCvITFWU7yTF4Sz8CR:APA91bEiAtKRw54IPZd6-qMXA2ZrGGBi2OmeueHHCvoKZDKqdxIC2C2GWZSNs3Y0U90KncmGgv2XHC9J4asCtlAaAjUTOLe14H9RA6NBR7U594uRHcEcd5g'
+    # tokens = 'eb8Q0WIpSYOCA20cAAMEdB:APA91bG7jFI5To4XrP5Uk_48dig-g7LYr7IcRLwANmnPWV9KTIKm2iAdHJwCirLymuUknEW09dxOBOFlfkh4JbEh4mSytS-AQfeT2HMdrRcuzfPsDMQQvDs'
     print('tokens',tokens)
-    if tokens and data.flag=='N':
-        message = messaging.MulticastMessage(
-            data={"action": "force_logout"},
-            tokens=tokens,
+    # for token in tokens:
+    #     if not isinstance(token, str) or not token:
+    #          continue  # skip bad tokens
+    if data.flag == 'N' and tokens:
+        message = messaging.Message(
+                data={"code":'L',"action": "force_logout","body":'Admin/Superadmin has deactivated you account, you will be logged out'},
+                token=tokens, 
+                
         )
-        response = messaging.send_multicast(message)
-        print("Tokens to send:", tokens)
-        print("FCM response:", response.success_count, response.failure_count)
+        try:
+            resp = messaging.send(message)
+            print("Successfully sent to", tokens)
+        except firebase_admin.exceptions.FirebaseError as e:
+            print("Failed token", tokens, ":", e)
+            print('message',message)
+            response = messaging.send(message)
+            print("Tokens to send:", tokens)
+            print("FCM response:", response.success_count, response.failure_count)
+    return res_dt
+
+@superadminRouter.post('/S_Admin/active_inactive_user')
+async def active_inactive_user(data:ActivateUser):
+    current_datetime = datetime.now()
+    formatted_dt = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    table_name = f"md_user"
+    fields = f"active_flag='{data.flag}',modified_by = '{data.user_id}', modified_dt = '{formatted_dt}'"
+    values = f""
+    where = f"comp_id = {data.comp_id} and br_id={data.br_id} and user_id='{data.user_id}'"
+    order = f""
+    flag = 1
+    res_dt = await db_Insert(table_name,fields,values,where,flag)
+
+    
+    select_id = "fcm_token"
+    table_name_id = "md_user"
+    where_id = f"comp_id = {data.comp_id} and br_id={data.br_id} and user_id='{data.user_id}'"
+    order_id = f""
+    flag_id = 1
+    res_dt_id = await db_select(select_id,table_name_id,where_id,order_id,flag_id)
+    print(res_dt_id)
+
+    tokens = res_dt_id['msg'][0]['fcm_token']
+    # tokens = await get_fcm_tokens(user_id=data.user_id)
+    # rows = res_dt_id.get('msg') or []
+    # tokens = [r['device_id'] for r in rows]
+    # tokens = 'f8-lUCvITFWU7yTF4Sz8CR:APA91bEiAtKRw54IPZd6-qMXA2ZrGGBi2OmeueHHCvoKZDKqdxIC2C2GWZSNs3Y0U90KncmGgv2XHC9J4asCtlAaAjUTOLe14H9RA6NBR7U594uRHcEcd5g'
+    # tokens = 'eb8Q0WIpSYOCA20cAAMEdB:APA91bG7jFI5To4XrP5Uk_48dig-g7LYr7IcRLwANmnPWV9KTIKm2iAdHJwCirLymuUknEW09dxOBOFlfkh4JbEh4mSytS-AQfeT2HMdrRcuzfPsDMQQvDs'
+    print('tokens',tokens)
+    # for token in tokens:
+    #     if not isinstance(token, str) or not token:
+    #          continue  # skip bad tokens
+    if data.flag == 'N' and tokens:
+        message = messaging.Message(
+                data={"code":'L',"action": "force_logout","body":'Admin/Superadmin has deactivated you account, you will be logged out'},
+                token=tokens, 
+                
+        )
+        try:
+            resp = messaging.send(message)
+            print("Successfully sent to", tokens)
+        except firebase_admin.exceptions.FirebaseError as e:
+            print("Failed token", tokens, ":", e)
+            print('message',message)
+            response = messaging.send(message)
+            print("Tokens to send:", tokens)
+            print("FCM response:", response.success_count, response.failure_count)
     return res_dt
 # 
 # 
