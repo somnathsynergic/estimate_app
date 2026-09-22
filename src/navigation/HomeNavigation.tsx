@@ -9,6 +9,7 @@ import CameraScreen from "../screens/CameraScreen"
 import CategoriesScreen from "../screens/CategoriesScreen"
 import CategoryProductsScreen from "../screens/CategoryProductsScreen"
 import CategoryProductScreen from "../screens/CategoryProductScreen"
+import UPushStockScreen from "../screens/UPushStockScreen"
 import CartScreen from "../screens/CartScreen"
 import CalculateModeBillScreen from "../screens/CalculateModeBillScreen"
 
@@ -67,6 +68,12 @@ export default function HomeNavigation() {
         name={navigationRoutes.calculateModeBillScreen}
         component={CalculateModeBillScreen}
       />
+        {/* New UPushStockScreen */}
+        <Stack.Screen
+          name={navigationRoutes.upushStockScreen}
+          component={UPushStockScreen}
+          options={{ animation: "fade_from_bottom" }}
+        />
 
     </Stack.Navigator>
   )

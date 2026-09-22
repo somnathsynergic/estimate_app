@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import navigationRoutes from "../routes/navigationRoutes"
 import SettingsScreen from "../screens/SettingsScreen"
-import PrintMain from "../screens/printer_connect_screens/PrintMain"
+
 import HeaderFooterScreen from "../screens/HeaderFooterScreen"
 import ManageProductsScreen from "../screens/ManageProductsScreen"
 // import ReceiptSettingsEditScreen from "../screens/ReceiptSettingsEditScreen"
@@ -9,12 +9,16 @@ import LogoUploadScreen from "../screens/LogoUploadScreen"
 import ProfileScreen from "../screens/ProfileScreen"
 // import ChangePinScreen from "../screens/ChangePinScreen"
 import ManageUnitsScreen from "../screens/ManageUnitsScreen"
-import InventoryScreen from "../screens/InventoryScreen"
+// import InventoryScreen from "../screens/InventoryScreen"
+import DSDashboardScreen from "../screens/DSDashboardScreen"
+import DSStockRequestScreen from "../screens/DSStockRequestScreen"
+import DSStockReturnScreen from "../screens/DSStockReturnScreen"
 import SettingsMasterScreen from "../screens/SettingsMasterScreen"
 import GeneralSettingsScreen from "../screens/GeneralSettingsScreen"
 import DiscountSettingsScreen from "../screens/DiscountSettingsScreen"
 import GstSettingsScreen from "../screens/GstSettingsScreen"
 import UPIGenerateScreen from "../screens/UPIGenerateScreen"
+import PrintMain from "../screens/printer_connect_screens/PrintMain"
 import ManageCategoriesScreen from "../screens/ManageCategoriesScreen"
 import CategoryProductsScreen from "../screens/CategoryProductsScreen"
 
@@ -24,7 +28,7 @@ export default function SettingsNavigation() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
-        name={navigationRoutes.settingsScreen}
+        name="SettingsScreen"
         component={SettingsScreen}
       />
       {/* <Stack.Screen
@@ -51,29 +55,37 @@ export default function SettingsNavigation() {
         name={navigationRoutes.manageUnitsScreen}
         component={ManageUnitsScreen}
       /> */}
-      {/* <Stack.Screen
-        name={navigationRoutes.inventoryScreen}
-        component={InventoryScreen}
-      /> */}
+      <Stack.Screen
+        name="DSDashboardScreen"
+        component={DSDashboardScreen}
+      />
+      <Stack.Screen
+        name="DSStockRequestScreen"
+        component={DSStockRequestScreen}
+      />
+      <Stack.Screen
+        name="DSStockReturnScreen"
+        component={DSStockReturnScreen}
+      />
       {/* <Stack.Screen
         name={navigationRoutes.receiptSettingsEditScreen}
         component={ReceiptSettingsEditScreen}
       /> */}
       <Stack.Screen
-        name={navigationRoutes.settingsMasterScreen}
+        name="SettingsMasterScreen"
         component={SettingsMasterScreen}
       />
       {/* <Stack.Screen
         name={navigationRoutes.logoUploadScreen}
         component={LogoUploadScreen}
       /> */}
-      <Stack.Screen name={navigationRoutes.printMain} component={PrintMain} />
+      <Stack.Screen name="PrintMainScreen" component={PrintMain} />
       <Stack.Screen
-        name={navigationRoutes.profileScreen}
+        name="ProfileScreen"
         component={ProfileScreen}
       />
       <Stack.Screen
-        name={navigationRoutes.generalSettingsScreen}
+        name="GeneralSettingsScreen"
         component={GeneralSettingsScreen}
       />
       {/* <Stack.Screen
@@ -81,7 +93,7 @@ export default function SettingsNavigation() {
         component={DiscountSettingsScreen}
       />
       <Stack.Screen
-        name={navigationRoutes.gstSettingsScreen}
+        name="GstSettingsScreen"
         component={GstSettingsScreen}
       /> */}
       {/* <Stack.Screen
@@ -94,7 +106,7 @@ export default function SettingsNavigation() {
       /> */}
 
       <Stack.Screen
-        name={navigationRoutes.categoryProductsScreen}
+        name="CategoryProductsScreen"
         component={CategoryProductsScreen}
         options={{ animation: "simple_push" }}
       />

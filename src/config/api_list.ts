@@ -24,11 +24,13 @@ export const ADDRESSES = {
   RECEIPT_SETTINGS: `${BASE_URL}/api/receipt_settings`,
   ITEMS: `${BASE_URL}/api/items`,
   CATEGORY_LIST: `${BASE_URL}/api/category_list`,
-  CATEGORY_ITEM_LIST: `${BASE_URL}/api/categorywise_item_list`,
+  // CATEGORY_ITEM_LIST: `${BASE_URL}/api/categorywise_item_list`,
+  CATEGORY_ITEM_LIST: `${BASE_URL}/api/categorywise_item_list_1`,
   EDIT_CATEGORY: `${BASE_URL}/api/edit_category`,
   ADD_CATEGORY: `${BASE_URL}/api/add_category`,
   UNITS: `${BASE_URL}/api/units`,
-  SALE_INSERT: `${BASE_URL}/api/saleinsert`,
+  SALE_INSERT: `${BASE_URL}/api/saleinsert_2`,
+  SALE_INSERT_NOSTOCK: `${BASE_URL}/api/saleinsert_3`,
   BILL_SUMMARY: `${BASE_URL}/api/billsummary`,
   RECENT_BILLS: `${BASE_URL}/api/recent_bills`,
   USER_STATUS: `${BASE_URL}/api/get_active_status`,
@@ -82,7 +84,8 @@ export const ADDRESSES = {
    */
   CANCEL_BILL: `${BASE_URL}/api/cancel_bill`,
 
-  CANCEL_BILL_TWO: `${BASE_URL}/api/cancel_bill_two`,
+  // CANCEL_BILL_TWO: `${BASE_URL}/api/cancel_bill_two`,
+  CANCEL_BILL_TWO: `${BASE_URL}/api/cancel_bill_two_new`,
   REFUND_LIST: `${BASE_URL}/api/refund_list`,
   REFUND_ITEMS: `${BASE_URL}/api/refund_item`,
   REFUND_BILL_REPORT: `${BASE_URL}/api/refund_bill_report`,
@@ -108,7 +111,22 @@ export const ADDRESSES = {
   BILL_SMS2: `${BASE_URL_SMS}/sms_api/bill_sms.php`,
   ADD_CUSTOMER: `${BASE_URL}/api/add_customer`,
   EDIT_CUSTOMER: `${BASE_URL}/api/edit_customer`,
-  GAMIFICATION_DASHBOARD: `${BASE_URL}/gamification/ds_dashboard`,
-  GAMIFICATION_LEADERBOARD: `${BASE_URL}/gamification/leaderboard`,
+  GAMIFICATION_DASHBOARD: `${BASE_URL}/gamification/ds_dashboard_1`,
+  GAMIFICATION_LEADERBOARD: `${BASE_URL}/gamification/leaderboard_1`,
   GAMIFICATION_COIN_HISTORY: `${BASE_URL}/gamification/coin_history`,
+
+
+
+  DS_REQUEST_STOCK: `${BASE_URL}/api/stock/request`,
+  DS_RETURN_STOCK: `${BASE_URL}/api/stock/return`,
+  DS_LIVE_INVENTORY: `${BASE_URL}/api/stock/inventory`,
+  DS_LAST_APPROVED_REQUEST_LIST: `${BASE_URL}/api/stock/last_approved_request_list`,
+  DS_DAILY_SUMMARY: `${BASE_URL}/api/stock/daily-summary`,
+  DS_CLAIM: `${BASE_URL}/api/stock/claim`,
+
+  // GK Endpoints
+  GK_PENDING_REQUESTS: `${BASE_URL}/api/stock/pending-requests`,
+  GK_FULFILL: `${BASE_URL}/api/stock/fulfill`,
+  GK_PUSH_ISSUE: `${BASE_URL}/api/stock/push-issue`,
+  GET_DS_LIST: `${BASE_URL}/api/stock/get_ds_list`,
 }

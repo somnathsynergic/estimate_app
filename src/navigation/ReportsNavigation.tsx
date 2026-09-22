@@ -4,11 +4,13 @@ import ReportsScreen from "../screens/ReportsScreen"
 import SaleReportScreen from "../screens/SaleReportScreen"
 import SaleSummaryScreen from "../screens/SaleSummaryScreen"
 import CancelledBillsReportScreen from "../screens/CancelledBillsReport"
+import DaySummaryReportScreen from "../screens/DaySummaryReportScreen"
 import CreditReportScreen from "../screens/CreditReportScreen"
 import UserwiseReportScreen from "../screens/UserwiseReportScreen"
 import CustomerLedgerScreen from "../screens/CustomerLedgerScreen"
 import DueReportScreen from "../screens/DueReportScreen"
 import ProductwiseSaleReportScreen from "../screens/reports/ProductwiseSaleReportScreen"
+import SearchBillsByDateScreen from "../screens/SearchBillsByDateScreen"
 import CategoryProductsScreen from "../screens/CategoryProductsScreen"
 // import ItemReportScreen from "../screens/ItemReportScreen"
 // import GstStatementReportScreen from "../screens/GstStatementReportScreen"
@@ -51,10 +53,14 @@ export default function ReportsNavigation() {
         name={navigationRoutes.stockReportScreen}
         component={StockReportScreen}
       /> */}
-      <Stack.Screen
-        name={navigationRoutes.cancelledBillsReportScreen}
-        component={CancelledBillsReportScreen}
-      />
+        <Stack.Screen
+          name={navigationRoutes.cancelledBillsReportScreen}
+          component={CancelledBillsReportScreen}
+        />
+        <Stack.Screen
+          name={navigationRoutes.daySummaryReportScreen}
+          component={DaySummaryReportScreen}
+        />
       {/* <Stack.Screen
         name={navigationRoutes.refundReportScreen}
         component={RefundReportScreen}
@@ -86,6 +92,10 @@ export default function ReportsNavigation() {
       <Stack.Screen
         name={navigationRoutes.productwiseSaleReportScreen}
         component={ProductwiseSaleReportScreen}
+      />
+      <Stack.Screen
+        name={navigationRoutes.searchBillsByDateScreen}
+        component={SearchBillsByDateScreen}
       />
       <Stack.Screen
         name={navigationRoutes.categoryProductsScreen}

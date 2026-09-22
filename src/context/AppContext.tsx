@@ -220,6 +220,9 @@ const AppContext = ({ children }) => {
         }
         if (loginData?.suc === 1) {
           loginStorage.set("login-data", JSON.stringify(loginData?.msg))
+          const savedData = JSON.parse(loginStorage.getString("login-data") || "{}");
+          console.log("Saved login data to storage:", savedData);
+          console.log("stock_flag from localstorage:", savedData?.stock_flag);
           setIsLogin(true)
           setJustLoggedIn(true)
         }

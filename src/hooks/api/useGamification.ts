@@ -22,10 +22,19 @@ export default function useGamification() {
 
   const fetchLeaderboard = async () => {
     return new Promise<any>((resolve, reject) => {
+      const brId = loginData.br_id;
       axios
-        .get(ADDRESSES.GAMIFICATION_LEADERBOARD)
+        .get(`${ADDRESSES.GAMIFICATION_LEADERBOARD}?br_id=${brId}`)
         .then(res => {
-          resolve(res.data)
+          let data = res.data;
+          console.log(data)
+          // Local fallback filter just in case backend ignores the br_id query param
+          if (data && data.status === 1 && Array.isArray(data.data)) {
+            if (brId && data.data.length > 0 && 'br_id' in data.data[0]) {
+              data.data = data.data.filter((l: any) => l.br_id == brId);
+            }
+          }
+          resolve(data)
         })
         .catch(err => {
           reject(err)

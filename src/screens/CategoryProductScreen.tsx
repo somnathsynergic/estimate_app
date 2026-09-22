@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useCallback, useContext, useEffect, useState } from "react"
 import {
     StyleSheet,
     ScrollView,
@@ -8,14 +8,14 @@ import {
     Alert,
     Image
 } from "react-native"
-import { Card, Divider, List, Text, TouchableRipple } from "react-native-paper"
+import { Card, Divider, List, RadioButton, Text, TouchableRipple } from "react-native-paper"
 import HeaderImage from "../components/HeaderImage"
 import {
     textureReport,
     textureReportDark,
 } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { CommonActions, useNavigation, useRoute } from "@react-navigation/native"
+import { CommonActions, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native"
 import { itemsContextStorage, loginStorage } from "../storage/appStorage"
 import { AppStore } from "../context/AppContext"
 import { CategoriesScreenRouteProp, CategoryProductScreenRouteProp } from "../models/route_types"
@@ -36,6 +36,7 @@ import { logo, logoDark, flower2, flower2Dark } from "../resources/images"
 import ReportButtonsWrapper from "../components/ReportButtonsWrapper"
 import slikCut from "../resources/images/test_images/sc.jpg"
 import { ADDRESSES } from "../config/api_list"
+import { buildNormalizedCartItems, getSelectedPriceValue } from "../utils/priceSelection"
 
 function CategoryProductScreen() {
     const theme = usePaperColorScheme()
@@ -43,7 +44,6 @@ function CategoryProductScreen() {
     const { receiptSettings } = useContext<AppStoreContext>(AppStore)
     const { fetchCategoryItems } = useCategoryItems()
     const { params } = useRoute<CategoryProductScreenRouteProp>()
-
     const loginStore = JSON.parse(loginStorage.getString("login-data") as "")
     let itemsStore: []
     let totalAmountStore: number
@@ -53,7 +53,7 @@ function CategoryProductScreen() {
         const itemsData = itemsContextStorage.getString("items-data")
         const totalAmountData = itemsContextStorage.getString("total-amount-data")
         const totalDiscountedAmountData = itemsContextStorage.getString("total-discount-data")
-
+        // console.log(itemsData)
         itemsStore = itemsData ? JSON.parse(itemsData) : []
         totalAmountStore = totalAmountData ? parseFloat(totalAmountData) : 0
         totalDiscountedAmountStore = totalDiscountedAmountData ? parseFloat(totalDiscountedAmountData) : 0
@@ -74,11 +74,17 @@ function CategoryProductScreen() {
     const [quantity, setQuantity] = useState<number>()
     const [discountState, setDiscountState] = useState<number>(() => 0)
     const [price, setPrice] = useState<number>(() => product?.price)
+    const [selectedPriceType, setSelectedPriceType] = useState<"price" | "new_ptr">("price")
     const [stock, setStock] = useState<number>()
     const [updatedStock, setUpdatedStock] = useState<number>()
+    console.log(itemsStore, 'itemsStore')
     const [addedProductsList, setAddedProductsList] = useState<ItemsData[]>(
         () => itemsStore,
     )
+
+    const normalizeAddedProductsForSelection = (products: ItemsData[] = addedProductsList, type: "price" | "new_ptr" = selectedPriceType) =>
+        buildNormalizedCartItems(products as any, type) as ItemsData[]
+
 
     const [totalPrice, setTotalPrice] = useState(() => totalAmountStore | 0)
     const [totalDiscountedAmount, setTotalDiscountedAmount] = useState(() => totalDiscountedAmountStore | 0)
@@ -90,10 +96,7 @@ function CategoryProductScreen() {
             item_id: itemId,
         }
 
-        console.log(
-            "BRRRRRRRRRR IDDDDDDDDDDDDD loginStore?.br_id",
-            loginStore?.br_id,
-        )
+
 
         await fetchStock(fetchedStockObject)
             .then(res => {
@@ -109,7 +112,8 @@ function CategoryProductScreen() {
         const creds: CategoryItemListCredentials = {
             comp_id: loginStore?.comp_id,
             br_id: loginStore?.br_id,
-            catg_id: catgId
+            catg_id: catgId,
+            user_id: loginStore?.user_id
         }
         fetchCategoryItems(creds).then(res => {
             setCategoryWiseItems(res?.msg)
@@ -122,7 +126,7 @@ function CategoryProductScreen() {
         setProduct(item)
 
         setDiscountState(item?.discount)
-        setPrice(item?.price)
+        setPrice(getSelectedPriceValue(item, selectedPriceType))
         setQuantity(
             addedProductsList?.find(i => i.item_id === item?.item_id)?.quantity || 0
         )
@@ -131,8 +135,55 @@ function CategoryProductScreen() {
     }
 
     useEffect(() => {
+        if (product) {
+            setPrice(getSelectedPriceValue(product, selectedPriceType))
+        }
+    }, [product, selectedPriceType])
+
+    useEffect(() => {
+        setAddedProductsList(prevList => {
+            const normalizedList = normalizeAddedProductsForSelection(prevList, selectedPriceType)
+            const { totalAmount, totalDiscount } = normalizedList.reduce((acc, item) => {
+                // const itemTotalPrice = item?.price * item["quantity"]
+                const itemTotalPrice = getSelectedPriceValue(item as any, item?.priceType || selectedPriceType) * item["quantity"]
+                let itemDiscount = 0
+
+                if (receiptSettings?.discount_flag === "Y") {
+                    if (receiptSettings?.discount_position === "I") {
+                        if (receiptSettings?.discount_type === "A") {
+                            itemDiscount = (item["quantity"] * item["discount"])
+                        } else {
+                            itemDiscount = (getSelectedPriceValue(item as any, item?.priceType || selectedPriceType) * item["quantity"] * item["discount"]) / 100
+                            // itemDiscount = (item?.price * item["quantity"] * item["discount"]) / 100
+                        }
+                    }
+                }
+
+                return {
+                    totalAmount: acc.totalAmount + itemTotalPrice,
+                    totalDiscount: acc.totalDiscount + itemDiscount,
+                }
+            }, { totalAmount: 0, totalDiscount: 0 })
+            setTotalPrice(totalAmount)
+            setTotalDiscountedAmount(totalDiscount)
+            itemsContextStorage.set("total-amount-data", totalAmount?.toString())
+            itemsContextStorage.set("total-discount-data", totalDiscount?.toString())
+            itemsContextStorage.set("items-data", JSON.stringify(normalizedList))
+
+            return normalizedList
+        })
+    }, [selectedPriceType, receiptSettings?.discount_flag, receiptSettings?.discount_position, receiptSettings?.discount_type])
+
+    useEffect(() => {
         handleGetItemsByCategoryId(params?.product?.catg_id)
     }, [])
+
+    // Re-fetch items every time the screen is focused so switching categories always loads fresh data
+    useFocusEffect(
+        useCallback(() => {
+            handleGetItemsByCategoryId(params?.product?.catg_id)
+        }, [params?.product?.catg_id])
+    )
 
     // Increse quantity Product when ENTER
     // useEffect(() => {
@@ -154,12 +205,17 @@ function CategoryProductScreen() {
     const onDialogSuccecss = (item: ItemsData) => {
         setAddedProductsList(prevList => {
             const existingItemIndex = prevList.findIndex(product => product.id === item.id)
+            const selectedAmount = getSelectedPriceValue(item, selectedPriceType)
+
             if (existingItemIndex !== -1) {
-                // Item exists, create a new array with updated quantity
                 const updatedList = [...prevList]
+                const currentType = updatedList[existingItemIndex]?.priceType || selectedPriceType
                 updatedList[existingItemIndex] = {
                     ...updatedList[existingItemIndex],
-                    price: price > 0 ? price : product?.price,
+                    // basePrice: updatedList[existingItemIndex]?.basePrice ?? updatedList[existingItemIndex]?.mrp ?? updatedList[existingItemIndex]?.price ?? 0,
+                    basePrice: updatedList[existingItemIndex]?.basePrice ?? updatedList[existingItemIndex]?.price ?? 0,
+                    effectivePrice: getSelectedPriceValue(updatedList[existingItemIndex] as any, currentType),
+                    priceType: currentType,
                     //@ts-ignore
                     quantity: parseInt(quantity),
                     //@ts-ignore
@@ -175,7 +231,10 @@ function CategoryProductScreen() {
                     quantity: parseInt(quantity),
                     //@ts-ignore
                     discount: parseFloat(discountState) > 0 ? parseFloat(discountState) : parseFloat(product?.discount),
-                    price: price > 0 ? price : product?.price,
+                    // basePrice: item?.basePrice ?? item?.mrp ?? item?.price ?? 0,
+                    basePrice: item?.basePrice ?? item?.price ?? 0,
+                    effectivePrice: selectedAmount,
+                    priceType: selectedPriceType,
                 }]
             }
         })
@@ -236,8 +295,10 @@ function CategoryProductScreen() {
     }, [quantity])
 
     const countTotalAmountAndTotalDiscount = () => {
-        const { totalAmount, totalDiscount } = addedProductsList.reduce((acc, item) => {
-            const itemTotalPrice = item?.price * item["quantity"]
+        const normalizedList = normalizeAddedProductsForSelection(addedProductsList, selectedPriceType)
+        const { totalAmount, totalDiscount } = normalizedList.reduce((acc, item) => {
+            // const itemTotalPrice = item?.price * item["quantity"]
+            const itemTotalPrice = +displayPrice * item["quantity"]
             let itemDiscount = 0
 
             if (receiptSettings?.discount_flag === "Y") {
@@ -245,7 +306,8 @@ function CategoryProductScreen() {
                     if (receiptSettings?.discount_type === "A") {
                         itemDiscount = (item["quantity"] * item["discount"])
                     } else {
-                        itemDiscount = (item?.price * item["quantity"] * item["discount"]) / 100
+                        itemDiscount = (+displayPrice * item["quantity"] * item["discount"]) / 100
+                        // itemDiscount = (item?.price * item["quantity"] * item["discount"]) / 100
                     }
                 }
             }
@@ -255,22 +317,17 @@ function CategoryProductScreen() {
                 totalDiscount: acc.totalDiscount + itemDiscount,
             }
         }, { totalAmount: 0, totalDiscount: 0 })
-
         setTotalPrice(totalAmount)
         setTotalDiscountedAmount(totalDiscount)
 
-        console.log("TOT DISSSSS ====>", totalDiscount)
         itemsContextStorage.set("total-amount-data", totalAmount?.toString())
         itemsContextStorage.set("total-discount-data", totalDiscount?.toString())
+        itemsContextStorage.set("items-data", JSON.stringify(normalizedList))
     }
 
     useEffect(() => {
         countTotalAmountAndTotalDiscount()
-
-        console.log("TESTTTT DATAAAA ====> BEFORE EMPTYING", addedProductsList)
-
-        itemsContextStorage.set("items-data", JSON.stringify(addedProductsList))
-    }, [addedProductsList])
+    }, [addedProductsList, selectedPriceType, receiptSettings?.discount_flag, receiptSettings?.discount_position, receiptSettings?.discount_type])
 
     const handleOnDelete = (product: ItemsData) => {
         setAddedProductsList(prevData =>
@@ -293,14 +350,14 @@ function CategoryProductScreen() {
     // };
 
     const handlePressBillScreen = () => {
+        const normalizedProducts = normalizeAddedProductsForSelection(addedProductsList, selectedPriceType)
         navigation.dispatch(
             CommonActions.navigate({
                 name: navigationRoutes.cartScreen,
                 params: {
-                    added_products: addedProductsList,
+                    added_products: normalizedProducts,
                     net_total: totalPrice,
                     total_discount: totalDiscountedAmount,
-                    // table_no: tableNo,
                 },
             }),
         )
@@ -328,6 +385,10 @@ function CategoryProductScreen() {
                     ...updatedList[existingItemIndex],
                     //@ts-ignore
                     quantity: parseInt(updatedList[existingItemIndex].quantity || 0) + 1,
+                    // basePrice: updatedList[existingItemIndex]?.basePrice ?? updatedList[existingItemIndex]?.mrp ?? updatedList[existingItemIndex]?.price ?? 0,
+                    basePrice: updatedList[existingItemIndex]?.basePrice ?? updatedList[existingItemIndex]?.price ?? 0,
+                    effectivePrice: getSelectedPriceValue(updatedList[existingItemIndex] as any, updatedList[existingItemIndex]?.priceType || selectedPriceType),
+                    priceType: updatedList[existingItemIndex]?.priceType || selectedPriceType,
                 }
                 return updatedList
             } else {
@@ -337,6 +398,9 @@ function CategoryProductScreen() {
                     {
                         ...item,
                         quantity: 1,
+                        basePrice: item?.basePrice ?? item?.price ?? 0,
+                        effectivePrice: getSelectedPriceValue(item as any, selectedPriceType),
+                        priceType: selectedPriceType,
                     }
                 ]
             }
@@ -377,6 +441,21 @@ function CategoryProductScreen() {
         ])
     }
 
+    const displayPrice = getSelectedPriceValue(params?.product, selectedPriceType)
+
+    const handlePriceTypeChange = (nextType: "price" | "new_ptr") => {
+        setSelectedPriceType(nextType)
+        setAddedProductsList(prevList => prevList.map(item => {
+            if (item.item_id !== params?.product?.item_id) return item
+            return {
+                ...item,
+                priceType: nextType,
+                effectivePrice: getSelectedPriceValue(item as any, nextType),
+                basePrice: item?.basePrice ?? item?.price ?? 0,
+            }
+        }))
+    }
+
     // Find the quantity for each item
     const getQuantity = (itemId: number) => {
         const item = addedProductsList.find(product => product.item_id === itemId)
@@ -384,11 +463,13 @@ function CategoryProductScreen() {
     }
 
     const handleGoToCartScreen = () => {
+        const normalizedProducts = normalizeAddedProductsForSelection(addedProductsList, selectedPriceType)
+
         navigation.dispatch(
             CommonActions.navigate({
                 name: navigationRoutes.cartScreen,
                 params: {
-                    added_products: addedProductsList,
+                    added_products: normalizedProducts,
                     net_total: totalPrice,
                     total_discount: totalDiscountedAmount,
                     // table_no: tableNo,
@@ -467,8 +548,6 @@ function CategoryProductScreen() {
                         }}>
                             {
                                 [params?.product]?.map((item, i) => {
-                                    // console.log("GGGGGGGGGGGGGGGGG", getQuantity(item?.item_id))
-                                    console.log("TTTTTTTTTTTTTTTTT", item)
                                     return (
                                         <View key={i} style={{ width: "100%" }}>
                                             <List.Item
@@ -480,7 +559,16 @@ function CategoryProductScreen() {
                                                     flexWrap: "wrap",
                                                     // right: 12
                                                 }} numberOfLines={3} ellipsizeMode="tail">{item?.item_name}</Text>}
-                                                description={<Text variant="bodyMedium" style={{ color: theme.colors.vanilla, flexWrap: "wrap" }}>₹{item?.price}</Text>}
+                                                description={(() => {
+                                                    const qty = getQuantity(item?.item_id);
+                                                    const activePrice = getSelectedPriceValue(item, selectedPriceType)
+                                                    const sticksPerPkt = item?.sticks_per_packet ?? 0;
+                                                    const remainingPackets = (item?.curr_packet ?? 0) - qty;
+                                                    const remainingSticks = (item?.curr_total_sticks ?? 0) - (qty * sticksPerPkt);
+                                                    return loginStore?.stock_flag === 'N'
+                                                        ? `₹${activePrice}`
+                                                        : `₹${activePrice}   |   Remaining — Packets: ${remainingPackets}   Sticks: ${remainingSticks}`;
+                                                })()}
                                                 right={props => {
                                                     return <AddRemove
                                                         value={getQuantity(item?.item_id)}
@@ -492,13 +580,18 @@ function CategoryProductScreen() {
                                                         isIndividualProductScreen />
                                                 }}
                                                 descriptionStyle={{
-                                                    color: theme.colors.green
+                                                    color: theme.colors.primary,
+                                                    backgroundColor: '#d4eeca',
+                                                    borderRadius: 12,
+                                                    paddingHorizontal: 2,
+                                                    paddingVertical: 2,
+                                                    alignSelf: "flex-start",
+                                                    marginTop: 4
                                                 }}
                                             />
 
                                             {/* <TouchableRipple
                                                     onPress={() => {
-                                                        console.log(">>>>>>>>>>>>>>", item)
                                                         navigation.dispatch(CommonActions.navigate(""))
                                                     }}
                                                 >
@@ -535,7 +628,7 @@ function CategoryProductScreen() {
                             }
                         </View>
 
-                        <View style={{
+                        {/* <View style={{
                             width: "100%",
                             height: "auto",
                             backgroundColor: theme.colors.vanillaContainer,
@@ -546,9 +639,7 @@ function CategoryProductScreen() {
                             alignSelf: "center",
                             borderRadius: 25
                         }}>
-                            {/* <Text variant="headlineLarge" style={{
-                                color: theme.colors.onVanillaContainer
-                            }}>Price: {params?.product?.price} × {getQuantity(params?.product?.item_id)} = ₹{+params?.product?.price * +getQuantity(params?.product?.item_id)}</Text> */}
+                           
                             <Text variant="headlineLarge" style={{
                                 color: theme.colors.onVanillaContainer
                             }}>Selling Price: ₹{params?.product?.price}</Text>
@@ -561,19 +652,216 @@ function CategoryProductScreen() {
                                 borderRadius: 18,
                                 textAlign: "center"
                             }}>Price: {params?.product?.price} × {getQuantity(params?.product?.item_id)} = ₹{(+params?.product?.price * +getQuantity(params?.product?.item_id))?.toFixed(2)}</Text>
-                            {/* <Text variant="headlineMedium" style={{
-                                backgroundColor: theme.colors.vanilla,
-                                padding: 10,
-                                color: theme.colors.onVanilla,
+                           
+                        </View> */}
+                        <View
+                            style={{
+                                width: "100%",
+                                // backgroundColor: theme.colors.vanillaContainer,
+                                paddingVertical: 1,
+                                paddingHorizontal: 2,
+                                borderRadius: 28,
                                 alignSelf: "center",
-                                borderRadius: 18
-                            }}>Category: {params?.categoryName}</Text> */}
+
+                                // Professional depth
+
+                            }}
+                        >
+                            {/* Header */}
+
+                            <View
+                                style={{
+                                    width: "100%",
+                                    backgroundColor: theme.colors.vanillaContainer,
+                                    padding: 20,
+                                    borderRadius: 28,
+
+                                    // depth
+                                    elevation: 5,
+                                    shadowColor: "#000",
+                                    shadowOpacity: 0.08,
+                                    shadowRadius: 12,
+                                    shadowOffset: {
+                                        width: 0,
+                                        height: 4
+                                    },
+
+                                    gap: 18
+                                }}
+                            >
+
+                                {/* Header */}
+                                <View style={{
+                                    gap: 4
+                                }}>
+                                    <Text
+                                        variant="labelLarge"
+                                        style={{
+                                            color: theme.colors.onVanillaContainer,
+                                            opacity: 0.7,
+                                            letterSpacing: 1
+                                        }}
+                                    >
+                                        SELLING PRICE
+                                    </Text>
+
+                                    <Text
+                                        variant="displaySmall"
+                                        style={{
+                                            color: theme.colors.onVanillaContainer,
+                                            fontWeight: "700"
+                                        }}
+                                    >
+                                        ₹{displayPrice}
+                                    </Text>
+                                </View>
+
+                                {params?.product?.new_ptr != params?.product?.price && <View style={{ marginTop: 8 }}>
+                                    <Text
+                                        variant="labelMedium"
+                                        style={{
+                                            color: theme.colors.onVanillaContainer,
+                                            opacity: 0.75,
+                                            marginBottom: 4,
+                                        }}
+                                    >
+                                        PRICE TYPE
+                                    </Text>
+                                    <RadioButton.Group
+                                        onValueChange={value => handlePriceTypeChange(value as "price" | "new_ptr")}
+                                        value={selectedPriceType}
+                                    >
+                                        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                                <RadioButton value="price" />
+                                                <Text variant="bodyMedium">Old PTR</Text>
+                                            </View>
+                                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                                <RadioButton value="new_ptr" />
+                                                <Text variant="bodyMedium">New PTR</Text>
+                                            </View>
+                                        </View>
+                                    </RadioButton.Group>
+                                </View>}
+
+                                {/* Divider */}
+                                <View
+                                    style={{
+                                        height: 1,
+                                        width: "100%",
+                                        backgroundColor: "rgba(0,0,0,0.08)"
+                                    }}
+                                />
+
+                                {/* Calculation Card */}
+                                <View
+                                    style={{
+                                        width: "100%",
+                                        backgroundColor: theme.colors.vanilla,
+                                        paddingVertical: 18,
+                                        paddingHorizontal: 16,
+                                        borderRadius: 22,
+                                        gap: 10
+                                    }}
+                                >
+
+                                    <View style={{
+                                        flexDirection: "row",
+                                        justifyContent: "space-between",
+                                        alignItems: "center"
+                                    }}>
+                                        <Text
+                                            variant="titleMedium"
+                                            style={{
+                                                color: theme.colors.onVanilla,
+                                                opacity: 0.75
+                                            }}
+                                        >
+                                            Unit Price
+                                        </Text>
+
+                                        <Text
+                                            variant="titleLarge"
+                                            style={{
+                                                color: theme.colors.onVanilla,
+                                                fontWeight: "600"
+                                            }}
+                                        >
+                                            ₹{displayPrice}
+                                        </Text>
+                                    </View>
+
+                                    <View style={{
+                                        flexDirection: "row",
+                                        justifyContent: "space-between",
+                                        alignItems: "center"
+                                    }}>
+                                        <Text
+                                            variant="titleMedium"
+                                            style={{
+                                                color: theme.colors.onVanilla,
+                                                opacity: 0.75
+                                            }}
+                                        >
+                                            Quantity
+                                        </Text>
+
+                                        <Text
+                                            variant="titleLarge"
+                                            style={{
+                                                color: theme.colors.onVanilla,
+                                                fontWeight: "600"
+                                            }}
+                                        >
+                                            × {getQuantity(params?.product?.item_id)}
+                                        </Text>
+                                    </View>
+
+                                    <View
+                                        style={{
+                                            height: 1,
+                                            backgroundColor: "rgba(0,0,0,0.08)",
+                                            marginVertical: 4
+                                        }}
+                                    />
+
+                                    <View style={{
+                                        flexDirection: "row",
+                                        justifyContent: "space-between",
+                                        alignItems: "center"
+                                    }}>
+                                        <Text
+                                            variant="headlineSmall"
+                                            style={{
+                                                color: theme.colors.onVanilla,
+                                                fontWeight: "700"
+                                            }}
+                                        >
+                                            Total
+                                        </Text>
+
+                                        <Text
+                                            variant="headlineMedium"
+                                            style={{
+                                                color: theme.colors.onVanilla,
+                                                fontWeight: "800"
+                                            }}
+                                        >
+                                            ₹{(
+                                                +displayPrice *
+                                                +getQuantity(params?.product?.item_id)
+                                            ).toFixed(2)}
+                                        </Text>
+                                    </View>
+
+                                </View>
+                            </View>
                         </View>
                     </ScrollView>
 
                     <View style={{
                         marginHorizontal: 10,
-                        marginBottom: 2,
+                        marginVertical: 12,
                         // justifyContent: "center",
                         // alignItems: "center",
                     }}>
@@ -588,8 +876,8 @@ function CategoryProductScreen() {
                             //         }
                             //     }
                             // )
-                            CommonActions.goBack()
-                        )} icon="plus-thick" textColor={theme.colors.primary} buttonColor={theme.colors.onPrimary}>ADD ITEM</ButtonPaper>
+                            CommonActions.navigate({ name: navigationRoutes.categoriesScreen })
+                        )} icon="plus-thick" textColor={theme.colors.onPrimary} buttonColor={theme.colors.error}>ADD ITEM</ButtonPaper>
                     </View>
 
                 </View>
@@ -601,7 +889,8 @@ function CategoryProductScreen() {
                 alignSelf: "center"
             }}>
 
-                <SnackBar totAmt={totalPrice?.toFixed(2)} handleBtn1Press={handlePressBillScreen} handleBtn2Press={handleClear} handleBtn3Press={handleGoToCartScreen} disableNext={!totalPrice} cartItemQty={addedProductsList?.length} disableCart={!totalPrice} />
+
+                <SnackBar totAmt={+displayPrice * +getQuantity(params?.product?.item_id)?.toFixed(2)} handleBtn1Press={handlePressBillScreen} handleBtn2Press={handleClear} handleBtn3Press={handleGoToCartScreen} disableNext={!totalPrice} cartItemQty={addedProductsList?.length} disableCart={!totalPrice} />
             </View>
 
             <DialogBox

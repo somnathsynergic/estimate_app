@@ -1,7 +1,8 @@
 import axios from "axios"
 import { ADDRESSES } from "../../config/api_list"
-import { SaleInsertData } from "../../models/api_types"
+import { LoginDataMessage, SaleInsertData } from "../../models/api_types"
 import { FilteredItem } from "../../models/custom_types"
+import { loginStorage } from "../../storage/appStorage"
 
 export default function useSaleInsert() {
   // const sendSaleDetails = async (
@@ -33,9 +34,11 @@ export default function useSaleInsert() {
   // }
   const sendSaleDetails = async (productsWithCredentials: FilteredItem[]) => {
     // console.log("===========***********==========", productsWithCredentials)
+    const loginStore = JSON.parse(loginStorage.getString("login-data") || '{}') as LoginDataMessage
+    const targetUrl = loginStore?.stock_flag === 'N' ? ADDRESSES.SALE_INSERT_NOSTOCK : ADDRESSES.SALE_INSERT;
     return new Promise<SaleInsertData>((resolve, reject) => {
       axios
-        .post(`${ADDRESSES.SALE_INSERT}`, productsWithCredentials)
+        .post(`${targetUrl}`, productsWithCredentials)
         .then(res => {
           resolve(res.data)
         })

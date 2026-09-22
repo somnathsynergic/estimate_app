@@ -59,9 +59,9 @@ export default function ReportButton({
               style={styles.buttonImageIconStyle}
               resizeMode={FastImage.resizeMode.cover}
             />
-            : <IconButton icon={icon} iconColor="#090446" size={26} style={{ margin: 0 }} />
+            : <IconButton icon={icon} iconColor="#090446" size={28} style={{ margin: 0 }} />
         }
-        <Text style={{ textAlign: "center", color: '#090446', fontFamily: 'ProductSans-Medium', fontSize: 11, marginTop: 2 }}>{text}</Text>
+        <Text style={{ textAlign: "center", color: '#090446', fontFamily: 'ProductSans-Medium', fontSize: 15, marginTop: 2 }}>{text}</Text>
       </>
     </TouchableRipple>
   )

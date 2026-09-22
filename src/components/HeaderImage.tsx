@@ -2,13 +2,15 @@ import { PropsWithChildren, useContext, useEffect, useState } from "react"
 import {
   useColorScheme,
   StyleSheet,
-  View,
+  View, TouchableOpacity, Modal, FlatList, TouchableWithoutFeedback,
 } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import normalize, { SCREEN_HEIGHT, SCREEN_WIDTH } from "react-native-normalize"
-import { IconButton, Text } from "react-native-paper"
+import { IconButton, Text, Searchbar } from "react-native-paper"
+
 import { usePaperColorScheme } from "../theme/theme"
 import { CommonActions, useNavigation, useIsFocused } from "@react-navigation/native"
+
 import ButtonPaper from "./ButtonPaper"
 import navigationRoutes from "../routes/navigationRoutes"
 import CustomerSelector from "./CustomerSelector"
@@ -53,6 +55,9 @@ export default function HeaderImage({
   const [selectedCustId, setSelectedCustId] = useState<number | null>(
     () => customer?.value || null,
   )
+  const [modalVisible, setModalVisible] = useState(false)
+  const [customerSearch, setCustomerSearch] = useState<string>('')
+
 
   useEffect(() => {
     setSelectedCustId(customer?.value || null)
@@ -73,7 +78,7 @@ export default function HeaderImage({
       .then(res => {
         const list = (res?.data || []) as any[]
         setCustData(
-          list.map((item: any) => ({
+          list.map(item => ({
             label: `${item?.cust_name} (ID: ${item?.cust_id})`,
             value: item?.cust_id,
             name: item?.cust_name,
@@ -86,14 +91,9 @@ export default function HeaderImage({
 
   return (
     <>
+      {/* Product Search Button */}
       {showProductSearch && (
-        <View
-          style={{
-            alignSelf: "center",
-            width: "85%",
-            marginBottom: normalize(10),
-            paddingTop: normalize(10),
-          }}>
+        <View style={{ alignSelf: "center", width: "85%", marginBottom: normalize(10), paddingTop: normalize(10) }}>
           <ButtonPaper
             icon="magnify-scan"
             mode="contained"
@@ -102,20 +102,18 @@ export default function HeaderImage({
               navigation.dispatch(
                 CommonActions.navigate({
                   name: navigationRoutes.categoryProductsScreen,
-                  params: {
-                    category_id: 0,
-                    category_name: "All Items",
-                    category_photo: "",
-                  },
+                  params: { category_id: 0, category_name: "All Items", category_photo: "" },
                 }),
               )
             }
-            textColor={theme.colors.onPurpleContainer}>
+            textColor={theme.colors.onPurpleContainer}
+          >
             SEARCH PRODUCTS
           </ButtonPaper>
         </View>
       )}
 
+      {/* Back Button */}
       {isBackEnabled && (
         <View>
           <IconButton
@@ -125,57 +123,79 @@ export default function HeaderImage({
             onPress={
               !isBackCustom
                 ? () => navigation.dispatch(CommonActions.goBack())
-                : () => backPressed()
+                : () => backPressed?.()
             }
-            style={{
-              position: "absolute",
-              top: SCREEN_HEIGHT / 40,
-              right: SCREEN_WIDTH / 3.2,
-              zIndex: 10,
-            }}
+            style={{ position: "absolute", top: SCREEN_HEIGHT / 40, right: SCREEN_WIDTH / 3.2, zIndex: 10 }}
           />
         </View>
       )}
 
+      {/* Header Container */}
       <View
         style={[
           styles.surface,
           showCustomerSelector && styles.surfaceWithSelector,
-          { borderRadius: normalize(borderRadius || 24), backgroundColor: '#090446', elevation: 4 }
-        ]}>
-
-        {/* Title row */}
+          { marginVertical: 15, backgroundColor: '#090446', elevation: 4 },
+        ]}
+      >
+        {/* Title Row */}
         <View style={styles.titleRow}>
-          <Text
-            variant="headlineMedium"
-            style={[styles.titleText, { color: '#FFFFFF', fontFamily: 'ProductSans-Bold' }]}>
-            {children}
-          </Text>
+          <Text variant="headlineMedium" style={[styles.titleText, { color: '#FFFFFF', fontFamily: 'ProductSans-Bold' }]}>{children}</Text>
           {categoryName ? (
-            <Text
-              variant="bodySmall"
-              style={[styles.categoryText, { color: 'rgba(255, 255, 255, 0.8)', fontFamily: 'ProductSans-Medium' }]}>
-              Category: {categoryName}
-            </Text>
+            <Text variant="bodySmall" style={[styles.categoryText, { color: 'rgba(255, 255, 255, 0.8)', fontFamily: 'ProductSans-Medium', fontSize: 15, marginVertical: 20 }]}>Category: {categoryName}</Text>
           ) : null}
         </View>
 
-        {/* Customer selector embedded inside the header card */}
+        {/* Customer Selector */}
         {showCustomerSelector && (
-          <View style={[styles.selectorWrapper, {
-            backgroundColor: "rgba(255,255,255,0.15)",
-            borderRadius: normalize(12),
-          }]}>
-            <CustomerSelector
-              data={custData}
-              value={selectedCustId}
-              onChange={item => {
-                setSelectedCustId(item.value)
-                setCustomer(item)
-              }}
-              placeholder="Select Customer"
-            />
-          </View>
+          <>
+            <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.selectorWrapper}>
+              <Text style={{ color: theme.colors.primary, backgroundColor: 'white', padding: 10, marginVertical: -10 }}>{selectedCustId ? custData.find(c => c.value === selectedCustId)?.label : "Select Customer"}</Text>
+            </TouchableOpacity>
+            <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={() => setModalVisible(false)}>
+              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                <View style={styles.modalOverlay} />
+              </TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Customer</Text>
+                  <IconButton icon="close" size={20} onPress={() => setModalVisible(false)} />
+                </View>
+
+                <View style={styles.searchWrapper}>
+                  <Searchbar
+                    placeholder="Search Customer"
+                    value={customerSearch}
+                    onChangeText={setCustomerSearch}
+                  />
+                </View>
+
+                <FlatList
+                  data={custData.filter(item => {
+                    const q = customerSearch.trim().toLowerCase()
+                    if (!q) return true
+                    const label = (item?.label ?? '').toString().toLowerCase()
+                    const value = (item?.value ?? '').toString().toLowerCase()
+                    return label.includes(q) || value.includes(q)
+                  })}
+                  keyExtractor={item => item.value?.toString() ?? ''}
+                  renderItem={({ item }) => (
+
+                    <TouchableOpacity
+                      style={styles.modalItem}
+                      onPress={() => {
+                        setSelectedCustId(item.value)
+                        setCustomer(item)
+                        setModalVisible(false)
+                      }}
+                    >
+                      <Text>{item.label}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            </Modal>
+          </>
         )}
       </View>
     </>
@@ -186,14 +206,13 @@ const styles = StyleSheet.create({
   surface: {
     margin: normalize(20),
     padding: normalize(20),
-    height: SCREEN_HEIGHT / 8,
-    borderRadius: normalize(30),
+    // borderRadius: normalize(30),
     width: SCREEN_WIDTH / 1.13,
     alignItems: "center",
     justifyContent: "center",
   },
   surfaceWithSelector: {
-    height: SCREEN_HEIGHT / 5,
+    height: SCREEN_HEIGHT / 8,
     justifyContent: "space-between",
     paddingVertical: normalize(20),
   },
@@ -217,4 +236,43 @@ const styles = StyleSheet.create({
     paddingVertical: normalize(4),
     marginBottom: normalize(4),
   },
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 12,
+    marginTop: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    width: SCREEN_WIDTH,
+    maxHeight: '80%',
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+  },
+  searchWrapper: {
+    marginVertical: 8,
+  },
+  modalItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
 })
+

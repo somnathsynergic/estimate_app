@@ -82,7 +82,7 @@ export default function ProductwiseSaleReportScreen() {
           imgDark={blurReportDark}
           borderRadius={30}
           blur={10}
-          showCustomerSelector={false}
+          showCustomerSelector={true}
         >
           SKU wise Sales
         </HeaderImage>
@@ -127,7 +127,7 @@ export default function ProductwiseSaleReportScreen() {
             : <SurfacePaper
               borderRadiusEnabled
               backgroundColor={theme.colors.onPrimary}
-              elevation={2}
+              // elevation={2}
               paddingEnabled
               smallWidthEnabled
               style={{ padding: 15 }}>

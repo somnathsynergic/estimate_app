@@ -34,11 +34,7 @@ function SettingsScreen() {
                 color={index % 2 === 0 ? theme.colors.peachContainer : theme.colors.peachTertiaryContainer}
                 textColor={index % 2 === 0 ? theme.colors.onPeachContainer : theme.colors.onPeachTertiaryContainer}
                 icon={item.icon}
-                onPress={() => navigation.dispatch(
-                  CommonActions.navigate({
-                    name: item.route
-                  })
-                )}
+                onPress={() => navigation.navigate(item.route)}
               />
             ))
           }

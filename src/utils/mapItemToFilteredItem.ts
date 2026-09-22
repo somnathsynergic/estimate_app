@@ -36,7 +36,7 @@ export function mapItemToFilteredItem(
     grandTotalCalculate,
     roundingOffCalculate
   } = useCalculations()
-  const { cgst, sgst, comp_id, discount, item_id, quantity, price } = item
+  const { cgst, sgst, comp_id, discount, item_id, quantity, price,priceType,new_ptr } = item
 
   // const cgstAmt = receiptSettings?.gst_flag === "N" ? 0 : (price * quantity * cgst / 100)
   // const sgstAmt = receiptSettings?.gst_flag === "N" ? 0 : (price * quantity * sgst / 100)
@@ -121,7 +121,7 @@ export function mapItemToFilteredItem(
   const roundOff = parseFloat((Math.round(amount) - amount).toFixed(2))
   // console.log("LSLSLSLSOIEDJDS", roundOff)
   const netAmt = Math.round(amount)
-
+  const pr = priceType == 'new_ptr'? Number(new_ptr): Number(price)
   return {
     cgst_amt: cgstAmt,
     sgst_amt: sgstAmt,
@@ -129,7 +129,7 @@ export function mapItemToFilteredItem(
     discount_amt: discountAmt,
     item_id: item_id,
     qty: quantity,
-    price: Number(price),
+    price: pr,
     // price: price * quantity,
     br_id: parseInt(branchId),
     tprice: parseFloat(params?.net_total?.toFixed(2)), // total price of all the items (td_receipt table)

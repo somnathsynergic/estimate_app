@@ -2,7 +2,8 @@ import { createMaterialBottomTabNavigator } from "react-native-paper/react-navig
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import navigationRoutes from "../routes/navigationRoutes"
 import { usePaperColorScheme } from "../theme/theme"
-import SettingsNavigation from "./SettingsNavigation"
+import SettingsNavigation from "./SettingsNavigation";
+import DSDashboardScreen from "../screens/DSDashboardScreen";
 import HomeNavigation from "./HomeNavigation"
 import ReportsNavigation from "./ReportsNavigation"
 import MoreNavigation from "./MoreNavigation"
@@ -12,8 +13,10 @@ import LeagueNavigation from "./LeagueNavigation"
 import useCurrentRouteName from "../hooks/useCurrentRoute"
 import { loginStorage } from "../storage/appStorage"
 import { LoginDataMessage } from "../models/api_types"
+import CategoriesScreen from "../screens/CategoriesScreen"
 
 const Tab = createMaterialBottomTabNavigator()
+
 
 function BottomNavigationPaper() {
   const theme = usePaperColorScheme()
@@ -23,6 +26,7 @@ function BottomNavigationPaper() {
   console.log(loginStore, "CURRNT ROUTE: ", currentRoute)
 
   const shouldHideTabBar = ["BottomNavigationPaper", "Home", "HomeScreen", "More", "MoreScreen", "Reports", "ReportsScreen", "Settings", "SettingsScreen", "CalculateMode", "CalculateModeScreen", "AddCustomer", "AddCustomerScreen", "League", "LeagueScreen"].includes(currentRoute)
+
 
   return (
     <Tab.Navigator
@@ -34,7 +38,7 @@ function BottomNavigationPaper() {
         backgroundColor: theme.colors.surface,
         borderTopWidth: 0.4,
         borderColor: theme.colors.secondaryContainer,
-        display: shouldHideTabBar ? "flex" : "none"
+        display: "flex"
       }}
       shifting
       compact
@@ -56,29 +60,13 @@ function BottomNavigationPaper() {
             ),
         }}
       />
-      <Tab.Screen
-        name="League"
-        component={LeagueNavigation}
-        options={{
-          tabBarLabel: "League",
-          tabBarIcon: ({ color, focused }) =>
-            !focused ? (
-              <MaterialCommunityIcons
-                name="trophy-outline"
-                color={color}
-                size={26}
-              />
-            ) : (
-              <MaterialCommunityIcons name="trophy" color={color} size={26} />
-            ),
-        }}
-      />
+
 
       <Tab.Screen
         name="AddCustomer"
         component={AddCustomerNavigation}
         options={{
-          tabBarLabel: "Add Customer",
+          tabBarLabel: "Customers",
           tabBarIcon: ({ color, focused }) =>
             !focused ? (
               <MaterialCommunityIcons
@@ -91,88 +79,88 @@ function BottomNavigationPaper() {
             ),
         }}
       />
+      <Tab.Screen
+        name="Categories"
+        component={CategoriesScreen}
+        options={{
+          tabBarLabel: "Categories",
+          tabBarIcon: ({ color, focused }) =>
+            !focused ? (
+              <MaterialCommunityIcons name="tag-outline" color={color} size={26} />
+            ) : (
+              <MaterialCommunityIcons name="tag" color={color} size={26} />
+            ),
+        }}
+      />
+      <Tab.Screen
+        name="Reports"
+        component={ReportsNavigation}
+        options={{
+          tabBarLabel: "Reports",
+          tabBarIcon: ({ color, focused }) =>
+            !focused ? (
+              <MaterialCommunityIcons name="chart-bar-stacked" color={color} size={26} />
+            ) : (
+              <MaterialCommunityIcons name="chart-bar" color={color} size={26} />
+            ),
+        }}
+      />
+      {loginStore?.stock_flag !== 'N' && (
+        <Tab.Screen
+          name="Inventory"
+          component={DSDashboardScreen}
+          options={{
+            tabBarLabel: "Inventory",
+            tabBarIcon: ({ color, focused }) =>
+              !focused ? (
+                <MaterialCommunityIcons name="warehouse" color={color} size={26} />
+              ) : (
+                <MaterialCommunityIcons name="warehouse" color={color} size={26} />
+              ),
+          }}
+        />
+      )}
+      <Tab.Screen
+        name="Settings"
+        component={SettingsNavigation}
+        options={{
+          tabBarLabel: "Settings",
+          tabBarIcon: ({ color, focused }) =>
+            !focused ? (
+              <MaterialCommunityIcons name="cog-outline" color={color} size={26} />
+            ) : (
+              <MaterialCommunityIcons name="cog" color={color} size={26} />
+            ),
+        }}
+      />
 
-      {
-        loginStore?.mode === "N"
-          ? <>
-            <Tab.Screen
-              name="Reports"
-              component={ReportsNavigation}
-              listeners={({ navigation }) => ({
-                tabPress: (e) => {
-                  e.preventDefault()
-                  navigation.navigate("Reports", {
-                    screen: navigationRoutes.reportsScreen,
-                  })
-                },
-              })}
-              options={{
-                tabBarLabel: "Reports",
-                tabBarIcon: ({ color, focused }) =>
-                  !focused ? (
-                    <MaterialCommunityIcons name="chart-bar-stacked" color={color} size={26} />
-                  ) : (
-                    <MaterialCommunityIcons
-                      name="chart-bar"
-                      color={color}
-                      size={26}
-                    />
-                  ),
-              }}
-            />
-            <Tab.Screen
-              name="More"
-              component={MoreNavigation}
-              options={{
-                tabBarLabel: "More",
-                tabBarIcon: ({ color, focused }) =>
-                  !focused ? (
-                    <MaterialCommunityIcons name="menu" color={color} size={26} />
-                  ) : (
-                    <MaterialCommunityIcons
-                      name="menu-open"
-                      color={color}
-                      size={26}
-                    />
-                  ),
-              }}
-            />
-            <Tab.Screen
-              name="Settings"
-              component={SettingsNavigation}
-              options={{
-                tabBarLabel: "Settings",
-                tabBarIcon: ({ color, focused }) =>
-                  !focused ? (
-                    <MaterialCommunityIcons
-                      name="cog-outline"
-                      color={color}
-                      size={26}
-                    />
-                  ) : (
-                    <MaterialCommunityIcons name="cog" color={color} size={26} />
-                  ),
-              }}
-            />
-          </>
-          : <Tab.Screen
-            name="CalculateMode"
-            component={CalculateNavigation}
-            options={{
-              tabBarLabel: "Calculate Mode",
-              tabBarIcon: ({ color, focused }) =>
-                !focused ? (
-                  <MaterialCommunityIcons
-                    name="calculator-variant-outline"
-                    color={color}
-                    size={26}
-                  />
-                ) : (
-                  <MaterialCommunityIcons name="calculator-variant" color={color} size={26} />
-                ),
-            }}
-          />
-      }
+
+      {/* <Tab.Screen
+        name="More"
+        component={MoreNavigation}
+        options={{
+          tabBarLabel: "More",
+          tabBarIcon: ({ color, focused }) =>
+            !focused ? (
+              <MaterialCommunityIcons name="dots-horizontal" color={color} size={26} />
+            ) : (
+              <MaterialCommunityIcons name="dots-horizontal" color={color} size={26} />
+            ),
+        }}
+      /> */}
+      {/* <Tab.Screen
+        name="Calculate"
+        component={CalculateNavigation}
+        options={{
+          tabBarLabel: "Calculate",
+          tabBarIcon: ({ color, focused }) =>
+            !focused ? (
+              <MaterialCommunityIcons name="calculator-outline" color={color} size={26} />
+            ) : (
+              <MaterialCommunityIcons name="calculator" color={color} size={26} />
+            ),
+        }}
+      /> */}
 
 
     </Tab.Navigator>

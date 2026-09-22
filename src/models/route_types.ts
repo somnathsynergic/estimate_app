@@ -19,6 +19,7 @@ type RootStackParamList = {
     added_products: ItemsData[]
     net_total: number
     total_discount: number
+    selectedPriceType?: "price" | "new_ptr"
   }
   CategoryProductScreen: {
     product: ItemsData

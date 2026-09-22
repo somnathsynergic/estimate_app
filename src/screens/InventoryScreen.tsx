@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import {
   View,
   ScrollView,
@@ -7,7 +8,7 @@ import {
 } from "react-native"
 import React, { useContext, useEffect, useState } from "react"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Searchbar, Text } from "react-native-paper"
+import { Searchbar, Text, Card } from "react-native-paper"
 import normalize, { SCREEN_HEIGHT } from "react-native-normalize"
 import HeaderImage from "../components/HeaderImage"
 import { productHeader, productHeaderDark } from "../resources/images"
@@ -31,6 +32,7 @@ import SurfacePaper from "../components/SurfacePaper"
 import { AppStoreContext } from "../models/custom_types"
 
 export default function InventoryScreen() {
+  const navigation = useNavigation();
   const theme = usePaperColorScheme()
   const isFocused = useIsFocused()
 
@@ -280,6 +282,30 @@ export default function InventoryScreen() {
           )}
         </View>
       </ScrollView>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginTop: 20 }}>
+        <Card style={{ width: '45%', margin: 5 }} onPress={() => navigation.navigate('DSLiveInventory')}>
+          <Card.Content>
+            <Text style={{ textAlign: 'center', color: theme.colors.onSurface, fontSize: 16, fontWeight: 'bold' }}>Live Inventory</Text>
+          </Card.Content>
+        </Card>
+        <Card style={{ width: '45%', margin: 5 }} onPress={() => navigation.navigate('DSStockRequest')}>
+          <Card.Content>
+            <Text style={{ textAlign: 'center', color: theme.colors.onSurface, fontSize: 16, fontWeight: 'bold' }}>Request Stock</Text>
+          </Card.Content>
+        </Card>
+        <Card style={{ width: '45%', margin: 5 }} onPress={() => navigation.navigate('DSStockReturn')}>
+          <Card.Content>
+            <Text style={{ textAlign: 'center', color: theme.colors.onSurface, fontSize: 16, fontWeight: 'bold' }}>Return / Claim</Text>
+          </Card.Content>
+        </Card>
+        {loginStore?.stock_push_do_flag == 'Y' && (
+          <Card style={{ width: '45%', margin: 5 }} onPress={() => navigation.navigate('UPushStockScreen')}>
+            <Card.Content>
+              <Text style={{ textAlign: 'center', color: theme.colors.onSurface, fontSize: 16, fontWeight: 'bold' }}>Add</Text>
+            </Card.Content>
+          </Card>
+        )}
+      </View>
       <DialogBox
         iconSize={40}
         visible={visibleAdd}

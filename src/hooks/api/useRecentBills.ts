@@ -10,6 +10,7 @@ export default function useRecentBills() {
     userId: string,
     custId?: number | null,
   ) => {
+    console.log(transactionDate, companyId, branchId, userId, custId)
     return new Promise<PromiseLike<RecentBillsData[]>>((resolve, reject) => {
       axios
         .post(`${ADDRESSES.RECENT_BILLS}`, {
@@ -17,7 +18,6 @@ export default function useRecentBills() {
           comp_id: companyId,
           br_id: branchId,
           user_id: userId,
-          cust_id: custId
         })
         .then(res => {
           console.log("RECENT_BILLS =>>>", res?.data)

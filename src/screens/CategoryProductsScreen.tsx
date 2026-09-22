@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useCallback, useContext, useEffect, useState } from "react"
 import {
     StyleSheet,
     ScrollView,
@@ -15,7 +15,7 @@ import {
     textureReportDark,
 } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { CommonActions, useIsFocused, useNavigation, useRoute } from "@react-navigation/native"
+import { CommonActions, useFocusEffect, useIsFocused, useNavigation, useRoute } from "@react-navigation/native"
 import { itemsContextStorage, loginStorage } from "../storage/appStorage"
 // import { AppStore } from "../context/AppContext"
 import { CategoriesScreenRouteProp } from "../models/route_types"
@@ -148,9 +148,12 @@ function CategoryProductsScreen() {
             const creds: CategoryItemListCredentials = {
                 comp_id: loginStore?.comp_id,
                 br_id: loginStore?.br_id,
-                catg_id: catgId
+                catg_id: catgId,
+                user_id: loginStore?.user_id
             }
+            console.log("CREDS:", creds)
             const res = await fetchCategoryItems(creds)
+            console.log("RES:", res?.msg)
             setCategoryWiseItems(res?.msg)
             setFilteredItems(res?.msg)
         } catch (err) {
@@ -180,6 +183,13 @@ function CategoryProductsScreen() {
     useEffect(() => {
         handleGetItemsByCategoryId(params?.category_id)
     }, [])
+
+    // Re-fetch items every time the screen is focused so switching categories always loads fresh data
+    useFocusEffect(
+        useCallback(() => {
+            handleGetItemsByCategoryId(params?.category_id)
+        }, [params?.category_id])
+    )
 
     // const onDialogFailure = () => {
     //     clearStates([setQuantity, setStock, setUpdatedStock], () => undefined)
@@ -450,7 +460,8 @@ function CategoryProductsScreen() {
                         borderRadius={30}
                         blur={10}
                         isBackEnabled
-                        showProductSearch={false}>
+                        showProductSearch={false}
+                        categoryName={params?.category_name}>
                     </HeaderImage>
                 </View>
 
@@ -539,7 +550,8 @@ function CategoryProductsScreen() {
 
                                                 <TouchableRipple
                                                     key={i}
-                                                    style={{ width: '95%', alignSelf: 'center' }}
+                                                    disabled={loginStore?.stock_flag === 'N' ? false : item?.curr_packet === 0}
+                                                    style={{ width: '95%', alignSelf: 'center', opacity: loginStore?.stock_flag === 'N' ? 1 : (item?.curr_packet === 0 ? 0.5 : 1) }}
                                                     onPress={() => {
                                                         console.log(">>>>>>>>>>>>>>uuuuuuuu", item)
                                                         navigation.dispatch(CommonActions.navigate({
@@ -558,8 +570,8 @@ function CategoryProductsScreen() {
                                                         borderRadius: 5,
                                                         gap: 5,
                                                         marginVertical: 5,
-                                                        elevation: 10
-                                                        // padding: 15
+                                                        elevation: 10,
+                                                        padding: 10
                                                     }}>
                                                         <View style={{
                                                             // padding: 25
@@ -582,10 +594,27 @@ function CategoryProductsScreen() {
                                                                 fontWeight: "800",
                                                                 fontSize: 13
                                                             }} numberOfLines={1} ellipsizeMode="tail">{item?.item_name}</Text>
-                                                            <Text variant="bodySmall" style={{
+                                                            {item?.price != item?.new_ptr ?<View style={{flexDirection:'row',gap:15,marginVertical:5,justifyContent:'space-around'}}><Text variant="bodySmall" style={{
                                                                 color: theme.colors.secondary,
                                                                 fontWeight: "800"
-                                                            }}>₹{item?.price} </Text>
+                                                            }}>Old PTR: ₹{item?.price} </Text>
+
+                                                              <Text variant="bodySmall" style={{
+                                                                color: theme.colors.secondary,
+                                                                fontWeight: "800"
+                                                            }}>New PTR:₹{item?.new_ptr} </Text>
+                                                            </View>: <Text variant="bodySmall" style={{
+                                                                color: theme.colors.secondary,
+                                                                fontWeight: "800"
+                                                            }}>₹{item?.price} </Text>}
+                                                            
+                                                            <View style={{ height: 2, width: '100%', backgroundColor: theme.colors.onPrimaryContainer, opacity: 0.1, marginVertical: 5 }}></View>
+                                                            {loginStore?.stock_flag !== 'N' && (
+                                                                <View style={{ flexDirection: 'row', gap: 5, justifyContent: 'center', width: '100%' }}>
+                                                                    <Text style={{ opacity: 0.7 }}>Total Packets : {item?.curr_packet}</Text>
+                                                                    {/* <Text>Total Sticks : {item?.curr_total_sticks}</Text> */}
+                                                                </View>
+                                                            )}
                                                         </View>
                                                     </View>
                                                 </TouchableRipple>

@@ -345,9 +345,16 @@ function LoginScreen() {
                       buttonColor={theme.colors.primary}
                       textColor={theme.colors.onPrimary}
                       style={{ borderRadius: 24, paddingVertical: normalize(2), elevation: 4 }}
-                      onPress={() => {
+                      onPress={async () => {
                         if (loginText !== "" && passwordText !== "") {
-                          handleLogin(loginText, passwordText, fcmToken)
+                          await handleLogin(loginText, passwordText, fcmToken);
+                          // Determine user type from stored login data
+                          const loginDataStr = loginStorage.getString("login-data") || "{}";
+                          const loginData = JSON.parse(loginDataStr);
+                          const targetScreen = navigationRoutes.leagueScreen;
+                          navigation.dispatch(
+                            CommonActions.navigate({ name: targetScreen })
+                          );
                         } else {
                           ToastAndroid.show("Enter username or password properly.", ToastAndroid.SHORT)
                         }

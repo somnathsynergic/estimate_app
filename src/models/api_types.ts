@@ -2,7 +2,11 @@ export type BasicResponse = {
   status: number
   data: string
 }
-
+export interface StockRequestItem {
+  item_id: number;
+  packet: number;
+  total_sticks: number;
+}
 export type LoginData = {
   suc: 0 | 1
   msg: LoginDataMessage
@@ -40,6 +44,7 @@ export type LoginDataMessage = {
   max_user: number
   login_flag: "Y" | "N"
   mode: "N" | "C"
+  stock_flag: 'Y' | 'N'
 }
 
 export type UpdateLoginFlagCredentials = {
@@ -158,6 +163,15 @@ export type ItemsData = {
   catg_id?: number
   category_name?: string
   item_img?: string,
+  curr_packet?: number,
+  curr_total_sticks?: number
+  sticks_per_packet: number,
+  new_ptr?: number
+  price_new:number
+  priceType:"price" | "new_ptr"
+  basePrice:number,
+  effectivePrice:number,
+  mrp:number
 }
 
 export type UnitData = {
@@ -1019,6 +1033,7 @@ export type CategoryItemListCredentials = {
   "comp_id": number
   "br_id": number
   "catg_id": number
+  "user_id": string
 }
 
 export type CategoryItemListResponse = {
@@ -1126,4 +1141,37 @@ export type CustomerListData = {
   cust_name: string
   phone_no: string
   [key: string]: any
+}
+
+export interface DSStockClaim {
+  comp_id: number;
+  br_id: number;
+  user_id: string;
+  items: StockRequestItem[];
+}
+
+export interface DSStockRequest {
+  comp_id: number;
+  br_id: number;
+  user_id: string;
+  items: StockRequestItem[];
+  return_flag: string
+}
+export interface GKFulfillItem {
+  item_id: number;
+  fulfilled_packet: number;
+  fulfilled_total_sticks: number;
+}
+export interface GKFulfillRequest {
+  request_id: number;
+  fulfilled_by: string;
+  items: GKFulfillItem[];
+}
+
+export interface GKPushIssue {
+  comp_id: number;
+  br_id: number;
+  user_id: string;
+  fulfilled_by: string;
+  items: StockRequestItem[];
 }

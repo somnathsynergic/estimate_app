@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textDecorationLine: "underline",
     marginTop: normalize(4),
+    fontSize: 10
   },
   selectorWrapper: {
     width: "100%",

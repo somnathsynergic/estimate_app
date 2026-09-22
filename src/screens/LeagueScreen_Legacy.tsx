@@ -229,10 +229,94 @@ const LeagueScreen = () => {
             <Card style={[styles.halfCard, styles.elevationLow]}>
               <Card.Content>
                 <Text style={styles.sectionTitle}>TODAY'S BREAKDOWN</Text>
-                {(!dashboardData?.today_breakdown || dashboardData.today_breakdown.length === 0) ? (
-                  <Text style={{ textAlign: 'center', color: '#757575', fontSize: 12, marginVertical: 20 }}>No coins earned today.</Text>
-                ) : (
-                  dashboardData.today_breakdown.map((item: any, idx: number) => {
+                {(() => {
+                  const rules = dashboardData?.coin_rules || [];
+                  const rawBreakdown = dashboardData?.today_breakdown || [];
+                  
+                  const mergedItems: any[] = [];
+                  
+                  // 1. Process all rules from coin_rules
+                  rules.forEach((r: any) => {
+                    const matchedItem = rawBreakdown.find((item: any) => {
+                      const categoryLower = (item.category || '').toLowerCase();
+                      
+                      // Check for unique shop
+                      const isUniqueShopRule = r.rule_name === 'UNIQUE_SHOP' || r.rule_name === 'UNIQUE_SHOPS' || r.calculation_type === 'UNIQUE_SHOP' || r.calculation_type === 'UNIQUE_SHOPS';
+                      if (isUniqueShopRule) {
+                        return (categoryLower.includes('unique') || categoryLower.includes('shop')) && !categoryLower.includes('power') && !categoryLower.includes('quest');
+                      }
+                      
+                      // Check for power shop
+                      const isPowerShopRule = r.rule_name === 'POWER_SHOP' || r.rule_name === 'POWER_SHOPS' || r.calculation_type === 'POWER_SHOP' || r.calculation_type === 'POWER_SHOPS';
+                      if (isPowerShopRule) {
+                        return categoryLower.includes('power');
+                      }
+                      
+                      // Brand rules
+                      const ruleNameClean = (r.rule_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const itemNameClean = (r.item_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const categoryClean = categoryLower.replace(/[^a-z0-9]/g, '');
+                      
+                      return categoryClean === ruleNameClean || categoryClean === itemNameClean || categoryClean.includes(itemNameClean) || itemNameClean.includes(categoryClean);
+                    });
+                    
+                    if (matchedItem) {
+                      mergedItems.push({
+                        category: matchedItem.category,
+                        coins: matchedItem.coins,
+                        rule: r
+                      });
+                    } else {
+                      let categoryName = r.rule_name || r.item_name || 'COIN_INCENTIVE';
+                      if (r.rule_name === 'UNIQUE_SHOP' || r.rule_name === 'UNIQUE_SHOPS' || r.calculation_type === 'UNIQUE_SHOP' || r.calculation_type === 'UNIQUE_SHOPS') {
+                        categoryName = 'UNIQUE_SHOP';
+                      } else if (r.rule_name === 'POWER_SHOP' || r.rule_name === 'POWER_SHOPS' || r.calculation_type === 'POWER_SHOP' || r.calculation_type === 'POWER_SHOPS') {
+                        categoryName = 'POWER_SHOP';
+                      }
+                      
+                      mergedItems.push({
+                        category: categoryName,
+                        coins: 0,
+                        rule: r
+                      });
+                    }
+                  });
+                  
+                  // 2. Add any raw breakdown items that were not matched by any rules (like quests, streaks, etc.)
+                  rawBreakdown.forEach((item: any) => {
+                    const isMatched = rules.some((r: any) => {
+                      const categoryLower = (item.category || '').toLowerCase();
+                      
+                      const isUniqueShopRule = r.rule_name === 'UNIQUE_SHOP' || r.rule_name === 'UNIQUE_SHOPS' || r.calculation_type === 'UNIQUE_SHOP' || r.calculation_type === 'UNIQUE_SHOPS';
+                      if (isUniqueShopRule) {
+                        return (categoryLower.includes('unique') || categoryLower.includes('shop')) && !categoryLower.includes('power') && !categoryLower.includes('quest');
+                      }
+                      
+                      const isPowerShopRule = r.rule_name === 'POWER_SHOP' || r.rule_name === 'POWER_SHOPS' || r.calculation_type === 'POWER_SHOP' || r.calculation_type === 'POWER_SHOPS';
+                      if (isPowerShopRule) {
+                        return categoryLower.includes('power');
+                      }
+                      
+                      const ruleNameClean = (r.rule_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const itemNameClean = (r.item_name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                      const categoryClean = categoryLower.replace(/[^a-z0-9]/g, '');
+                      
+                      return categoryClean === ruleNameClean || categoryClean === itemNameClean || categoryClean.includes(itemNameClean) || itemNameClean.includes(categoryClean);
+                    });
+                    
+                    if (!isMatched) {
+                      mergedItems.push({
+                        category: item.category,
+                        coins: item.coins
+                      });
+                    }
+                  });
+
+                  if (mergedItems.length === 0) {
+                    return <Text style={{ textAlign: 'center', color: '#757575', fontSize: 12, marginVertical: 20 }}>No coins earned today.</Text>;
+                  }
+
+                  return mergedItems.map((item: any, idx: number) => {
                     let icon = 'coin';
                     let color = '#2196F3';
                     const categoryLower = item.category.toLowerCase();
@@ -248,27 +332,30 @@ const LeagueScreen = () => {
                     } else if (categoryLower.includes('power')) {
                       icon = 'target';
                       color = '#F44336';
-                    } else if (categoryLower.includes('flake')) {
+                    } else if (categoryLower.includes('flake') || categoryLower.includes('sky')) {
                       icon = 'leaf';
                       color = '#81C784';
+                    } else if (categoryLower.includes('classic') || categoryLower.includes('connect')) {
+                      icon = 'flash';
+                      color = '#FFB800';
                     }
-                    
+
                     const displayLabel = item.category
-                      .split('_')
+                      .split(/[\s_]+/)
                       .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                       .join(' ');
 
                     return (
-                      <BreakdownItem 
+                      <BreakdownItem
                         key={`breakdown_${idx}`}
-                        icon={icon} 
-                        label={displayLabel} 
-                        coins={Math.round(item.coins)} 
-                        color={color} 
+                        icon={icon}
+                        label={displayLabel}
+                        coins={Math.round(item.coins)}
+                        color={color}
                       />
                     );
-                  })
-                )}
+                  });
+                })()}
                 <Divider style={styles.divider} />
                 <View style={styles.totalRow}>
                   <Text style={styles.totalLabel}>Total Today</Text>
@@ -331,22 +418,32 @@ const LeagueScreen = () => {
                   }
                 })()}
               </Text>
-              <View style={styles.streakContainer}>
-                {streakDays.map((day, index) => (
-                  <View key={index} style={styles.streakDayItem}>
+                          <View style={styles.streakContainer}>
+              {streakDays.map((day, index) => (
+                <View key={index} style={styles.streakDayItem}>
+                  <View style={[
+                    styles.streakCircle,
+                    day.completed ? styles.streakCircleCompleted : styles.streakCirclePending,
+                    day.active && { borderColor: '#FFD600', borderWidth: 2.5, elevation: 4, shadowColor: '#FFD600', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 4 }
+                  ]}>
+                    <Text style={[styles.streakBonus, day.completed ? { color: '#FFF' } : { color: '#2196F3' }]}>{day.bonus}</Text>
+                  </View>
+                  <Text style={styles.streakDayLabel}>{day.day}</Text>
+                  {index < streakDays.length - 1 && (
                     <View style={[
                       styles.streakCircle,
                       day.completed ? styles.streakCircleCompleted : styles.streakCirclePending,
                       day.active && { borderColor: '#FFD600', borderWidth: 2.5, elevation: 4, shadowColor: '#FFD600', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 4 }
                     ]}>
-                      <Text style={[
-                        styles.streakBonus,
-                        day.completed ? { color: '#FFF' } : { color: '#2196F3' }
-                      ]}>
-                        {day.bonus}
-                      </Text>
+                      <Text style={[styles.streakBonus, day.completed ? { color: '#FFF' } : { color: '#2196F3' }]}>{day.bonus}</Text>
                     </View>
                     <Text style={styles.streakDayLabel}>{day.day}</Text>
+                    {index < streakDays.length - 1 && (
+                      <View style={[
+                        styles.streakConnector,
+                        day.completed && streakDays[index + 1].completed ? styles.streakConnectorActive : styles.streakConnectorInactive
+                      ]} />
+                    )}
                   </View>
                 ))}
               </View>

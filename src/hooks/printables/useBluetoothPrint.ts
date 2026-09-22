@@ -1833,7 +1833,11 @@ export const useBluetoothPrint = () => {
       totalQuantities += +item?.quantity
       const itemName = item?.bill_name || "";
       const chunks = itemName.match(/.{1,12}/g) || [""];
-      text += `[L]   ${chunks[0]}[C]${item?.quantity}[L]${(+item?.price * +item?.quantity)?.toFixed(2)}\n`;
+      if(item?.priceType=='price')
+            text += `[L]   ${chunks[0]}[C]${item?.quantity}[L]${(+item?.price * +item?.quantity)?.toFixed(2)}\n`;
+      else
+            text += `[L]   ${chunks[0]}[C]${item?.quantity}[L]${(+item?.new_ptr * +item?.quantity)?.toFixed(2)}\n`;
+
       for (let i = 1; i < chunks.length; i++) {
         text += `[L]   ${chunks[i]}\n`;
       }

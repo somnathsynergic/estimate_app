@@ -131,11 +131,11 @@ function CancelledBillsReportScreen() {
   }
 
   const titleTextStyle: TextStyle = {
-    color: theme.colors.onGreenContainer
+    color: theme.colors.onPrimary
   }
 
   const titleStyle: ViewStyle = {
-    backgroundColor: theme.colors.greenContainer
+    backgroundColor: theme.colors.primary
   }
 
   // let totalSummary: number = 0
@@ -241,9 +241,10 @@ function CancelledBillsReportScreen() {
               handleGetCollectionReport(formattedFromDate, formattedToDate)
             }
             mode="contained-tonal"
-            buttonColor={theme.colors.green}
+            buttonColor={theme.colors.primary}
             textColor={theme.colors.onGreen}
             disabled={isDisabled}
+            style={{ borderRadius: 30 }}
             loading={isLoading}>
             SUBMIT
           </ButtonPaper>
@@ -310,7 +311,7 @@ function CancelledBillsReportScreen() {
           <View style={{ padding: normalize(10) }}>
             <Text
               variant="labelMedium"
-              style={{ color: theme.colors.secondary }}>
+              style={{ color: theme.colors.primary }}>
               TOTAL QTY: {totalQty}  TOTAL CANCELLED: ₹{totalNetAmount}
             </Text>
           </View>

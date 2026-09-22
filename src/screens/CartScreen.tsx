@@ -7,7 +7,7 @@ import {
     ToastAndroid,
     Alert
 } from "react-native"
-import { Divider, IconButton, List, Text } from "react-native-paper"
+import { Divider, IconButton, List, RadioButton, Text } from "react-native-paper"
 import HeaderImage from "../components/HeaderImage"
 import {
     textureReport,
@@ -40,7 +40,7 @@ function CartScreen() {
     const navigation = useNavigation()
     const { receiptSettings } = useContext<AppStoreContext>(AppStore)
     const { params } = useRoute<CategoryProductsScreenRouteProp>()
-
+    
     const loginStore = JSON.parse(loginStorage.getString("login-data"))
     let itemsStore: []
     let totalAmountStore: number
@@ -60,11 +60,29 @@ function CartScreen() {
         totalAmountStore = 0
         totalDiscountedAmountStore = 0
     }
-
+   
     const { fetchStock } = useStockSearch()
 
     const [visible, setVisible] = useState(() => false)
     const hideDialog = () => setVisible(() => false)
+
+    type PriceType = "price" | "new_ptr"
+
+    const getSelectedPriceValue = (item?: ItemsData, type: PriceType = item?.priceType || "price") => {
+        if (!item) return 0
+
+        const basePrice = item?.basePrice ?? item?.price ?? 0
+        const rawPrice = type === "new_ptr" ? item?.new_ptr ?? basePrice : basePrice
+        return typeof rawPrice === "number" ? rawPrice : Number(rawPrice) || 0
+    }
+
+    const normalizeAddedProductsForSelection = (products: ItemsData[] = addedProductsList) =>
+        products.map(item => ({
+            ...item,
+            basePrice: item?.basePrice ?? item?.price ?? 0,
+            priceType: item?.priceType || "price",
+            effectivePrice: item?.effectivePrice ?? getSelectedPriceValue(item, item?.priceType || "price"),
+        }))
 
     const [product, setProduct] = useState<ItemsData>()
     const [quantity, setQuantity] = useState<number>()
@@ -73,7 +91,7 @@ function CartScreen() {
     const [stock, setStock] = useState<number>()
     const [updatedStock, setUpdatedStock] = useState<number>()
     const [addedProductsList, setAddedProductsList] = useState<ItemsData[]>(
-        () => params?.added_products,
+        () => (params?.added_products ?? itemsStore) as ItemsData[],
     )
     // const [disableAddButton, setDisableAddButton] = useState(() => false)
 
@@ -108,13 +126,26 @@ function CartScreen() {
         setProduct(item)
 
         setDiscountState(item?.discount)
-        setPrice(item?.price)
+        setPrice(getSelectedPriceValue(item, item?.priceType || "price"))
         setQuantity(
             addedProductsList?.find(i => i.item_id === item?.item_id)?.quantity || 0
         )
         handleFetchStock(item?.item_id)
         setVisible(!visible)
     }
+
+    useEffect(() => {
+        const routeProducts = (params?.added_products ?? []).map(item => ({
+            ...item,
+            basePrice: item?.basePrice ?? item?.price ?? 0,
+            priceType: item?.priceType || "price",
+            effectivePrice: item?.effectivePrice ?? getSelectedPriceValue(item, item?.priceType || "price"),
+        }))
+
+        setAddedProductsList(routeProducts)
+        setTotalPrice(params?.net_total ?? totalAmountStore)
+        setTotalDiscountedAmount(params?.total_discount ?? totalDiscountedAmountStore)
+    }, [params?.added_products, params?.net_total, params?.total_discount])
 
     const onDialogFailure = () => {
         clearStates([setQuantity, setStock, setUpdatedStock], () => undefined)
@@ -125,12 +156,16 @@ function CartScreen() {
     const onDialogSuccecss = (item: ItemsData) => {
         setAddedProductsList(prevList => {
             const existingItemIndex = prevList.findIndex(product => product.id === item.id)
+            const currentPriceType = item?.priceType || "price"
+            const selectedAmount = price > 0 ? price : getSelectedPriceValue(item, currentPriceType)
+
             if (existingItemIndex !== -1) {
-                // Item exists, create a new array with updated quantity
                 const updatedList = [...prevList]
                 updatedList[existingItemIndex] = {
                     ...updatedList[existingItemIndex],
-                    price: price > 0 ? price : product?.price,
+                    effectivePrice: selectedAmount,
+                    basePrice: updatedList[existingItemIndex]?.basePrice ?? updatedList[existingItemIndex]?.price ?? 0,
+                    priceType: currentPriceType,
                     //@ts-ignore
                     quantity: parseInt(quantity),
                     //@ts-ignore
@@ -138,7 +173,6 @@ function CartScreen() {
                 }
                 return updatedList
             } else {
-                // Item doesn't exist, add it with quantity 1
                 //@ts-ignore
                 return [...prevList, {
                     ...item,
@@ -146,7 +180,9 @@ function CartScreen() {
                     quantity: parseInt(quantity),
                     //@ts-ignore
                     discount: parseFloat(discountState) > 0 ? parseFloat(discountState) : parseFloat(product?.discount),
-                    price: price > 0 ? price : product?.price,
+                    effectivePrice: selectedAmount,
+                    basePrice: item?.basePrice ?? item?.price ?? 0,
+                    priceType: currentPriceType,
                 }]
             }
         })
@@ -183,7 +219,7 @@ function CartScreen() {
                 )
                 return
             }
-        } else if (product.price * quantity < discountState) {
+        } else if (getSelectedPriceValue(product, product?.priceType || "price") * quantity < discountState) {
             ToastAndroid.show("Give valid Discount Amount.", ToastAndroid.SHORT)
             return
         }
@@ -207,8 +243,9 @@ function CartScreen() {
     }, [quantity])
 
     const countTotalAmountAndTotalDiscount = () => {
-        const { totalAmount, totalDiscount } = addedProductsList.reduce((acc, item) => {
-            const itemTotalPrice = item?.price * item["quantity"]
+        const normalizedList = normalizeAddedProductsForSelection(addedProductsList)
+        const { totalAmount, totalDiscount } = normalizedList.reduce((acc, item) => {
+            const itemTotalPrice = getSelectedPriceValue(item, item?.priceType || "price") * item["quantity"]
             let itemDiscount = 0
 
             if (receiptSettings?.discount_flag === "Y") {
@@ -216,7 +253,7 @@ function CartScreen() {
                     if (receiptSettings?.discount_type === "A") {
                         itemDiscount = (item["quantity"] * item["discount"])
                     } else {
-                        itemDiscount = (item?.price * item["quantity"] * item["discount"]) / 100
+                        itemDiscount = (getSelectedPriceValue(item, item?.priceType || "price") * item["quantity"] * item["discount"]) / 100
                     }
                 }
             }
@@ -233,12 +270,11 @@ function CartScreen() {
         console.log("TOT DISSSSS ====>", totalDiscount)
         itemsContextStorage.set("total-amount-data", totalAmount?.toString())
         itemsContextStorage.set("total-discount-data", totalDiscount?.toString())
+        itemsContextStorage.set("items-data", JSON.stringify(normalizedList))
     }
 
     useEffect(() => {
         countTotalAmountAndTotalDiscount()
-        console.log("TESTTTT DATAAAA ====> BEFORE EMPTYING", addedProductsList)
-        itemsContextStorage.set("items-data", JSON.stringify(addedProductsList))
 
         if (addedProductsList?.length === 0) {
             navigation.dispatch(
@@ -247,7 +283,7 @@ function CartScreen() {
                 })
             )
         }
-    }, [addedProductsList])
+    }, [addedProductsList, receiptSettings?.discount_flag, receiptSettings?.discount_position, receiptSettings?.discount_type])
 
     const handleOnDelete = (product: ItemsData) => {
         setAddedProductsList(prevData =>
@@ -258,11 +294,13 @@ function CartScreen() {
     }
 
     const handlePressBillScreen = () => {
+        const normalizedProducts = normalizeAddedProductsForSelection(addedProductsList)
+
         navigation.dispatch(
             CommonActions.navigate({
                 name: navigationRoutes.customerDetailsFillScreen,
                 params: {
-                    added_products: addedProductsList,
+                    added_products: normalizedProducts,
                     net_total: totalPrice,
                     total_discount: totalDiscountedAmount,
                     // table_no: tableNo,
@@ -276,17 +314,17 @@ function CartScreen() {
         setAddedProductsList(prevList => {
             const existingItemIndex = prevList.findIndex(product => product.id === item.id)
             if (existingItemIndex !== -1) {
-                // Item exists, create a new array with updated quantity
                 const updatedList = [...prevList]
                 updatedList[existingItemIndex] = {
                     ...updatedList[existingItemIndex],
                     //@ts-ignore
                     quantity: parseInt(updatedList[existingItemIndex].quantity || 0) + 1,
+                    effectivePrice: getSelectedPriceValue(updatedList[existingItemIndex], updatedList[existingItemIndex].priceType || "price"),
                 }
                 return updatedList
             } else {
-                // Item doesn't exist, add it with quantity 1
-                return [...prevList, { ...item, quantity: 1 }]
+                const resolvedType = item?.priceType || "price"
+                return [...prevList, { ...item, quantity: 1, priceType: resolvedType, basePrice: item?.basePrice ?? item?.price ?? 0, effectivePrice: getSelectedPriceValue(item, resolvedType) }]
             }
         })
     }
@@ -334,6 +372,18 @@ function CartScreen() {
     const getQuantity = (itemId: number) => {
         const item = addedProductsList.find(product => product.item_id === itemId)
         return item ? item.quantity : 0
+    }
+
+    const updateItemPriceType = (itemId: number, nextType: PriceType) => {
+        setAddedProductsList(prevList => prevList.map(item => {
+            if (item.item_id !== itemId) return item
+
+            return {
+                ...item,
+                priceType: nextType,
+                effectivePrice: getSelectedPriceValue(item, nextType),
+            }
+        }))
     }
 
     const handleMemorize = () => {
@@ -399,6 +449,29 @@ function CartScreen() {
                     </HeaderImage>
                 </View>
 
+                {/* <View style={{ paddingHorizontal: normalize(25), paddingTop: normalize(12), paddingBottom: normalize(6) }}>
+                    <View style={{ backgroundColor: theme.colors.vanillaContainer, borderRadius: 16, padding: 14 }}>
+                        <Text variant="labelMedium" style={{ color: theme.colors.onVanillaContainer, opacity: 0.75, marginBottom: 4 }}>
+                            PRICE TYPE
+                        </Text>
+                        <RadioButton.Group
+                            onValueChange={value => setSelectedPriceType(value as "price" | "new_ptr")}
+                            value={selectedPriceType}
+                        >
+                            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                    <RadioButton value="price" />
+                                    <Text variant="bodyMedium">Product Price</Text>
+                                </View>
+                                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                    <RadioButton value="new_ptr" />
+                                    <Text variant="bodyMedium">New PTR</Text>
+                                </View>
+                            </View>
+                        </RadioButton.Group>
+                    </View>
+                </View> */}
+
                 {/* <View
                     style={{
                         alignSelf: "center",
@@ -441,37 +514,34 @@ function CartScreen() {
                         padding: 10
                     }} nestedScrollEnabled>
                         {
-                            addedProductsList?.map((item, i) => (
-                                <View key={i}>
-                                    <>
-                                        <List.Item
-                                            onPress={() => productDetails(item)}
-                                            title={({ ellipsizeMode }) => <Text ellipsizeMode="tail">{item?.item_name}</Text>}
-                                            description={<View>
-                                                <Text style={{
-                                                    color: theme.colors.green
-                                                }}>₹{item?.price}</Text>
-                                                <Text style={{
-                                                    color: theme.colors.purple
-                                                }}>Total: ₹{(+item?.price * +item?.quantity)?.toFixed(2)}</Text>
-                                            </View>}
-                                            right={props => {
-                                                return <AddRemove value={getQuantity(item?.item_id)} add={() => add(item)} remove={() => remove(item)} key={item?.item_id} isAddDisabled={receiptSettings?.stock_flag === "Y" && getQuantity(item?.item_id) === item?.stock} />
-                                            }}
-                                        // descriptionStyle={{
-                                        //     color: theme.colors.green
-                                        // }}
-                                        />
-                                        {/* <IconButton icon={"trash-can-outline"} iconColor={theme.colors.error} style={{
-                                            alignSelf: "flex-start",
-                                            marginTop: -15,
-                                            left: -1
-                                        }} onPress={() => null} /> */}
-                                        <Divider />
-                                    </>
+                            addedProductsList?.map((item, i) => {
+                                const displayUnitPrice = getSelectedPriceValue(item, item?.priceType || "price")
+                                const displayTotal = (+displayUnitPrice * +item?.quantity)?.toFixed(2)
 
-                                </View>
-                            ))
+                                return (
+                                    <View key={i}>
+                                        <>
+                                            <List.Item
+                                                onPress={() => productDetails(item)}
+                                                title={({ ellipsizeMode }) => <Text ellipsizeMode="tail">{item?.item_name}</Text>}
+                                                description={<View>
+                                                    <Text style={{
+                                                        color: theme.colors.green
+                                                    }}>₹{displayUnitPrice}</Text>
+                                                    <Text style={{
+                                                        color: theme.colors.purple
+                                                    }}>Total: ₹{displayTotal}</Text>
+                                                </View>}
+                                                right={props => {
+                                                    return <AddRemove value={getQuantity(item?.item_id)} add={() => add(item)} remove={() => remove(item)} key={item?.item_id} isAddDisabled={receiptSettings?.stock_flag === "Y" && getQuantity(item?.item_id) === item?.stock} />
+                                                }}
+                                            />
+                                            <Divider />
+                                        </>
+
+                                    </View>
+                                )
+                            })
                         }
                     </ScrollView>
 

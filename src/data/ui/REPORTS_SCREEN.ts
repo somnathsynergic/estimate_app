@@ -6,6 +6,8 @@ export const REPORT_SCREEN_DATA = [
   // { "text": "Sale Report", "icon": "billboard", "route": navigationRoutes.saleReportScreen },
   // { "text": "Summary Report", "icon": "billboard", "route": navigationRoutes.saleSummaryScreen },
   { "text": "Cancelled Estimates", "icon": "billboard", "route": navigationRoutes.cancelledBillsReportScreen },
+  { "text": "Day Stock Summary", "icon": "calendar", "route": navigationRoutes.daySummaryReportScreen },
+  { "text": "Search By Date", "icon": "calendar", "route": navigationRoutes.searchBillsByDateScreen },
   // { "text": "Item Report", "icon": "billboard", "route": navigationRoutes.itemReportScreen },
   // { "text": "Stock Report", "icon": "billboard", "route": navigationRoutes.stockReportScreen },
   // { "text": "Userwise Report", "icon": "billboard", "route": navigationRoutes.userwiseReportScreen },

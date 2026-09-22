@@ -283,7 +283,7 @@ const CustomerDetailsFillScreen = () => {
         userName
       ),
     )
-
+    console.log(filteredData)
     await sendSaleDetails(filteredData)
       .then(res => {
         console.log("SALE_INSERT_RES:", res)
@@ -1311,7 +1311,8 @@ const CustomerDetailsFillScreen = () => {
               )
             } */}
 
-            <View style={{ padding: normalize(20), flexDirection: "column", gap: 12 }}>
+
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 12, paddingHorizontal: 16 }}>
               {selectedCustId && (
                 <ButtonPaper
                   mode="contained-tonal"
@@ -1330,10 +1331,47 @@ const CustomerDetailsFillScreen = () => {
                 mode="contained"
                 buttonColor={theme.colors.purple}
                 textColor={theme.colors.onPurple}
-                onPress={() => handlePrintReceipt()}
+                onPress={() => {
+                  const items = params?.added_products ?? [];
+                  if (items.length === 0) {
+                    Alert.alert('No items', 'No products selected to save.', [{ text: 'OK' }]);
+                    return;
+                  }
+
+                  if (loginStore?.stock_flag === 'N') {
+                    handlePrintReceipt();
+                    return;
+                  }
+
+                  let hasNegative = false;
+                  const summary = items
+                    .map((item, index) => {
+                      const qty = item.quantity ?? 0;
+                      const packets = (item.curr_packet ?? 0) - qty;
+                      const sticksPerPkt = item.sticks_per_packet ?? 0;
+                      const sticks = (item.curr_total_sticks ?? 0) - (qty * sticksPerPkt);
+                      if (packets < 0 || sticks < 0) hasNegative = true;
+                      const name = item.item_name ?? `Item ${index + 1}`;
+                      return `${name}: Sticks ${sticks}, Packets ${packets}`;
+                    })
+                    .join('\n');
+                    
+                  const buttons: any[] = [{ text: 'Cancel', style: 'cancel' }];
+                  if (!hasNegative) {
+                    buttons.push({ text: 'OK', onPress: () => handlePrintReceipt() });
+                  }
+                  
+                  Alert.alert(
+                    hasNegative ? 'Insufficient Stock' : 'Remaining Items',
+                    hasNegative ? `${summary}\n\nYou cannot proceed because one or more items have negative remaining stock.` : summary,
+                    buttons,
+                    { cancelable: true }
+                  );
+                }}
                 icon="content-save-outline"
                 loading={isLoading}
-                disabled={isDisabled || isLoading}>
+                disabled={isDisabled || isLoading}
+              >
                 SAVE
               </ButtonPaper>
             </View>

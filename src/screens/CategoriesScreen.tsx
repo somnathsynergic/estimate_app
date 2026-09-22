@@ -14,7 +14,7 @@ import {
     textureReportDark,
 } from "../resources/images"
 import { usePaperColorScheme } from "../theme/theme"
-import { CommonActions, useIsFocused, useNavigation } from "@react-navigation/native"
+import { CommonActions, useIsFocused, useNavigation, useRoute } from "@react-navigation/native";
 import { itemsContextStorage, productStorage } from "../storage/appStorage"
 import { AppStore } from "../context/AppContext"
 import ReportButtonsWrapper from "../components/ReportButtonsWrapper"

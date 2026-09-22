@@ -63,7 +63,7 @@ export const usePaperColorScheme = () => {
         onPrimary: "#FFFFFF",
         primaryContainer: "#EFF2F9",
         onPrimaryContainer: "#090446",
-        secondary: "#3B82F6", // Sober Royal Blue
+        secondary: "#546A7B", // Sober Royal Blue
         onSecondary: "#FFFFFF",
         secondaryContainer: "#EFF6FF",
         onSecondaryContainer: "#1E40AF",
@@ -75,7 +75,7 @@ export const usePaperColorScheme = () => {
         onError: "#FFFFFF",
         errorContainer: "#FEE2E2",
         onErrorContainer: "#7F1D1D",
-        
+
         // Premium Sober Light Slate Backgrounds
         background: "#FFFFFF", // True Crisp White
         onBackground: "#0F172A", // Deep Navy Text
@@ -103,7 +103,7 @@ export const usePaperColorScheme = () => {
         backdrop: "rgba(9, 4, 70, 0.4)",
 
         // Unified Blue/White Custom Colors (Clean, Sober Light Mappings)
-        green: "#090446", 
+        green: "#090446",
         onGreen: "#FFFFFF",
         greenContainer: "#EFF2F9",
         onGreenContainer: "#090446",
@@ -112,27 +112,27 @@ export const usePaperColorScheme = () => {
         greenContainerTertiary: "#EFF2F9",
         onGreenContainerTertiary: "#090446",
 
-        orange: "#3B82F6", 
+        orange: "#546A7B",
         onOrange: "#FFFFFF",
         orangeContainer: "#EFF6FF",
         onOrangeContainer: "#1E40AF",
 
-        pink: "#0284C7", 
+        pink: "#0284C7",
         onPink: "#FFFFFF",
         pinkContainer: "#E0F2FE",
         onPinkContainer: "#0C4A6E",
 
-        purple: "#090446", 
+        purple: "#090446",
         onPurple: "#FFFFFF",
         purpleContainer: "#EFF2F9",
         onPurpleContainer: "#090446",
 
-        teal: "#3B82F6", 
+        teal: "#546A7B",
         onTeal: "#FFFFFF",
         tealContainer: "#EFF6FF",
         onTealContainer: "#1E40AF",
 
-        peach: "#090446", 
+        peach: "#090446",
         onPeach: "#FFFFFF",
         peachContainer: "#EFF2F9",
         onPeachContainer: "#090446",
@@ -143,17 +143,17 @@ export const usePaperColorScheme = () => {
 
         vanilla: "#090446", // Custom Luxury Navy Blue
         onVanilla: "#FFFFFF",
-        vanillaContainer: "#EFF2F9", 
-        onVanillaContainer: "#090446", 
-        vanillaSecondary: "#3B82F6", 
+        vanillaContainer: "#EFF2F9",
+        onVanillaContainer: "#090446",
+        vanillaSecondary: "#546A7B",
         onVanillaSecondary: "#FFFFFF",
         vanillaSecondaryContainer: "#EFF6FF",
         onVanillaSecondaryContainer: "#1E40AF",
-        vanillaTertiary: "#93C5FD", 
+        vanillaTertiary: "#93C5FD",
         onVanillaTertiary: "#090446",
-        vanillaTertiaryContainer: "#EFF2F9", 
+        vanillaTertiaryContainer: "#EFF2F9",
         onVanillaTertiaryContainer: "#090446",
-        vanillaSurface: "#FFFFFF", 
+        vanillaSurface: "#FFFFFF",
         vanillaSurfaceLow: "#F8FAFC"
       },
       fonts: configureFonts({ config: fontConfig }),
@@ -167,7 +167,7 @@ export const usePaperColorScheme = () => {
         onPrimary: "#FFFFFF",
         primaryContainer: "#EFF2F9",
         onPrimaryContainer: "#090446",
-        secondary: "#3B82F6", // Bright Blue
+        secondary: "#546A7B", // Bright Blue
         onSecondary: "#FFFFFF",
         secondaryContainer: "#EFF6FF",
         onSecondaryContainer: "#1E40AF",
@@ -179,7 +179,7 @@ export const usePaperColorScheme = () => {
         onError: "#FFFFFF",
         errorContainer: "#FEE2E2",
         onErrorContainer: "#7F1D1D",
-        
+
         // Crisp White Light Backgrounds
         background: "#FFFFFF", // True Crisp White
         onBackground: "#0F172A", // Deep Navy Text
@@ -236,7 +236,7 @@ export const usePaperColorScheme = () => {
         tealContainer: "#CFFAFE",
         onTealContainer: "#164E63",
 
-        peach: "#3B82F6", // Bright Blue
+        peach: "#546A7B", // Bright Blue
         onPeach: "#FFFFFF",
         peachContainer: "#EFF6FF",
         onPeachContainer: "#1E40AF",
@@ -249,7 +249,7 @@ export const usePaperColorScheme = () => {
         onVanilla: "#FFFFFF",
         vanillaContainer: "#EFF2F9", // Ice Blue/White
         onVanillaContainer: "#090446", // Slate Blue
-        vanillaSecondary: "#3B82F6", // Bright Blue
+        vanillaSecondary: "#546A7B", // Bright Blue
         onVanillaSecondary: "#FFFFFF",
         vanillaSecondaryContainer: "#DBEAFE",
         onVanillaSecondaryContainer: "#1E3A8A",

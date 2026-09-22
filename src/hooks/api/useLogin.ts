@@ -13,6 +13,7 @@ export default function useLogin() {
           fcm_token: fcmToken,
         })
         .then(res => {
+          console.log("login____XXXXXXXXXXXX", res.data)
           resolve(res.data)
         })
         .catch(err => {
