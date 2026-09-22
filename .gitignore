@@ -1,6 +1,8 @@
 __pycache__
 billing
 billing-env
+temp_auto_push.bat
 config
 env
-*.zip
+*.zip.gitignore
+branch_structure.json
