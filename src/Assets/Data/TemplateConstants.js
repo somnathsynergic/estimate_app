@@ -68,7 +68,7 @@ export const reportHeaders = {
       { name: "receipt_no", value: "Receipt No." },
       { name: "item_name", value: "Item Name" },
       { name: "shop", value: "Shop" },
-      { name: "time", value: "Visited At" },
+      { name: "time", value: "Billed At" },
       { name: "category_name", value: "Category" },
       { name: "price", value: "Selling Price" },
       { name: "qty", value: "Quantity" },
@@ -113,6 +113,7 @@ export const reportHeaders = {
       { name: "user_name", value: "User name" },
       { name: "branch_name", value: "Store" },
       { name: "sum(receipt_no)", value: "No. of Receipt" },
+      { name: "customer_count", value: "Shops Billed" },
       { name: "Quantity", value: "Items Sold" },
       // { name: "tot_round_off", value: "Round Off" },
       { name: "gross_sale", value: "Gross Sale" },
@@ -233,4 +234,32 @@ export const reportHeaders = {
       { name: "due_amt", value: "Due Amount" },
     ],
   },
+  customeraddreport: {
+    title: "Shop Creation Report",
+    headers: [
+      { name: "ShopID", value: "Shop ID" },
+      { name: "ShopName", value: "Shop Name" },
+      { name: "phone_no", value: "Phone" },
+      { name: "lat", value: "Latitude" },
+      { name: "lng", value: "Longitude" },
+      { name: "user_name", value: "User" },
+      { name: "AddedBy", value: "Added By" },
+      { name: "AddedAt", value: "Added Date/Time" },
+    ],
+    span: 0
+  },
+  stockdailyreport: {
+    title: "Stock Daily Summary",
+    headers: [
+      { name: "item_name", value: "Item" },
+      { name: "opening_packet", value: "Opening" },
+      { name: "issued_packet", value: "Issued" },
+      { name: "billed_packet", value: "Billed" },
+      { name: "returned_packet", value: "Returned" },
+      { name: "closing_packet", value: "Closing" },
+      { name: "user_name", value: "User" },
+      { name: "user_id", value: "ID" },
+    ],
+    span: 0
+  }
 };

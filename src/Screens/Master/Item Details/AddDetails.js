@@ -16,7 +16,7 @@ import Cropper from "react-easy-crop";
 import getCroppedImg from "../../../Components/cropImage";
 import { Dialog } from "primereact/dialog";
 
-const CROP_AREA_ASPECT = 1 / 1;
+const CROP_AREA_ASPECT = 480 / 90; // Hardcoded target aspect ratio (480x90)
 
 function AddDetails() {
   const params = useParams();
@@ -108,12 +108,13 @@ function AddDetails() {
   useEffect(() => {
     console.log(response, Array.isArray(response?.data?.msg));
     if (Array.isArray(response?.data?.msg)) {
-      console.log(response);
+      console.log(response, response?.data?.msg[0].bill_name,+response?.data?.msg[0].new_ptr);
       const rsp = {
         // i_br_id: +response?.data?.msg[0].br_id,
         i_name: response?.data?.msg[0].item_name,
         // i_hsn: +response?.data?.msg[0].hsn_code,
         i_price: +response?.data?.msg[0].price,
+        i_new_ptr: +response?.data?.msg[0].new_ptr,
         // i_discount: +response?.data?.msg[0].discount,
         // i_cgst: +response?.data?.msg[0].cgst,
         // i_sgst: +response?.data?.msg[0].sgst,
@@ -121,6 +122,8 @@ function AddDetails() {
         i_cat: +response?.data?.msg[0].catg_id,
         i_selling_price: +response?.data?.msg[0].selling_price,
         i_brand_id: +response?.data?.msg[0].brand_id,
+        i_bill_name: response?.data?.msg[0].bill_name,
+        sticks_per_packet: response?.data?.msg[0].sticks_per_packet || "",
       };
       setValues(rsp);
       console.log(rsp);
@@ -168,20 +171,24 @@ function AddDetails() {
     i_name: "",
     // i_hsn: "",
     i_price: "",
+    i_new_ptr: "",
     i_selling_price: "",
     i_brand_id: "",
     // i_discount: "",
     // i_cgst: "",
-    // i_sgst: "",
+    // i_sgv: "",
     i_unit: "",
     i_cat: "",
+    i_bill_name: "",
+    sticks_per_packet: "",
   };
 
   const validationSchema = Yup.object({
     i_name: Yup.string().required("Name is required"),
     // i_br_id: Yup.number().required("Branch is required"),
     // i_hsn: Yup.number().required("HSN is required"),
-    i_price: Yup.number().required("Price is required"),
+    i_price: Yup.number().required("Old PTR is required"),
+    i_new_ptr: Yup.number().required("New PTR is required"),
     i_unit: Yup.number().required("Unit is required"),
     // i_discount: Yup.number().required("Discount is required"),
     // i_cgst: Yup.number().required("CGST is required"),
@@ -190,6 +197,8 @@ function AddDetails() {
 
     i_selling_price: Yup.number().required("Selling price is required"),
     i_brand_id: Yup.number().optional(),
+    i_bill_name: Yup.string().optional(),
+    sticks_per_packet: Yup.number().typeError("Must be a number").optional(),
   });
 
   const [formValues, setValues] = useState(initialValues);
@@ -209,11 +218,14 @@ function AddDetails() {
       data.append("br_id", 0);
       data.append("item_id", +params.id);
       data.append("item_name", formik.values.i_name);
+      data.append("new_ptr", formik.values.i_new_ptr);
       data.append("unit_id", formik.values.i_unit);
-      data.append("price", formik.values.i_selling_price);
+      data.append("price", formik.values.i_price);
       data.append("mrp", formik.values.i_price);
       data.append("catg_id", +formik.values.i_cat);
-      data.append("brand_id", +formik.values.i_brand_id);
+      data.append("brand_id", formik.values.i_brand_id);
+      data.append("bill_name", formik.values.i_bill_name);
+      data.append("sticks_per_packet", formik.values.sticks_per_packet || 0);
       data.append("created_by", localStorage.getItem("user_id"));
 
       callApi("/admin/add_edit_items", 1, data);
@@ -255,11 +267,14 @@ function AddDetails() {
 
       setValues({
         i_name: response?.data?.msg[0]?.item_name,
-        i_price: response?.data?.msg[0]?.mrp,
+        i_price: response?.data?.msg[0]?.price,
         i_selling_price: response?.data?.msg[0]?.price,
         i_brand_id: response?.data?.msg[0]?.brand_id,
+        i_new_ptr: response?.data?.msg[0]?.new_ptr,
         i_unit: response?.data?.msg[0]?.unit_id,
         i_cat: response?.data?.msg[0]?.catg_id,
+        i_bill_name: response?.data?.msg[0]?.bill_name,
+        sticks_per_packet: response?.data?.msg[0]?.sticks_per_packet || "",
       });
 
       setRemoteImg(url_for_image + response?.data?.msg[0].item_img);
@@ -326,7 +341,7 @@ function AddDetails() {
           </h2>
           <div>
             <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
-              <div class="sm:col-span-2">
+              <div class="sm:col-span-1">
                 <label
                   for="i_name"
                   class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -346,6 +361,60 @@ function AddDetails() {
                 {formik.errors.i_name && formik.touched.i_name ? (
                   <div className="text-red-500 text-sm">
                     {formik.errors.i_name}
+                  </div>
+                ) : null}
+              </div>
+              <div className="w-full 1">
+                <label
+                  htmlFor="i_bill_name"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Bill Name
+                </label>
+                <input
+                  type="text"
+                  name="i_bill_name"
+                  id="i_bill_name"
+                  value={formik.values.i_bill_name}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 12) {
+                      formik.handleChange(e);
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-5"
+                  placeholder="Bill name"
+                />
+                <div className="text-sm text-gray-500 mb-1">
+                  {formik.values.i_bill_name?.length || 0}/12
+                </div>
+                {formik.errors.i_bill_name && formik.touched.i_bill_name ? (
+                  <div className="text-red-500 text-sm">
+                    {formik.errors.i_bill_name}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="w-full">
+                <label
+                  htmlFor="sticks_per_packet"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Sticks Per Packet
+                </label>
+                <input
+                  type="number"
+                  name="sticks_per_packet"
+                  id="sticks_per_packet"
+                  value={formik.values.sticks_per_packet}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="E.g. 10"
+                />
+                {formik.errors.sticks_per_packet && formik.touched.sticks_per_packet ? (
+                  <div className="text-red-500 text-sm">
+                    {formik.errors.sticks_per_packet}
                   </div>
                 ) : null}
               </div>
@@ -373,55 +442,9 @@ function AddDetails() {
                   </div>
                 ) : null}
               </div> */}
+              <input type="hidden" name="i_selling_price" value={formik.values.i_selling_price} />
+              <input type="hidden" name="i_price" value={formik.values.i_price} />
               <div class="w-full">
-                <label
-                  for="i_selling_price"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Selling Price
-                </label>
-                <input
-                  type="number"
-                  name="i_selling_price"
-                  value={formik.values.i_selling_price}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  id="i_selling_price"
-                  // disabled={params.id > 0 ? true : false}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="Selling Price"
-                  required=""
-                />
-                {formik.errors.i_selling_price &&
-                formik.touched.i_selling_price ? (
-                  <div className="text-red-500 text-sm">
-                    {formik.errors.i_selling_price}
-                  </div>
-                ) : null}
-              </div>
-              <div class="w-full">
-                <label
-                  for="i_price"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  MRP
-                </label>
-                <input
-                  type="number"
-                  name="i_price"
-                  id="i_price"
-                  value={formik.values.i_price}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  placeholder="$2999"
-                  required=""
-                />
-                {formik.errors.i_price && formik.touched.i_price ? (
-                  <div className="text-red-500 text-sm">
-                    {formik.errors.i_price}
-                  </div>
-                ) : null}
-              </div>
-              <div>
                 <label
                   for="i_cat"
                   class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -451,65 +474,83 @@ function AddDetails() {
                   </div>
                 ) : null}
               </div>
-              <div>
+              <div className="w-full">
                 <label
-                  for="i_brand_id"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Brand
+                  htmlFor="ptr"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                 Old PTR
                 </label>
-                <select
-                  id="i_brand_id"
-                  name="i_brand_id"
-                  value={formik.values.i_brand_id}
-                  onChange={formik.handleChange}
+                <input
+                  type="number"
+                  name="i_price"
+                  id="ptr"
+                  value={formik.values.i_price}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    formik.setFieldValue('i_price', val);
+                    formik.setFieldValue('i_selling_price', val);
+                  }}
                   onBlur={formik.handleBlur}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                  <option selected="">Select brand</option>
-                  {brands?.map((item, i) => (
-                    <option key={i} value={item.brand_id}>
-                      {item.brand_name}
-                    </option>
-                  ))}
-                  {/* <option value="TV">TV/Monitors</option>
-                        <option value="PC">PC</option>
-                        <option value="GA">Gaming/Console</option>
-                        <option value="PH">Phones</option> */}
-                </select>
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="$2999"
+                  required
+                />
+                {formik.errors.i_price && formik.touched.i_price ? (
+                  <div className="text-red-500 text-sm">
+                    {formik.errors.i_price}
+                  </div>
+                ) : null}
+              </div>
+              <div className="w-full">
+                <label
+                  htmlFor="ptr"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                 New PTR
+                </label>
+                <input
+                  type="number"
+                  name="i_new_ptr"
+                  id="i_new_ptr"
+                  value={formik.values.i_new_ptr}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    formik.setFieldValue('i_new_ptr', val);
+                    // formik.setFieldValue('i_selling_price', val);
+                  }}
+                  onBlur={formik.handleBlur}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="$2999"
+                  required
+                />
+                {formik.errors.i_new_ptr && formik.touched.i_new_ptr ? (
+                  <div className="text-red-500 text-sm">
+                    {formik.errors.i_new_ptr}
+                  </div>
+                ) : null}
+              </div>
+
+              <div class="w-full">
+                {/* Brand hidden field */}
+                <input type="hidden" name="i_brand_id" value={0} />
                 {formik.errors.i_brand_id && formik.touched.i_brand_id ? (
                   <div className="text-red-500 text-sm">
                     {formik.errors.i_brand_id}
                   </div>
                 ) : null}
               </div>
+
               <div>
-                <label
-                  for="i_unit"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Unit
-                </label>
-                <select
-                  id="i_unit"
-                  name="i_unit"
-                  value={formik.values.i_unit}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                  <option selected="">Select Unit</option>
-                  {dataSet?.map((item) => (
-                    <option value={item.sl_no}>{item.unit_name}</option>
-                  ))}
-                  {/* <option value="TV">TV/Monitors</option>
-                        <option value="PC">PC</option>
-                        <option value="GA">Gaming/Console</option>
-                        <option value="PH">Phones</option> */}
-                </select>
+                {/* Unit hidden field */}
+                <input type="hidden" name="i_unit" value={formik.values.i_unit || (dataSet?.[0]?.sl_no || 0)} />
                 {formik.errors.i_unit && formik.touched.i_unit ? (
                   <div className="text-red-500 text-sm">
                     {formik.errors.i_unit}
                   </div>
                 ) : null}
               </div>
-              <div className="w-full">
+              <div className="sm:col-span-2">
                 <label
                   class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   for="file_input">
@@ -536,19 +577,19 @@ function AddDetails() {
 
               {croppedImage ? (
                 <Image
-                  width={200}
+                  width={480}
+                  height={90}
                   src={URL.createObjectURL(croppedImage)}
                   className="w-40 h-40 object-cover rounded-lg"
                 />
-              ) : !remoteImg.toString().includes(null) ? (
+              ) : (params.id && +params.id > 0 && remoteImg) ? (
                 <Image
-                  width={200}
+                  width={480}
+                  height={90}
                   src={remoteImg}
                   className="w-40 h-40 object-cover rounded-lg"
                 />
-              ) : (
-                ""
-              )}
+              ) : null}
               {/* <div>
                 <label
                   for="i_discount"
@@ -678,14 +719,34 @@ function AddDetails() {
               crop={crop}
               zoom={zoom}
               zoomWithScroll={true}
-              cropSize={{ height: 450, width: 450 }}
+              cropSize={{ height: 90, width: 480 }}
               rotation={rotation}
+              restrictPosition={false}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropAreaChange={setCroppedArea}
               onCropComplete={onCropComplete}
             />
           )}
+          {/* Zoom controls */}
+          <div className="zoom-controls" style={{ position: "absolute", bottom: "10px", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+            <div className="flex justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setZoom(z => Math.max(z - 0.1, 1))}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Zoom Out
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoom(z => Math.min(z + 0.1, 3))}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              >
+                Zoom In
+              </button>
+            </div>
+          </div>
         </div>
         <div className="flex justify-center">
           <button

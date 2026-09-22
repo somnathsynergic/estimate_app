@@ -1,0 +1,3 @@
+- [x] Add item search/filter input to CoinRuleConfig item dropdown
+- [x] Add item search/filter input to QuestCreation target item dropdown
+- [x] Validate build (no syntax/runtime errors)

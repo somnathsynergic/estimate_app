@@ -6,13 +6,13 @@ import axios from "axios";
 import { url } from "../Address/baseURL";
 import moment from "moment";
 
-function ReportForm({ title, onPress, flag, outlet }) {
+function ReportForm({ title, onPress, flag, outlet, lockedOutlet }) {
   console.log(url);
   const [d, setD] = useState([]);
   const initialValues = {
-    from_dt: flag === 777 ? moment(new Date()).format("YYYY-MM-DD") : "",
+    from_dt: flag === 777 || flag === 888 ? moment(new Date()).format("YYYY-MM-DD") : "",
     to_dt: "",
-    outlet: "",
+    outlet: lockedOutlet || "",
     userlist: "",
     paymentmode: "",
     item_lst: "",
@@ -41,6 +41,10 @@ function ReportForm({ title, onPress, flag, outlet }) {
     from_dt: Yup.string().required("From date is required"),
     userlist: Yup.string().required("User name is required"),
   });
+  const validationSchemaSingleDateOutlet = Yup.object({
+    from_dt: Yup.string().required("Date is required"),
+    outlet: Yup.string().required("Outlet is required"),
+  });
   const validationSchemaPay = Yup.object({
     from_dt: Yup.string().required("From date is required"),
     to_dt: Yup.string().required("To date is required"),
@@ -60,14 +64,16 @@ function ReportForm({ title, onPress, flag, outlet }) {
       flag == 1
         ? validationSchemaUser
         : flag == 2
-        ? validationSchemaPay
-        : flag == 3
-        ? validationSchemaItem
-        : flag == 666
-        ? validationSchemaUserOutlet
-        : flag == 777
-        ? validationSchemaDueOutlet
-        : validationSchema,
+          ? validationSchemaPay
+          : flag == 3
+            ? validationSchemaItem
+            : flag == 666
+              ? validationSchemaUserOutlet
+              : flag == 777
+                ? validationSchemaDueOutlet
+                : flag == 888
+                  ? validationSchemaSingleDateOutlet
+                  : validationSchema,
 
     validateOnMount: true,
   });
@@ -143,7 +149,7 @@ function ReportForm({ title, onPress, flag, outlet }) {
         </h2>
         <form onSubmit={formik.handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-            <div className={flag == 777 ? "sm:col-span-2" : "w-full"}>
+            <div className={flag == 777 || flag == 888 ? "sm:col-span-2" : "w-full"}>
               <label
                 htmlFor="brand"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -167,7 +173,7 @@ function ReportForm({ title, onPress, flag, outlet }) {
                 </div>
               ) : null}
             </div>
-            {flag !== 777 && (
+            {flag !== 777 && flag !== 888 && (
               <div className="w-full">
                 <label
                   htmlFor="price"
@@ -205,9 +211,10 @@ function ReportForm({ title, onPress, flag, outlet }) {
                   onChange={handleChangeWithAPI}
                   name="outlet"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  onBlur={formik.handleBlur}>
-                  <option selected>Select outlet</option>
-                  <option value="0">All outlets</option>
+                  onBlur={formik.handleBlur}
+                  disabled={!!lockedOutlet}>
+                  {!lockedOutlet && <option selected>Select outlet</option>}
+                  {!lockedOutlet && <option value="0">All outlets</option>}
                   {outlet?.map((item, i) => (
                     <option key={i} value={item?.id}>
                       {item?.branch_name}
@@ -242,8 +249,8 @@ function ReportForm({ title, onPress, flag, outlet }) {
                   ))}
                 </select>
                 {formik.errors.userlist &&
-                formik.touched.userlist &&
-                flag == 1 ? (
+                  formik.touched.userlist &&
+                  flag == 1 ? (
                   <div className="text-red-500 text-sm">
                     {formik.errors.userlist}
                   </div>
@@ -270,8 +277,8 @@ function ReportForm({ title, onPress, flag, outlet }) {
                   ))}
                 </select>
                 {formik.errors.userlist &&
-                formik.touched.userlist &&
-                flag == 1 ? (
+                  formik.touched.userlist &&
+                  flag == 1 ? (
                   <div className="text-red-500 text-sm">
                     {formik.errors.userlist}
                   </div>
@@ -298,8 +305,8 @@ function ReportForm({ title, onPress, flag, outlet }) {
                   <option value="R">Credit</option>
                 </select>
                 {formik.errors.paymentmode &&
-                formik.touched.paymentmode &&
-                flag == 2 ? (
+                  formik.touched.paymentmode &&
+                  flag == 2 ? (
                   <div className="text-red-500 text-sm">
                     {formik.errors.paymentmode}
                   </div>
@@ -325,8 +332,8 @@ function ReportForm({ title, onPress, flag, outlet }) {
                   ))}
                 </select>
                 {formik.errors.item_lst &&
-                formik.touched.item_lst &&
-                flag == 3 ? (
+                  formik.touched.item_lst &&
+                  flag == 3 ? (
                   <div className="text-red-500 text-sm">
                     {formik.errors.item_lst}
                   </div>

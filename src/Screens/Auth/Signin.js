@@ -37,7 +37,7 @@ function Signin() {
       if (localStorage.getItem("user_type") == "A") {
         navigate("home/report/pioreport");
       } else if (localStorage.getItem("user_type") == "M") {
-        navigate("home/outletadmin/reports/productwiseestimate");
+        navigate("home/report/itemwisereport");
       } else {
         navigate("home/");
       }
@@ -67,7 +67,7 @@ function Signin() {
       if (localStorage.getItem("user_type") == "A") {
         navigate("home/report/pioreport");
       } else if (localStorage.getItem("user_type") == "M") {
-        navigate("home/outletadmin/reports/productwiseestimate");
+        navigate("home/report/itemwisereport");
       } else {
         navigate("home/");
       }

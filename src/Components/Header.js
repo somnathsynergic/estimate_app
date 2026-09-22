@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { Avatar, Divider, ListItemIcon, Tooltip } from "@mui/material";
+import { Avatar, Divider, ListItemIcon, Tooltip } from "@mui/material"; import { Switch } from "antd";
 import DialogComponent from "./DialogComponent";
 import { Logout, PersonAdd, Settings } from "@mui/icons-material";
+import { Message } from "../Components/Message";
+import { url } from "../Address/baseURL";
 
 function Header() {
   const location = useLocation();
@@ -13,6 +15,43 @@ function Header() {
   const [flag, setFlag] = useState();
   const [anchorElProfile, setAnchorElProfile] = React.useState(null);
   const openProfile = Boolean(anchorElProfile);
+  const [stockEnabled, setStockEnabled] = useState(localStorage.getItem('stock_flag') === 'true');
+  useEffect(() => {
+    const compId = localStorage.getItem('comp_id') || '';
+    const fetchFlag = async () => {
+      try {
+        const res = await fetch(url + `/admin/stock_flag`);
+        const data = await res.json();
+        const flag = data?.msg?.stock_flag ?? (Array.isArray(data?.msg) ? data.msg[0]?.stock_flag : null);
+        const enabled = flag === 'Y';
+        setStockEnabled(enabled);
+        localStorage.setItem('stock_flag', enabled);
+      } catch (e) {
+        console.error('Failed to fetch stock flag', e);
+      }
+    };
+    fetchFlag();
+  }, []);
+  const handleToggleStock = async (checked) => {
+    setStockEnabled(checked);
+    const flagValue = checked ? 'Y' : 'N';
+    localStorage.setItem('stock_flag', checked);
+    // Call backend to persist flag for the user (assuming user ID is stored in localStorage)
+    const userId = localStorage.getItem('user_id') || 0;
+    try {
+      await fetch(url + '/admin/update_stock_flag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, stock_flag: flagValue })
+      });
+      Message('success', 'Updated Successfully!')
+
+    } catch (e) {
+      console.error('Failed to update stock flag', e);
+    }
+    // Reload to apply UI changes if needed
+    // window.location.reload();
+  };
   localStorage.setItem("dark", false);
   const handleClickProfile = (event) => {
     console.log(event);
@@ -43,7 +82,12 @@ function Header() {
     <div className="w-full sticky top-0 z-10">
       <nav className="bg-blue-300 dark:bg-gray-900 dark:text-white">
         <div className="flex flex-wrap justify-end items-center mx-5 min-w-screen-xl py-4 px-4">
+          {localStorage.getItem('user_type') == 'A' && (<div className="flex items-center space-x-2 ml-4">
+            <span className="text-sm font-medium text-blue-900">Stock</span>
+            <Switch checked={stockEnabled} onChange={handleToggleStock} />
+          </div>)}&nbsp;&nbsp;&nbsp;&nbsp;
           <div className=" text-white  space-x-4 rtl:space-x-reverse">
+
             <span className="relative right-0 text-sm sm:text-base  text-pretty text-blue-900 font-semibold">
               {" "}
               {/* {localStorage.getItem("company_name")} */}
@@ -68,6 +112,7 @@ function Header() {
                   E
                 </Tooltip>
               </span>
+
 
               {/* <Menu
         id="basic-menu"
@@ -156,6 +201,7 @@ function Header() {
             </div>
           </div>
         </div>
+
       </nav>
       <DialogComponent
         visible={visible}

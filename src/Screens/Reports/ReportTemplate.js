@@ -16,6 +16,8 @@ function ReportTemplate({ templateData, template, _url, flag = 0 }) {
   const [from, setFrom] = useState();
   const [to, setTo] = useState();
   const [location, setLocation] = useState();
+  const userType = localStorage.getItem("user_type");
+  const lockedBrId = userType === "M" ? localStorage.getItem("br_id") : null;
   const [totalPay, setTotal] = useState();
   var comp,
     totals = [];
@@ -45,7 +47,8 @@ function ReportTemplate({ templateData, template, _url, flag = 0 }) {
     console.log(data);
     setFrom(data.from_dt);
     setTo(data.to_dt);
-    setLocation(resp?.filter((e) => e?.id == data.outlet)[0]?.branch_name);
+    const effectiveOutlet = lockedBrId ? +lockedBrId : +data.outlet;
+    setLocation(resp?.filter((e) => e?.id == effectiveOutlet)[0]?.branch_name);
     comp = localStorage.getItem("comp_id");
     setCalled(true);
 
@@ -66,12 +69,16 @@ function ReportTemplate({ templateData, template, _url, flag = 0 }) {
         user_id: data.userlist,
         comp_id: +comp,
       });
+    } else if (flag === 888) {
+      console.log("in 888=============");
+      const getUrl = `${_url}?br_id=${effectiveOutlet}&date=${data.from_dt}`;
+      callApi(getUrl, 0);
     } else {
       console.log("in ELSE =============");
       callApi(_url, 1, {
         from_date: data.from_dt,
         to_date: data.to_dt,
-        br_id: +data.outlet,
+        br_id: effectiveOutlet,
         comp_id: +comp,
       });
     }
@@ -85,6 +92,7 @@ function ReportTemplate({ templateData, template, _url, flag = 0 }) {
           flag={flag}
           onPress={(data) => onPress(data)}
           outlet={resp}
+          lockedOutlet={lockedBrId}
         />
       )}
       {isReport && (

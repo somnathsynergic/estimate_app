@@ -26,6 +26,7 @@ import ItemDetailsBranchwise from "./Screens/Master/ItemDetailsBranchwise/ItemDe
 import ItemDetailsViewBranchwise from "./Screens/Master/ItemDetailsBranchwise/ItemDetailsViewBranchwise";
 import AddDetailsBranchwise from "./Screens/Master/ItemDetailsBranchwise/AddDetailsBranchwise";
 import BillwiseEstimate from "./Screens/OutletAdmin/Reports/BillwiseEstimate";
+import Customeraddreport from "./Screens/Reports/Customeraddreport";
 
 const CategorywiseItemsComp = lazy(() =>
   import("./Screens/SuperAdmin/CategorywiseItems/CategorywiseItemsComp")
@@ -131,6 +132,7 @@ const CreditReport = lazy(() => import("./Screens/Reports/CreditReport"));
 const RecoveryReport = lazy(() => import("./Screens/Reports/RecoveryReport"));
 const DueReport = lazy(() => import("./Screens/Reports/DueReport"));
 const CustomerLedger = lazy(() => import("./Screens/Reports/CustomerLedger"));
+const StockDailyReport = lazy(() => import("./Screens/Reports/StockDailyReport"));
 
 const SearchComp = lazy(() => import("./Screens/Search/SearchComp"));
 const Bydata = lazy(() => import("./Screens/Search/Bydata"));
@@ -227,6 +229,14 @@ const OutletView = lazy(() => import("./Screens/Manage/Outlet/OutletView"));
 const OutletAddEdit = lazy(() =>
   import("./Screens/Manage/Outlet/OutletAddEdit")
 );
+
+const GamificationComp = lazy(() => import("./Screens/Gamification/GamificationComp"));
+const CoinRuleConfig = lazy(() => import("./Screens/Gamification/CoinRuleConfig"));
+const QuestCreation = lazy(() => import("./Screens/Gamification/QuestCreation"));
+const QuestAssignment = lazy(() => import("./Screens/Gamification/QuestAssignment"));
+const StreakConfig = lazy(() => import("./Screens/Gamification/StreakConfig"));
+const WorkingDayConfig = lazy(() => import("./Screens/Gamification/WorkingDayConfig"));
+const Leaderboard = lazy(() => import("./Screens/Gamification/Leaderboard"));
 
 const router = createBrowserRouter([
   {
@@ -326,6 +336,14 @@ const router = createBrowserRouter([
               {
                 path: "employeewisereport",
                 element: <EmployeewiseSaleReport />,
+              },
+               {
+                path: "customeraddreport",
+                element: <Customeraddreport />,
+              },
+              {
+                path: "stockdailyreport",
+                element: <StockDailyReport />,
               },
             ],
           },
@@ -790,6 +808,36 @@ const router = createBrowserRouter([
               //     },
               //   ],
               // },
+            ],
+          },
+          {
+            path: "gamification",
+            element: <GamificationComp />,
+            children: [
+              {
+                path: "coinruleconfig",
+                element: <CoinRuleConfig />,
+              },
+              {
+                path: "questcreation",
+                element: <QuestCreation />,
+              },
+              {
+                path: "questassignment",
+                element: <QuestAssignment />,
+              },
+              {
+                path: "workingdayconfig",
+                element: <WorkingDayConfig />,
+              },
+              {
+                path: "streakconfig",
+                element: <StreakConfig />,
+              },
+              {
+                path: "leaderboard",
+                element: <Leaderboard />,
+              },
             ],
           },
           {

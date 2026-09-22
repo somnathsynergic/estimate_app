@@ -204,6 +204,80 @@ function SidebarComp() {
             </div>
           ),
         },
+        {
+          key: "6222",
+          icon: (
+            <OrderedListOutlined
+              className={
+                location.pathname.includes("report/customeraddreport")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("report/customeraddreport")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"report/customeraddreport"}>
+                Shop Creation Report
+              </Link>
+            </div>
+          ),
+        },
+        // {localStorage.getItem('stock_flag') !== 'N' && (
+        {
+          key: "6223",
+          icon: (
+            <OrderedListOutlined
+              className={
+                location.pathname.includes("report/stockdailyreport")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("report/stockdailyreport")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"report/stockdailyreport"}>
+                Stock Report
+              </Link>
+            </div>
+          ),
+        },
+        // )},
+        {
+          key: "6223",
+          icon: (
+            <OrderedListOutlined
+              className={
+                location.pathname.includes("report/stockdailyreport")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("report/stockdailyreport")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"report/stockdailyreport"}>
+                Stock Report
+              </Link>
+            </div>
+          ),
+        },
         // {
         //   key: "5",
         //   icon: (
@@ -623,34 +697,34 @@ function SidebarComp() {
                   ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
                   : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
               }>
-              <Link to={"master/itemdetails/view"}>Global Items</Link>
+              <Link to={"master/itemdetails/view"}>Items</Link>
             </div>
           ),
         },
-        {
-          key: "itemdetailsbranchwise",
-          icon: (
-            <ProfileOutlined
-              className={
-                location.pathname.includes("master/itemdetailsbranchwise/view")
-                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
-                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
-              }
-            />
-          ),
-          label: (
-            <div
-              className={
-                location.pathname.includes("master/itemdetailsbranchwise/view")
-                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
-                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
-              }>
-              <Link to={"master/itemdetailsbranchwise/view"}>
-                Shopwise Items
-              </Link>
-            </div>
-          ),
-        },
+        // {
+        //   key: "itemdetailsbranchwise",
+        //   icon: (
+        //     <ProfileOutlined
+        //       className={
+        //         location.pathname.includes("master/itemdetailsbranchwise/view")
+        //           ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+        //           : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+        //       }
+        //     />
+        //   ),
+        //   label: (
+        //     <div
+        //       className={
+        //         location.pathname.includes("master/itemdetailsbranchwise/view")
+        //           ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+        //           : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+        //       }>
+        //       <Link to={"master/itemdetailsbranchwise/view"}>
+        //         Shopwise Items
+        //       </Link>
+        //     </div>
+        //   ),
+        // },
       ],
     },
 
@@ -829,16 +903,17 @@ function SidebarComp() {
           }
         />
       ),
-    label: (
-            <div
-              className={
-                location.pathname.includes("home")
-                  ? "font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white hover:duration-100  dark:hover:bg-gray-700 group"
-                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
-              }>
-              <Link to={"/home"}>Dashboard</Link>
-            </div>
-      )},
+      label: (
+        <div
+          className={
+            location.pathname.includes("home")
+              ? "font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white hover:duration-100  dark:hover:bg-gray-700 group"
+              : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+          }>
+          <Link to={"/home"}>Dashboard</Link>
+        </div>
+      )
+    },
 
     {
       key: "sub33",
@@ -1145,6 +1220,154 @@ function SidebarComp() {
     },
 
     {
+      key: "gamification_menu",
+      label: "Gamification",
+      icon: (
+        <AppstoreOutlined
+          className={
+            location.pathname.includes("gamification")
+              ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+              : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+          }
+        />
+      ),
+      children: [
+        {
+          key: "coinruleconfig",
+          icon: (
+            <SettingOutlined
+              className={
+                location.pathname.includes("gamification/coinruleconfig")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("gamification/coinruleconfig")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"gamification/coinruleconfig"}>Coin Rule Config</Link>
+            </div>
+          ),
+        },
+        {
+          key: "questcreation",
+          icon: (
+            <SettingOutlined
+              className={
+                location.pathname.includes("gamification/questcreation")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("gamification/questcreation")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"gamification/questcreation"}>Quest Creation</Link>
+            </div>
+          ),
+        },
+        {
+          key: "questassignment",
+          icon: (
+            <SettingOutlined
+              className={
+                location.pathname.includes("gamification/questassignment")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("gamification/questassignment")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"gamification/questassignment"}>Quest Assignment</Link>
+            </div>
+          ),
+        },
+        {
+          key: "workingdayconfig",
+          icon: (
+            <SettingOutlined
+              className={
+                location.pathname.includes("gamification/workingdayconfig")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("gamification/workingdayconfig")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"gamification/workingdayconfig"}>Working Day Config</Link>
+            </div>
+          ),
+        },
+        {
+          key: "streakconfig",
+          icon: (
+            <SettingOutlined
+              className={
+                location.pathname.includes("gamification/streakconfig")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("gamification/streakconfig")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"gamification/streakconfig"}>Streak Config</Link>
+            </div>
+          ),
+        },
+        {
+          key: "leaderboard",
+          icon: (
+            <SettingOutlined
+              className={
+                location.pathname.includes("gamification/leaderboard")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }
+            />
+          ),
+          label: (
+            <div
+              className={
+                location.pathname.includes("gamification/leaderboard")
+                  ? " font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white  hover:duration-100  dark:hover:bg-gray-700 group"
+                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+              }>
+              <Link to={"gamification/leaderboard"}>Leaderboard</Link>
+            </div>
+          ),
+        },
+      ],
+    },
+
+    {
       key: "sub33_2",
       label: "Super Admin",
       icon: (
@@ -1156,16 +1379,17 @@ function SidebarComp() {
           }
         />
       ),
-    label: (
-            <div
-              className={
-                location.pathname.includes("home")
-                  ? "font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white hover:duration-100  dark:hover:bg-gray-700 group"
-                  : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
-              }>
-              <Link to={"superadmin/managereports/view"}>Report</Link>
-            </div>
-      )},
+      label: (
+        <div
+          className={
+            location.pathname.includes("home")
+              ? "font-semibold flex items-center p-2 my-2 rounded-lg dark:text-white hover:duration-100  dark:hover:bg-gray-700 group"
+              : "flex items-center p-2  rounded-lg dark:text-white  hover:duration-100   dark:hover:bg-gray-700 group"
+          }>
+          <Link to={"superadmin/managereports/view"}>Report</Link>
+        </div>
+      )
+    },
 
     // {
     //   key: "sub5",
@@ -1380,6 +1604,7 @@ function SidebarComp() {
 
   return (
     <div>
+
       <div className="bg-blue-300">
         <Drawer
           className="md:hidden w-72 p-0"
@@ -1403,16 +1628,19 @@ function SidebarComp() {
               mode="inline"
               items={
                 userType === "S"
-                  ? items.filter((item) => item.key === "sub33")
+                  ? items.filter(item => item.key === "sub33")
                   : userType === "M"
-                  ? items.filter((item) => item.key === "o_admin")
-                  : items.filter(
-                      (item) => item.key !== "sub33" && item.key !== "o_admin"
-                    )
+                    // ? items.filter(item => item.key === "sub1" || item.key === "gamification_menu")
+                    ? items.filter(item => item.key === "sub1")
+                    : userType === "A"
+                      ? items.filter(item => item.key === "sub1" || item.key === "sub4" || item.key === "gamification_menu")
+                      : items.filter(item => item.key === "sub1")
               }
             />
           </div>
+
         </Drawer>
+
         <button
           data-drawer-target="separator-sidebar"
           data-drawer-toggle="separator-sidebar"
@@ -1457,16 +1685,20 @@ function SidebarComp() {
               items={
                 userType === "S"
                   ? items.filter(
-                  (item) =>
-                  item.key === "sub33" ||
-                  item.key === "sub33_1" ||
-                  item.key === "sub33_2"
+                    (item) =>
+                      item.key === "sub33" ||
+                      item.key === "sub33_1" ||
+                      item.key === "sub33_2"
                   )
                   : userType === "M"
-                  ? items.filter((item) => item.key === "o_admin")
-                  : items.filter(
-                      (item) => item.key !== "sub33" && item.key !== "sub33_1" && item.key !== "sub33_2" && item.key !== "o_admin"
-                    )
+                    ? items.filter((item) => item.key === "sub1")
+                    : userType === "A"
+                      ? items.filter(
+                        (item) => item.key === "sub1" || item.key === "sub4" || item.key === "gamification_menu"
+                      )
+                      : items.filter(
+                        (item) => item.key === "sub1"
+                      )
               }
             />
 

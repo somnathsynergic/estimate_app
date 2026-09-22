@@ -7,6 +7,7 @@ import HeaderLayout from "../../Components/HeaderLayout";
 import axios from "axios";
 import { url } from "../../Address/baseURL";
 
+
 function StockReport() {
   const navigation = useNavigate();
   const [called, setCalled] = useState(false);
@@ -17,7 +18,9 @@ function StockReport() {
   const [search, setSearch] = useState("");
   const [outlets, setOutlets] = useState(() => []);
 
-  const [selectedOutlet, setSelectedOutlet] = useState(() => 1);
+  const user_type = localStorage.getItem('user_type');
+  const br_id = localStorage.getItem('br_id');
+  const [selectedOutlet, setSelectedOutlet] = useState(() => (user_type === "M" && br_id ? Number(br_id) : 1));
 
   var comp;
   useEffect(() => {
