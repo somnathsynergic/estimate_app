@@ -44,7 +44,7 @@ async def item_list(data:ItemList):
 
 @itemRouter.post('/item_details')
 async def item_details(data:ItemIDLocal):
-    select = "a.id,a.comp_id,a.catg_id,a.brand_id,a.item_name,a.item_img,a.unit_id,b.price,b.mrp,b.discount,b.cgst,b.sgst"
+    select = "a.bill_name,a.sticks_per_packet,a.id,a.comp_id,a.catg_id,a.brand_id,a.item_name,a.item_img,a.unit_id,b.price,b.mrp,b.discount,b.cgst,b.sgst,b.new_ptr"
     table_name = "md_items a , md_item_rate b"
     where = f"a.id = b.item_id AND a.id = {data.item_id}" if data.br_id==0 else f"a.id = b.item_id AND a.id = {data.item_id} AND b.br_id = {data.br_id}"
     order = f''
@@ -66,7 +66,10 @@ async def add_edit_items(
     catg_id:int = Form(...),
     brand_id:int = Form(...),
     created_by:str = Form(...),
+    new_ptr:float = Form(...),
+    bill_name: str = Form(...),
     br_id:int = Form(...),
+    sticks_per_packet: int = Form(0),
     file: Optional[UploadFile] = File(None)
 ):
     fileName = None if not file else await uploadfile(file)
@@ -80,7 +83,7 @@ async def add_edit_items(
         print("I am inside item_id>0")
 
         table_name = "md_items"
-        fields = f"item_name ='{item_name}' {item_img_edit}, catg_id = {catg_id}, brand_id = {brand_id}, unit_id = {unit_id}, modified_by = '{created_by}', modified_dt = '{formatted_dt}'"
+        fields = f"item_name ='{item_name}' {item_img_edit}, catg_id = {catg_id}, brand_id = {brand_id}, unit_id = {unit_id}, bill_name = '{bill_name}', sticks_per_packet = {sticks_per_packet}, modified_by = '{created_by}', modified_dt = '{formatted_dt}'"
         values = None
         where = f"id = {item_id}"
         flag = 1
@@ -88,7 +91,7 @@ async def add_edit_items(
 
         if res_dt["suc"] > 0:
             table_name2 = "md_item_rate"
-            fields2 = f"price = {price}, mrp = {mrp}, br_id={br_id}, modified_by = '{created_by}', modified_dt = '{formatted_dt}'" if br_id>0 else f"price = {price}, mrp = {mrp}, modified_by = '{created_by}', modified_dt = '{formatted_dt}'"
+            fields2 = f"price = {price}, mrp = {mrp},new_ptr={new_ptr}, br_id={br_id}, modified_by = '{created_by}', modified_dt = '{formatted_dt}'" if br_id>0 else f"price = {price}, mrp = {mrp},new_ptr={new_ptr}, modified_by = '{created_by}', modified_dt = '{formatted_dt}'"
             values2 = None
             where2 = f"item_id = {item_id} and br_id={br_id}" if br_id>0 else f"item_id = {item_id}"
             flag2 = 1
@@ -98,8 +101,8 @@ async def add_edit_items(
         print("I am inside item_id==0")
         
         table_name = "md_items"
-        fields = "catg_id, item_name, item_img, brand_id, unit_id, created_by, created_dt"
-        values =f"{catg_id},'{item_name}' {item_img_add}, {brand_id},{unit_id},'{created_by}','{formatted_dt}'"
+        fields = "catg_id, item_name, item_img, brand_id, unit_id, bill_name, sticks_per_packet, created_by, created_dt"
+        values =f"{catg_id},'{item_name}' {item_img_add}, {brand_id},{unit_id},'{bill_name}',{sticks_per_packet},'{created_by}','{formatted_dt}'"
         where = None
         order = f""
         flag = 0
@@ -107,8 +110,8 @@ async def add_edit_items(
         # print(res_dt['lastId'],"uuuuuuuuu")
         if res_dt["suc"] > 0:
             table_name1 = "md_item_rate"
-            fields1 = "item_id,price,mrp,br_id,created_by,created_dt" if br_id>0 else "item_id,price,mrp,created_by,created_dt"
-            values1 = f"{res_dt['lastId']},{price},{mrp},{br_id},'{created_by}','{formatted_dt}'" if br_id>0 else f"{res_dt['lastId']},{price},{mrp},'{created_by}','{formatted_dt}'"
+            fields1 = "item_id,price,mrp, new_ptr, br_id,created_by,created_dt" if br_id>0 else "item_id,price,new_ptr,mrp,created_by,created_dt"
+            values1 = f"{res_dt['lastId']},{price},{mrp},{new_ptr},{br_id},'{created_by}','{formatted_dt}'" if br_id>0 else f"{res_dt['lastId']},{price},{new_ptr},{mrp},'{created_by}','{formatted_dt}'"
             where1 = None
             flag1 = 0
             res_dt1= await db_Insert(table_name1,fields1,values1,where1,flag1)

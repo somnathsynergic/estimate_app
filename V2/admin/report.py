@@ -526,13 +526,25 @@ async def collection_report(item_rep:ItemReport):
 @reportRouter.post('/productwise_report')
 async def productwise_report(item_rep:ItemReport):
     
-    select = f"b.item_name,a.item_id,d.unit_name as unit_name,SUM(a.qty)as tot_item_qty,c.price as unit_price,sum(a.price*a.qty)as tot_item_price,catg.category_name,brn.brand_name, max(a.trn_date) to_dt,min(a.trn_date) from_dt, concat(min(a.trn_date),' - ',max(a.trn_date)) as range_dt"
-    table_name = "td_item_sale a, md_items b, md_item_rate c,md_unit d,md_category catg,md_brand brn"
-    where = f"b.brand_id=brn.brand_id and b.catg_id=catg.sl_no and a.item_id = b.id and a.item_id=c.item_id  and b.unit_id = d.sl_no and a.comp_id = {item_rep.comp_id} and a.br_id = {item_rep.br_id} and a.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and a.cancel_flag = 0" if item_rep.br_id>0 else f"b.brand_id=brn.brand_id and b.catg_id=catg.sl_no and a.item_id = b.id and a.item_id=c.item_id  and b.unit_id = d.sl_no and a.comp_id = {item_rep.comp_id} and a.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and a.cancel_flag = 0"
-    order = "group by b.item_name,a.item_id,d.unit_name,c.price,catg.category_name,brn.brand_name"
+    #works with only one price
+    
+    #select = f"b.item_name,a.item_id,'Pc' unit_name,SUM(a.qty)as tot_item_qty,a.price as unit_price,sum(a.price*a.qty)as tot_item_price,catg.category_name, max(a.trn_date) to_dt,min(a.trn_date) from_dt, concat(min(a.trn_date),' - ',max(a.trn_date)) as range_dt"
+    #table_name = "td_item_sale a, md_items b, md_item_rate c,md_category catg"
+    #where = f"b.catg_id=catg.sl_no and a.item_id = b.id and a.item_id=c.item_id and a.comp_id = {item_rep.comp_id} and a.br_id = {item_rep.br_id} and a.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and a.cancel_flag = 0" if item_rep.br_id>0 else f"b.catg_id=catg.sl_no and a.item_id = b.id and a.item_id=c.item_id and a.comp_id = {item_rep.comp_id} and a.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and a.cancel_flag = 0"
+    #order = "group by b.item_name,a.item_id,a.price,catg.category_name"
+    #flag = 1
+    #res_dt = await db_select(select,table_name,where,order,flag)
+    #print(res_dt)
+    #return res_dt
+    
+    #works with old and new ptr
+    select = f"b.item_name,a.item_id,'Pc' unit_name,SUM(a.qty)as tot_item_qty,a.price as unit_price,sum(a.price*a.qty)as tot_item_price,catg.category_name, max(a.trn_date) to_dt,min(a.trn_date) from_dt, concat(min(a.trn_date),' - ',max(a.trn_date)) as range_dt"
+    table_name = "td_item_sale a, md_items b, md_category catg"
+    where = f"b.catg_id=catg.sl_no and a.item_id = b.id and a.comp_id = {item_rep.comp_id} and a.br_id = {item_rep.br_id} and a.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and a.cancel_flag = 0" if item_rep.br_id>0 else f"b.catg_id=catg.sl_no and a.item_id = b.id and a.comp_id = {item_rep.comp_id} and a.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and a.cancel_flag = 0"
+    order = "group by b.item_name,a.item_id,a.price,catg.category_name"
     flag = 1
     res_dt = await db_select(select,table_name,where,order,flag)
-    
+    print(res_dt)
     return res_dt
 
 
@@ -739,7 +751,7 @@ async def Productwise_report(item_rep:ItemReport):
     conn = connect()
     cursor = conn.cursor()
 
-    query = f"SELECT b.id as store_id,b.branch_name as store_name,u.unit_name,t.trn_date,t.created_by as user_id,n.user_name,d.brand_name,rt.price,rt.mrp,c.category_name,s.receipt_no as invoice_no,s.item_id,IF(t.pay_mode='C','Cash',IF(t.pay_mode='U','UPI',IF(t.pay_mode='D','Card','Credit'))) pay_mode,i.item_name,(s.qty * rt.price)net_amt,t.trn_date,s.qty from md_branch b,td_item_sale s,md_items i,md_item_rate rt,td_receipt t,md_unit u,md_category c,md_brand d,md_user n where s.br_id=b.id and s.item_id=i.id and s.receipt_no=t.receipt_no and i.unit_id=u.sl_no and i.catg_id=c.sl_no and d.brand_id=i.brand_id and n.user_id=t.created_by and rt.item_id=i.id and  t.comp_id = {item_rep.comp_id} and t.br_id = {item_rep.br_id} and t.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and s.receipt_no In (select receipt_no from td_item_sale where cancel_flag = 0) order by t.trn_date,b.id" if item_rep.br_id>0 else  f"SELECT b.id as store_id,b.branch_name as store_name,u.unit_name,t.trn_date,t.created_by as user_id,n.user_name,d.brand_name,rt.price,rt.mrp,c.category_name,s.receipt_no as invoice_no,s.item_id,IF(t.pay_mode='C','Cash',IF(t.pay_mode='U','UPI',IF(t.pay_mode='D','Card','Credit'))) pay_mode,i.item_name,(s.qty * rt.price)net_amt,t.trn_date,s.qty from md_branch b,md_item_rate rt,td_item_sale s,md_items i,td_receipt t,md_unit u,md_category c,md_brand d,md_user n where s.br_id=b.id and s.item_id=i.id and s.receipt_no=t.receipt_no and i.unit_id=u.sl_no and i.catg_id=c.sl_no and d.brand_id=i.brand_id and n.user_id=t.created_by and rt.item_id=i.id and t.comp_id = {item_rep.comp_id} and t.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and s.receipt_no In (select receipt_no from td_item_sale where cancel_flag = 0) order by t.trn_date,b.id"
+    query = f"SELECT b.id as store_id,b.branch_name as store_name,t.trn_date,substring(t.created_dt,12) as time,t.cust_name as shop,t.created_by as user_id,n.user_name,s.price,c.category_name,s.receipt_no,s.item_id,IF(t.pay_mode='C','Cash',IF(t.pay_mode='U','UPI',IF(t.pay_mode='D','Card','Credit'))) pay_mode,i.item_name,(s.qty * s.price)net_amt,t.trn_date,s.qty from md_branch b,td_item_sale s,md_items i,md_item_rate rt,td_receipt t,md_category c,md_user n where s.br_id=b.id and s.item_id=i.id and s.receipt_no=t.receipt_no  and i.catg_id=c.sl_no  and n.user_id=t.created_by and rt.item_id=i.id and  t.comp_id = {item_rep.comp_id} and t.br_id = {item_rep.br_id} and t.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and s.receipt_no In (select receipt_no from td_item_sale where cancel_flag = 0) order by t.trn_date,b.id" if item_rep.br_id>0 else  f"SELECT b.id as store_id,b.branch_name as store_name,t.trn_date,substring(t.created_dt,12) as time,t.cust_name as shop,t.created_by as user_id,n.user_name,s.price,c.category_name,s.receipt_no,s.item_id,IF(t.pay_mode='C','Cash',IF(t.pay_mode='U','UPI',IF(t.pay_mode='D','Card','Credit'))) pay_mode,i.item_name,(s.qty * s.price)net_amt,t.trn_date,s.qty from md_branch b,md_item_rate rt,td_item_sale s,md_items i,td_receipt t,md_category c,md_user n where s.br_id=b.id and s.item_id=i.id and s.receipt_no=t.receipt_no and i.catg_id=c.sl_no and n.user_id=t.created_by and rt.item_id=i.id and t.comp_id = {item_rep.comp_id} and t.trn_date BETWEEN '{item_rep.from_date}' and '{item_rep.to_date}' and s.receipt_no In (select receipt_no from td_item_sale where cancel_flag = 0) order by t.trn_date,b.id"
    
     print(query)
     cursor.execute(query)
@@ -793,6 +805,7 @@ async def Employeewise_report(item_rep:ItemReport):
 
     query = f'''select created_by,user_name,branch_name,
     sum(receipt_no),
+    SUM(customer_count) customer_count,
 sum(Quantity)Quantity,
 (sum(cash_gross_sale) + sum(credit_gross_sale))gross_sale,
 (sum(cash_round_off)  + sum(credit_round_off))round_off,
@@ -802,6 +815,7 @@ sum(credit_net_sale)credit_sale
 from (
     SELECT a.created_by,c.user_name,d.branch_name,
     count(distinct a.receipt_no) receipt_no,
+    COUNT(DISTINCT a.cust_id) customer_count,
     sum(distinct a.amount)as cash_gross_sale,
     sum(a.round_off) as cash_round_off,
     sum(distinct a.net_amt) cash_net_sale,
@@ -821,6 +835,7 @@ from (
     UNION
     SELECT a.created_by,c.user_name,d.branch_name,
     count(distinct a.receipt_no) receipt_no,
+    COUNT(DISTINCT a.cust_id) customer_count,
     0 cash_gross_sale,
     0 cash_round_off,
     0 cash_net_sale,
@@ -840,6 +855,7 @@ from (
 group by created_by,user_name,branch_name
    ''' if item_rep.br_id==0 else f'''select created_by,user_name,branch_name,
     sum(receipt_no),
+    SUM(customer_count) customer_count,
 sum(Quantity)Quantity,
 (sum(cash_gross_sale) + sum(credit_gross_sale))gross_sale,
 (sum(cash_round_off)  + sum(credit_round_off))round_off,
@@ -849,6 +865,7 @@ sum(credit_net_sale)credit_sale
 from (
     SELECT a.created_by,c.user_name,d.branch_name,
     count(distinct a.receipt_no) receipt_no,
+    COUNT(DISTINCT a.cust_id) customer_count,
     sum(distinct a.amount)as cash_gross_sale,
     sum(a.round_off) as cash_round_off,
     sum(distinct a.net_amt) cash_net_sale,
@@ -868,6 +885,7 @@ from (
     UNION
     SELECT a.created_by,c.user_name,d.branch_name,
     count(distinct a.receipt_no) receipt_no,
+     COUNT(DISTINCT a.cust_id) customer_count,
     0 cash_gross_sale,
     0 cash_round_off,
     0 cash_net_sale,
@@ -938,3 +956,75 @@ async def select_user(id:dashboardData):
     res_dt_outlet = await db_select(select,table_name,where,order,flag)
     
     res_dt = {"suc":1,"active_user":res_dt_active,"inactive_user":res_dt_inactive,"outlets":res_dt_outlet}
+    
+    
+    
+@reportRouter.post('/customer_add_report')
+async def Productwise_report(item_rep:ItemReport):
+    conn = connect()
+    cursor = conn.cursor()
+    if item_rep.br_id!=0:
+        query = f"SELECT a.cust_id ShopID,a.cust_name ShopName,IF(a.created_by,b.user_name,'Pre-existing') AddedBy,b.user_name,a.phone_no,REPLACE(a.created_dt, 'T', ' ') as AddedAt,lat,lng FROM md_customer a,md_user b WHERE a.user_id=b.user_id AND a.branch_id = {item_rep.br_id} AND a.comp_id={item_rep.comp_id} and DATE(a.created_dt) between '{item_rep.from_date}' and '{item_rep.to_date}' AND a.user_id NOT IN ('0000','1111') order by a.created_dt desc"
+    else:
+        query = f"SELECT a.cust_id ShopID,a.cust_name ShopName,IF(a.created_by,b.user_name,'Pre-existing') AddedBy,b.user_name,a.phone_no,REPLACE(a.created_dt, 'T', ' ') as AddedAt,lat,lng FROM md_customer a,md_user b WHERE a.user_id=b.user_id AND a.comp_id={item_rep.comp_id} and DATE(a.created_dt) between '{item_rep.from_date}' and '{item_rep.to_date}' AND a.user_id NOT IN ('0000','1111') order by a.created_dt desc"
+        
+   
+    print(query)
+    cursor.execute(query)
+    records = cursor.fetchall()
+    result = createResponse(records, cursor.column_names, 1)
+    print(result)
+    conn.close()
+    cursor.close()
+    if records==[]:
+        resData= {"status":0, "msg":[]}
+    else:
+        resData= {
+        "status":1,
+        "msg":result
+        }
+    return resData
+    
+@reportRouter.get('/stock/daily-summary')
+async def get_ds_daily_summary(br_id: str, date: str):
+  
+    if not date:
+            date = datetime.now().strftime("%Y-%m-%d")
+
+    select = """
+            a.item_id,
+            b.item_name,
+            b.sticks_per_packet,
+            a.prev_closing_packet,
+            a.prev_closing_total_sticks,
+            a.issued_packet,
+            a.issued_total_sticks,
+            a.billed_packet,
+            a.billed_total_sticks,
+            a.returned_packet,
+            a.returned_total_sticks,
+            a.opening_packet,
+            a.opening_total_sticks,
+            a.closing_packet,
+            a.closing_total_sticks,
+            u.user_name,
+            u.user_id
+        """
+
+    table_name = """
+            td_ds_daily_inventory a
+            JOIN md_user u on u.user_id = a.user_id
+            JOIN md_items b ON a.item_id = b.id
+        """
+
+    where = f"""
+            u.br_id = '{br_id}'
+            AND a.date = '{date}'
+        """
+
+    order = ""
+    flag = 1
+
+    res_dt = await db_select(select, table_name, where, order, flag)
+
+    return res_dt

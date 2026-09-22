@@ -6,8 +6,8 @@ from admin.main import router as adminRouter
 from V2.api.main import router as apiRouterV2
 from V2.admin.main import router as adminRouterV2
 from fastapi.staticfiles import StaticFiles
-print("V2 API Routes:", apiRouterV2.routes)
-print("V2 Admin Routes:", adminRouterV2.routes)
+# print("V2 API Routes:", apiRouterV2.routes)
+# print("V2 Admin Routes:", adminRouterV2.routes)
 # testing git
 app = FastAPI()
 app.mount("/uploads", StaticFiles(directory="upload_file"), name="uploads")
@@ -16,8 +16,9 @@ origins = [
     "*",
 ]
 
-if __name__ == "__main__":
-   uvicorn.run("main:app", host="0.0.0.0", port=3001, reload=True)
+# if __name__ == "__main__":
+   # uvicorn.run("main:app", host="0.0.0.0", port=3001, reload=True)
+# #    uvicorn.run("main:app", host="0.0.0.0", port=3009, reload=True)
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,9 +34,9 @@ app.include_router(adminRouter)
 # 01/02/2025
 app.include_router(apiRouterV2, prefix="/v2")
 app.include_router(adminRouterV2, prefix="/v2")
-print("Registered Routes:")
-for route in app.routes:
-    print(route.path)
+# print("Registered Routes:")
+# for route in app.routes:
+#     print(route.path)
 
 
 @app.get('/')
