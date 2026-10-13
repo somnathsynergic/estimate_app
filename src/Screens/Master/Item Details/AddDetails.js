@@ -214,7 +214,7 @@ function AddDetails() {
       );
       var data = new FormData();
       if (croppedImage) data.append("file", file);
-      data.append("comp_id", 1);
+      data.append("comp_id", 1)
       data.append("br_id", 0);
       data.append("item_id", +params.id);
       data.append("item_name", formik.values.i_name);
